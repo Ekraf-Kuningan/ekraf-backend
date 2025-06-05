@@ -1,0 +1,87 @@
+name: Deploy Next.js App to VPS
+
+on:
+  push:
+    branches:
+      - main # Atau branch lain yang Anda gunakan untuk produksi
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Sesuaikan dengan versi Node.js yang Anda gunakan
+          cache: 'npm' # Atau 'yarn' jika Anda menggunakan Yarn
+
+      - name: Install Dependencies
+        run: npm install # Atau yarn install
+
+      - name: Build Next.js App
+        run: npm run build # Atau yarn build
+        # env:
+        #   PORT: 4097 # Jika port perlu diset saat build
+
+
+      - name: Prepare .env file for production
+        if: ${{ secrets.ENV_FILE_PRODUCTION }} 
+        run: echo "${{ secrets.ENV_FILE_PRODUCTION }}" > .env.production
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@master # Atau gunakan action lain seperti easingthemes/ssh-deploy
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22 # Port SSH default, sesuaikan jika berbeda
+          script: |
+            # Navigasi ke direktori aplikasi di VPS
+            cd ${{ secrets.VPS_TARGET_PATH }}
+
+            echo "Deployment started at $(date)" >> deployment.log
+
+            # Perintah untuk PM2
+            pm2 stop nama-aplikasi-pm2 || true
+            pm2 delete nama-aplikasi-pm2 || true
+
+            echo "PM2 process stopped/deleted." >> deployment.log
+
+      - name: Copy files to VPS (Build artifacts)
+        uses: appleboy/scp-action@master # Mengganti dengan action yang valid
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          source: ".next/,public/,package.json,package-lock.json,next.config.js,next.config.mjs,pm2.config.js,.env.production" # Sesuaikan daftar file/folder
+          target: ${{ secrets.VPS_TARGET_PATH }}
+
+
+      - name: Execute remote commands on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            cd ${{ secrets.VPS_TARGET_PATH }}
+            echo "Files copied. Running server-side commands at $(date)" >> deployment.log
+
+            npm install --omit=dev # Atau yarn install --production
+
+            echo "Dependencies installed on server." >> deployment.log
+            
+            pm2 start pm2.config.js --env production
+
+            echo "PM2 process started." >> deployment.log
+
+            pm2 save
+
+            echo "Deployment finished successfully at $(date)" >> deployment.log
+            echo "--------------------------------------" >> deployment.log
