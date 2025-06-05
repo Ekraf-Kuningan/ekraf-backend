@@ -1,15 +1,124 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../app/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model ChatMessage {
+  id           String   @id @db.VarChar(255)
+  userId       String   @db.VarChar(255)
+  text         String   @db.Text
+  email        String?
+  imageProfile String?
+  imageMessage String?
+  role         String?
+  timestamp    DateTime @default(now())
+}
+
+model Comments {
+  id                             String    @id @db.VarChar(255)
+  user_id                        String    @db.VarChar(255)
+  post_id                        String    @db.VarChar(255)
+  content                        String    @db.Text
+  created_at                     DateTime  @default(now())
+  authorId                       String    @db.VarChar(255)
+  updated_at                     DateTime  @default(now())
+  users_Comments_authorIdTousers users     @relation("Comments_authorIdTousers", fields: [authorId], references: [id])
+  Posts                          Posts     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  users_Comments_user_idTousers  users     @relation("Comments_user_idTousers", fields: [user_id], references: [id])
+  Replies                        Replies[]
+
+  @@index([authorId], map: "Comments_authorId_fkey")
+  @@index([post_id], map: "postId_Comments")
+  @@index([user_id], map: "userId_Comments")
+}
+
+model Likes {
+  user_id String @db.VarChar(255)
+  post_id String @db.VarChar(255)
+  Posts   Posts  @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  users   users  @relation(fields: [user_id], references: [id])
+
+  @@id([user_id, post_id])
+  @@index([post_id], map: "Likes_post_id_fkey")
+}
+
+model Posts {
+  id                          String     @id @db.VarChar(255)
+  user_id                     String     @db.VarChar(255)
+  content                     String     @db.Text
+  image_url                   String?    @db.VarChar(255)
+  created_at                  DateTime   @default(now())
+  updated_at                  DateTime   @default(now())
+  authorId                    String     @db.VarChar(255)
+  Comments                    Comments[]
+  Likes                       Likes[]
+  users_Posts_authorIdTousers users      @relation("Posts_authorIdTousers", fields: [authorId], references: [id])
+  users_Posts_user_idTousers  users      @relation("Posts_user_idTousers", fields: [user_id], references: [id])
+
+  @@index([authorId], map: "Posts_authorId_fkey")
+  @@index([user_id], map: "userId_Posts")
+}
+
+model Replies {
+  id         String   @id @db.VarChar(255)
+  user_id    String   @db.VarChar(255)
+  comment_id String   @db.VarChar(255)
+  content    String   @db.Text
+  created_at DateTime @default(now())
+  Comments   Comments @relation(fields: [comment_id], references: [id])
+  users      users    @relation(fields: [user_id], references: [id])
+
+  @@index([comment_id], map: "commentId_Replies")
+  @@index([user_id], map: "userId_Replies")
+}
+
+model accounts {
+  id                  String  @id @db.VarChar(255)
+  user_id             String
+  type                String
+  provider            String
+  provider_account_id String
+  refresh_token       String? @db.Text
+  access_token        String? @db.Text
+  expires_at          Int?
+  token_type          String?
+  scope               String?
+  id_token            String? @db.Text
+  session_state       String?
+  users               users   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([provider, provider_account_id])
+  @@index([user_id], map: "accounts_user_id_fkey")
+}
+
+model sessions {
+  id            String   @id @db.VarChar(255)
+  session_token String   @unique
+  user_id       String
+  expires       DateTime
+  users         users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id], map: "sessions_user_id_fkey")
+}
+
+model users {
+  id                                String     @id @db.VarChar(255)
+  name                              String?
+  email                             String?    @unique
+  role                              String     @default("user")
+  image                             String?
+  email_verified                    DateTime?
+  Comments_Comments_authorIdTousers Comments[] @relation("Comments_authorIdTousers")
+  Comments_Comments_user_idTousers  Comments[] @relation("Comments_user_idTousers")
+  Likes                             Likes[]
+  Posts_Posts_authorIdTousers       Posts[]    @relation("Posts_authorIdTousers")
+  Posts_Posts_user_idTousers        Posts[]    @relation("Posts_user_idTousers")
+  Replies                           Replies[]
+  accounts                          accounts[]
+  sessions                          sessions[]
 }
