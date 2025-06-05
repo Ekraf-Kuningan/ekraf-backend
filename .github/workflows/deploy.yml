@@ -29,8 +29,10 @@ jobs:
 
 
       - name: Prepare .env file for production
-        if: ${{ secrets.ENV_FILE_PRODUCTION }} 
-        run: echo "${{ secrets.ENV_FILE_PRODUCTION }}" > .env.production
+        if: ${{ env.ENV_FILE_PRODUCTION != '' }}
+        env:
+          ENV_FILE_PRODUCTION: ${{ secrets.ENV_FILE_PRODUCTION }}
+        run: echo "$ENV_FILE_PRODUCTION" > .env.production
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@master # Atau gunakan action lain seperti easingthemes/ssh-deploy
