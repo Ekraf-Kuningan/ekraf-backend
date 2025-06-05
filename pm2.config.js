@@ -1,6 +1,6 @@
 module.exports = {
   apps : [{
-    name   : "ekraf-pm2", 
+    name   : "ekraf", 
     script : "npm", // atau "yarn"
     args   : "start", // Skrip start Anda mungkin sudah menghargai variabel PORT dari .env.production
     // Atau, jika Anda perlu secara eksplisit mengatur port melalui argumen:

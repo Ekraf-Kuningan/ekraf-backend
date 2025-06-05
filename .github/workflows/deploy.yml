@@ -46,8 +46,8 @@ jobs:
           script: |
             cd ${{ secrets.VPS_TARGET_PATH }}
             echo "Deployment started at $(date)" >> deployment.log
-            pm2 stop nama-aplikasi-pm2 || true
-            pm2 delete nama-aplikasi-pm2 || true
+            pm2 stop ekraf || true
+            pm2 delete ekraf || true
             echo "PM2 process stopped/deleted." >> deployment.log
 
       - name: Copy files to VPS (Build artifacts)
