@@ -20,70 +20,62 @@ jobs:
           cache: 'npm' # Atau 'yarn' jika Anda menggunakan Yarn
 
       - name: Install Dependencies
-        run: npm install --force # Atau yarn install
+        run: npm install # Atau yarn install
+
+      # PINDAHKAN LANGKAH INI SEBELUM BUILD
+      - name: Prepare .env file for production
+        env:
+          ENV_FILE_PRODUCTION: ${{ secrets.ENV_FILE_PRODUCTION }}
+        run: |
+          if [ -n "$ENV_FILE_PRODUCTION" ]; then
+            echo "$ENV_FILE_PRODUCTION" > .env.production
+          fi
 
       - name: Build Next.js App
         run: npm run build # Atau yarn build
         # env:
-        #   PORT: 4097 # Jika port perlu diset saat build
+        #   PORT: 4097 # Jika port perlu diset saat build (biasanya PORT untuk runtime, bukan build)
 
-
-      - name: Prepare .env file for production
-        if: ${{ env.ENV_FILE_PRODUCTION != '' }}
-        env:
-          ENV_FILE_PRODUCTION: ${{ secrets.ENV_FILE_PRODUCTION }}
-        run: echo "$ENV_FILE_PRODUCTION" > .env.production
-
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@master # Atau gunakan action lain seperti easingthemes/ssh-deploy
-        with:
-          host: ${{ secrets.VPS_SSH_HOST }}
-          username: ${{ secrets.VPS_SSH_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 22 # Port SSH default, sesuaikan jika berbeda
-          script: |
-            # Navigasi ke direktori aplikasi di VPS
-            cd ${{ secrets.VPS_TARGET_PATH }}
-
-            echo "Deployment started at $(date)" >> deployment.log
-
-            # Perintah untuk PM2
-            pm2 stop nama-aplikasi-pm2 || true
-            pm2 delete nama-aplikasi-pm2 || true
-
-            echo "PM2 process stopped/deleted." >> deployment.log
-
-      - name: Copy files to VPS (Build artifacts)
-        uses: appleboy/scp-action@master # Mengganti dengan action yang valid
-        with:
-          host: ${{ secrets.VPS_SSH_HOST }}
-          username: ${{ secrets.VPS_SSH_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 22
-          source: ".next/,public/,package.json,package-lock.json,next.config.js,next.config.mjs,pm2.config.js,.env.production" # Sesuaikan daftar file/folder
-          target: ${{ secrets.VPS_TARGET_PATH }}
-
-
-      - name: Execute remote commands on VPS
+      - name: Deploy to VPS via SSH (Initial Commands)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_SSH_HOST }}
           username: ${{ secrets.VPS_SSH_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          password: ${{ secrets.VPS_SSH_PASSWORD }} # Menggunakan password
+          port: 22 # Port SSH default, sesuaikan jika berbeda
+          script: |
+            cd ${{ secrets.VPS_TARGET_PATH }}
+            echo "Deployment started at $(date)" >> deployment.log
+            pm2 stop nama-aplikasi-pm2 || true
+            pm2 delete nama-aplikasi-pm2 || true
+            echo "PM2 process stopped/deleted." >> deployment.log
+
+      - name: Copy files to VPS (Build artifacts)
+        uses: appleboy/scp-action@v0.1.7 # Menggunakan action dan versi yang diminta
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USERNAME }}
+          password: ${{ secrets.VPS_SSH_PASSWORD }} # Menggunakan password
+          port: 22
+          source: ".next/,public/,package.json,package-lock.json,next.config.js,next.config.mjs,pm2.config.js,.env.production" # Sesuaikan daftar file/folder
+          target: ${{ secrets.VPS_TARGET_PATH }}
+          strip_components: 0 # Sesuaikan jika perlu
+
+
+      - name: Execute remote commands on VPS (Final Steps)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USERNAME }}
+          password: ${{ secrets.VPS_SSH_PASSWORD }} # Menggunakan password
           port: 22
           script: |
             cd ${{ secrets.VPS_TARGET_PATH }}
             echo "Files copied. Running server-side commands at $(date)" >> deployment.log
-
             npm install --omit=dev # Atau yarn install --production
-
             echo "Dependencies installed on server." >> deployment.log
-            
             pm2 start pm2.config.js --env production
-
             echo "PM2 process started." >> deployment.log
-
             pm2 save
-
             echo "Deployment finished successfully at $(date)" >> deployment.log
             echo "--------------------------------------" >> deployment.log
