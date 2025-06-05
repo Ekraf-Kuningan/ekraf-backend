@@ -20,7 +20,7 @@ jobs:
           cache: 'npm' # Atau 'yarn' jika Anda menggunakan Yarn
 
       - name: Install Dependencies
-        run: npm install # Atau yarn install
+        run: npm install --force # Atau yarn install
 
       - name: Build Next.js App
         run: npm run build # Atau yarn build
