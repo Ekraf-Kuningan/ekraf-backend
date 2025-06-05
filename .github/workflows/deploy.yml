@@ -20,7 +20,7 @@ jobs:
           cache: 'npm' # Atau 'yarn' jika Anda menggunakan Yarn
 
       - name: Install Dependencies
-        run: npm install # Atau yarn install
+        run: npm install --force # Atau yarn install
 
       # PINDAHKAN LANGKAH INI SEBELUM BUILD
       - name: Prepare .env file for production
