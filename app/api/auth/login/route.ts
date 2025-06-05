@@ -28,6 +28,94 @@ interface LoginResponseData {
   };
 }
 
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Melakukan autentikasi user dan mengembalikan JWT token jika berhasil.
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - usernameOrEmail
+ *               - password
+ *             properties:
+ *               usernameOrEmail:
+ *                 type: string
+ *                 description: Username atau email user.
+ *                 example: johndoe
+ *               password:
+ *                 type: string
+ *                 description: Password user.
+ *                 example: mysecretpassword
+ *     responses:
+ *       200:
+ *         description: Login berhasil, JWT token dikembalikan.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login berhasil
+ *                 token:
+ *                   type: string
+ *                   description: JWT token untuk autentikasi selanjutnya.
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id_user:
+ *                       type: integer
+ *                       example: 1
+ *                     nama_user:
+ *                       type: string
+ *                       example: John Doe
+ *                     username:
+ *                       type: string
+ *                       example: johndoe
+ *                     id_level:
+ *                       type: integer
+ *                       example: 2
+ *                     email:
+ *                       type: string
+ *                       example: johndoe@email.com
+ *       400:
+ *         description: Request body tidak valid atau field diperlukan tidak diisi.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Username/Email dan password diperlukan
+ *       401:
+ *         description: Username/email atau password salah.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Username/Email atau password salah
+ *       500:
+ *         description: Kesalahan pada server atau konfigurasi tidak lengkap.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Terjadi kesalahan pada server
+ */
 export async function POST(req: NextRequest): Promise<NextResponse<LoginResponseData | { message: string }>> {
   if (!JWT_SECRET) {
     // Penanganan jika JWT_SECRET masih belum terdefinisi saat runtime
