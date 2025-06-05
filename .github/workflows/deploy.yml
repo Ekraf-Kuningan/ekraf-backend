@@ -44,6 +44,7 @@ jobs:
           password: ${{ secrets.VPS_SSH_PASSWORD }} # Menggunakan password
           port: 22 # Port SSH default, sesuaikan jika berbeda
           script: |
+            export PATH=$PATH:/root/.local/share/pnpm
             cd ${{ secrets.VPS_TARGET_PATH }}
             echo "Deployment started at $(date)" >> deployment.log
             pm2 stop ekraf || true
