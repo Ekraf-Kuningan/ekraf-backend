@@ -1,0 +1,215 @@
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "../../../../../app/generated/prisma";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+
+const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error("FATAL ERROR: Variabel lingkungan JWT_SECRET belum diatur!");
+}
+
+const levelMap: { [key: string]: number } = {
+  superadmin: 1,
+  admin: 2,
+  umkm: 3
+};
+
+/**
+ * @swagger
+ * /api/auth/login/{level}:
+ *   post:
+ *     summary: Melakukan login berdasarkan level user
+ *     description: |
+ *       Endpoint untuk melakukan autentikasi user berdasarkan level tertentu.
+ *       Mendukung login menggunakan username atau email.
+ *     tags:
+ *       - Auth
+ *     parameters:
+ *       - in: path
+ *         name: level
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [superadmin, admin, umkm]
+ *         description: Nama level user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - usernameOrEmail
+ *               - password
+ *             properties:
+ *               usernameOrEmail:
+ *                 type: string
+ *                 description: Username atau email user
+ *                 example: johndoe
+ *               password:
+ *                 type: string
+ *                 description: Password user
+ *                 example: rahasiaku123
+ *     responses:
+ *       200:
+ *         description: Login berhasil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login berhasil
+ *                 token:
+ *                   type: string
+ *                   description: JWT token autentikasi
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id_user:
+ *                       type: integer
+ *                       example: 1
+ *                     nama_user:
+ *                       type: string
+ *                       example: John Doe
+ *                     username:
+ *                       type: string
+ *                       example: johndoe
+ *                     id_level:
+ *                       type: integer
+ *                       example: 2
+ *                     level:
+ *                       type: string
+ *                       example: admin
+ *                     email:
+ *                       type: string
+ *                       example: johndoe@email.com
+ *       400:
+ *         description: Request body tidak valid atau field kurang
+ *       401:
+ *         description: Kredensial salah
+ *       404:
+ *         description: Tipe login tidak valid
+ *       500:
+ *         description: Kesalahan server
+ */
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ level: string }> }
+) {
+  if (!JWT_SECRET) {
+    return NextResponse.json(
+      {
+        message: "Konfigurasi server tidak lengkap. JWT Secret tidak ditemukan.",
+      },
+      { status: 500 }
+    );
+  }
+
+  const { level } = await params;
+  const id_level = levelMap[level];
+
+  if (!id_level) {
+    return NextResponse.json(
+      { message: `Tipe login '${level}' tidak valid.` },
+      { status: 404 }
+    );
+  }
+
+  let requestBody;
+  try {
+    requestBody = await request.json();
+  } catch {
+    return NextResponse.json(
+      { message: "Request body tidak valid atau bukan JSON." },
+      { status: 400 }
+    );
+  }
+
+  const { usernameOrEmail, password } = requestBody;
+
+  if (!usernameOrEmail || !password) {
+    return NextResponse.json(
+      { message: "Username/Email dan password diperlukan" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const user = await prisma.tbl_user.findFirst({
+      where: {
+        AND: [
+          {
+            OR: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+          },
+          {
+            id_level: id_level,
+          },
+        ],
+      },
+      include: {
+        tbl_level: {
+          select: {
+            level: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { message: `Kredensial salah untuk level ${level}` },
+        { status: 401 }
+      );
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { message: `Kredensial salah untuk level ${level}` },
+        { status: 401 }
+      );
+    }
+
+    const tokenPayload = {
+      id_user: user.id_user,
+      username: user.username,
+      id_level: user.id_level,
+      level: user.tbl_level.level,
+      email: user.email,
+    };
+
+    const token = jwt.sign(tokenPayload, JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    return NextResponse.json(
+      {
+        message: "Login berhasil",
+        token,
+        user: {
+          id_user: user.id_user,
+          nama_user: user.nama_user,
+          username: user.username,
+          id_level: user.id_level,
+          level: user.tbl_level.level,
+          email: user.email,
+        },
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(`Kesalahan saat login ${level}:`, error);
+    return NextResponse.json(
+      { message: "Terjadi kesalahan pada server" },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect().catch(console.error);
+  }
+}
