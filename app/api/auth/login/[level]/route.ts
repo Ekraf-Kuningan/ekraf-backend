@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "../../../../../app/generated/prisma";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -167,7 +166,7 @@ export async function POST(
       );
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = password === user.password;
 
     if (!isPasswordValid) {
       return NextResponse.json(
