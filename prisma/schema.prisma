@@ -76,7 +76,25 @@ model tbl_user {
   @@index([id_level], map: "fk_user_level")
 }
 
+model tbl_user_temp {
+  id                Int              @id @default(autoincrement())
+  nama_user         String           @db.VarChar(35)
+  username          String           @unique(map: "username") @db.VarChar(45)
+  email             String           @unique(map: "email") @db.VarChar(100)
+  password          String           @db.VarChar(255)
+  jk                tbl_user_temp_jk
+  nohp              String?          @db.VarChar(20)
+  id_level          Int
+  verificationToken String           @unique(map: "verificationToken") @db.VarChar(255)
+  createdAt         DateTime         @default(now()) @db.DateTime(0)
+}
+
 enum tbl_user_jk {
+  Laki_laki @map("Laki-laki")
+  Perempuan
+}
+
+enum tbl_user_temp_jk {
   Laki_laki @map("Laki-laki")
   Perempuan
 }
