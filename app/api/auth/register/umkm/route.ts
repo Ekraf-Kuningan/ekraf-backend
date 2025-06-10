@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "../../../../../app/generated/prisma";
+import { sendEmail } from "@/lib/mailer";
 
 const prisma = new PrismaClient();
 
@@ -106,49 +107,61 @@ export async function POST(request: NextRequest) {
 
     if (!nama_user || !username || !email || !password || !jk) {
       return NextResponse.json(
-        { message: "Semua field (termasuk jk) harus diisi" },
+        { message: "Semua field wajib diisi" },
         { status: 400 }
       );
     }
 
     const existingUser = await prisma.tbl_user.findFirst({
-      where: {
-        OR: [{ username: username }, { email: email }]
-      }
+      where: { OR: [{ username }, { email }] },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { message: "Username atau Email sudah digunakan" },
+        { message: "Username atau Email sudah terdaftar" },
         { status: 409 }
       );
     }
 
-    const newUser = await prisma.tbl_user.create({
-      data: {
-        // id_user will be auto-generated if your schema uses @id @default(autoincrement())
-        nama_user,
-        username,
-        email,
-        nohp,
-        password: password, // Sesuai permintaan Anda, tanpa hash
-        jk, // Field `jk` sekarang ditambahkan
-        id_level: 3
-      }
+    const existingTempUser = await prisma.tbl_user_temp.findFirst({
+        where: { OR: [{ username }, { email }] },
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...userWithoutPassword } = newUser;
+    if (existingTempUser) {
+        return NextResponse.json(
+          { message: "Username atau Email sudah digunakan dan menunggu verifikasi." },
+          { status: 409 }
+        );
+    }
+
+    const newUserTemp = await prisma.tbl_user_temp.create({
+      data: {
+      nama_user,
+      username,
+      email,
+      nohp,
+      password, 
+      jk,
+      id_level: 3, 
+      verificationToken: '', 
+      },
+    });
+
+    await sendEmail({
+        email,
+        emailType: "VERIFY",
+        userId: newUserTemp.id
+    });
 
     return NextResponse.json(
       {
-        message: "User UMKM berhasil dibuat",
-        user: userWithoutPassword
+        message: "User berhasil dibuat. Silakan cek email Anda untuk verifikasi.",
+        success: true,
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Kesalahan saat registrasi UMKM:", error);
+    console.error("Kesalahan saat registrasi:", error);
     return NextResponse.json(
       { message: "Terjadi kesalahan pada server" },
       { status: 500 }

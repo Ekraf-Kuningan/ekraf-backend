@@ -69,6 +69,7 @@ model tbl_user {
   username    String        @db.VarChar(45)
   password    String        @db.VarChar(50)
   email       String?       @db.VarChar(100)
+  verifiedAt  DateTime?     @db.DateTime(0)
   tbl_artikel tbl_artikel[]
   tbl_level   tbl_level     @relation(fields: [id_level], references: [id_level], onUpdate: Restrict, map: "fk_user_level")
 
