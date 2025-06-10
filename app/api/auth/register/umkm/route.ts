@@ -63,6 +63,8 @@ const prisma = new PrismaClient();
  *                       type: string
  *                     jk:
  *                       type: string
+ *                     nohp:
+ *                        type: string
  *                     id_level:
  *                       type: integer
  *       400:
@@ -96,7 +98,7 @@ const prisma = new PrismaClient();
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { nama_user, username, email, password, jk } = body;
+    const { nama_user, username, email, password, jk, nohp } = body;
 
     if (!nama_user || !username || !email || !password || !jk) {
       return NextResponse.json(
@@ -107,8 +109,8 @@ export async function POST(request: NextRequest) {
 
     const existingUser = await prisma.tbl_user.findFirst({
       where: {
-        OR: [{ username: username }, { email: email }],
-      },
+        OR: [{ username: username }, { email: email }]
+      }
     });
 
     if (existingUser) {
@@ -124,10 +126,11 @@ export async function POST(request: NextRequest) {
         nama_user,
         username,
         email,
+        nohp,
         password: password, // Sesuai permintaan Anda, tanpa hash
         jk, // Field `jk` sekarang ditambahkan
-        id_level: 3,
-      },
+        id_level: 3
+      }
     });
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -135,8 +138,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        message: "User UMKM berhasil dibuat (Password tidak di-hash)",
-        user: userWithoutPassword,
+        message: "User UMKM berhasil dibuat",
+        user: userWithoutPassword
       },
       { status: 201 }
     );
