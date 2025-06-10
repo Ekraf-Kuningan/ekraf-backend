@@ -47,11 +47,11 @@ model tbl_umkm {
   id_produk       Int               @id
   id_sub          Int
   nama_pelaku     String?           @db.VarChar(35)
-  gambar          String            @db.VarChar(35)
+  nama_produk     String            @db.VarChar(50)
   deskripsi       String            @db.VarChar(500)
-  nama_usaha      String            @db.VarChar(50)
   harga           Float
   stok            Int
+  gambar          String            @db.VarChar(35)
   nohp            String            @db.VarChar(12)
   tgl_upload      DateTime          @db.Date
   tbl_olshop_link tbl_olshop_link[]
@@ -61,7 +61,7 @@ model tbl_umkm {
 }
 
 model tbl_user {
-  id_user     Int         @id @default(autoincrement())
+  id_user     Int           @id @default(autoincrement())
   id_level    Int
   nama_user   String?       @db.VarChar(35)
   jk          tbl_user_jk
