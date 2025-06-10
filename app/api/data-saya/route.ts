@@ -75,7 +75,11 @@ import { verifyToken, DecodedUserPayload } from '../../../lib/verifyToken';
 export async function GET(req: NextRequest) {
   const verificationResult = await verifyToken(req);
 
-  if (!verificationResult.success || !verificationResult.user) {
+  if (
+    !verificationResult.success ||
+    !verificationResult.user ||
+    ![1, 2].includes(verificationResult.user.id_level) // hanya admin (1) dan superadmin (2)
+  ) {
     return NextResponse.json(
       { message: verificationResult.error || 'Akses ditolak.' },
       { status: verificationResult.status || 401 }
@@ -83,27 +87,6 @@ export async function GET(req: NextRequest) {
   }
 
   const user = verificationResult.user as DecodedUserPayload;
-
-
-  // Contoh pengambilan data dari database (jika diperlukan)
-  // try {
-  //   const articles = await prisma.tbl_artikel.findMany({
-  //     where: {
-  //       id_user: user.id_user
-  //     }
-  //   });
-  //   await prisma.$disconnect();
-  //   return NextResponse.json({ 
-  //     message: `Halo ${user.username}! Ini adalah data artikel Anda.`,
-  //     userData: user,
-  //     articles: articles 
-  //   }, { status: 200 });
-  // } catch (dbError) {
-  //   console.error("Database error:", dbError);
-  //   await prisma.$disconnect();
-  //   return NextResponse.json({ message: "Gagal mengambil data dari database." }, { status: 500 });
-  // }
-
 
   const protectedData = {
     message: `Halo ${user.username}! Ini adalah data Anda yang dilindungi.`,
