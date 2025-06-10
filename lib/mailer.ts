@@ -60,7 +60,7 @@ export const sendEmail = async ({
     
     // Link untuk frontend web
     const webUrl = `${process.env.NEXT_PUBLIC_URL}/${isVerify ? 'api/auth/verify' : 'api/auth/reset-password'}?token=${hashedToken}`;
-    // Link untuk deep link aplikasi Android/iOS
+    // Link untuk deep link aplikasi Android/iOSa
     const appUrl = `ekraf://${isVerify ? 'verify-email' : 'reset-password'}?token=${hashedToken}`;
 
     const htmlContent = `
