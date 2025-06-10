@@ -23,6 +23,7 @@ const prisma = new PrismaClient();
  *               - email
  *               - password
  *               - jk
+ *               - nohp
  *             properties:
  *               nama_user:
  *                 type: string
@@ -40,6 +41,9 @@ const prisma = new PrismaClient();
  *               jk:
  *                 type: string
  *                 description: Jenis kelamin user
+ *               nohp:
+ *                 type: string
+ *                 description: Nomor HP user
  *     responses:
  *       201:
  *         description: User UMKM berhasil dibuat

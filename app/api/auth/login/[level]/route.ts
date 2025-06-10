@@ -16,85 +16,117 @@ const levelMap: { [key: string]: number } = {
 };
 
 /**
- * @swagger
- * /api/auth/login/{level}:
- *   post:
- *     summary: Melakukan login berdasarkan level user
- *     description: |
- *       Endpoint untuk melakukan autentikasi user berdasarkan level tertentu.
- *       Mendukung login menggunakan username atau email.
- *     tags:
- *       - Auth
- *     parameters:
- *       - in: path
- *         name: level
- *         required: true
- *         schema:
- *           type: string
- *           enum: [superadmin, admin, umkm]
- *         description: Nama level user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - usernameOrEmail
- *               - password
- *             properties:
- *               usernameOrEmail:
- *                 type: string
- *                 description: Username atau email user
- *                 example: johndoe
- *               password:
- *                 type: string
- *                 description: Password user
- *                 example: rahasiaku123
- *     responses:
- *       200:
- *         description: Login berhasil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Login berhasil
- *                 token:
- *                   type: string
- *                   description: JWT token autentikasi
- *                 user:
- *                   type: object
- *                   properties:
- *                     id_user:
- *                       type: integer
- *                       example: 1
- *                     nama_user:
- *                       type: string
- *                       example: John Doe
- *                     username:
- *                       type: string
- *                       example: johndoe
- *                     id_level:
- *                       type: integer
- *                       example: 2
- *                     level:
- *                       type: string
- *                       example: admin
- *                     email:
- *                       type: string
- *                       example: johndoe@email.com
- *       400:
- *         description: Request body tidak valid atau field kurang
- *       401:
- *         description: Kredensial salah
- *       404:
- *         description: Tipe login tidak valid
- *       500:
- *         description: Kesalahan server
- */
+ * @swagger
+ * /api/auth/login/{level}:
+ *   post:
+ *     summary: Melakukan login berdasarkan level user
+ *     description: |
+ *       Endpoint untuk melakukan autentikasi user berdasarkan level tertentu.
+ *       Mendukung login menggunakan username atau email.
+ *     tags:
+ *       - Auth
+ *     parameters:
+ *       - in: path
+ *         name: level
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [superadmin, admin, umkm]
+ *         description: Nama level user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - usernameOrEmail
+ *               - password
+ *             properties:
+ *               usernameOrEmail:
+ *                 type: string
+ *                 description: Username atau email user
+ *                 example: johndoe
+ *               password:
+ *                 type: string
+ *                 description: Password user
+ *                 example: rahasiaku123
+ *     responses:
+ *       200:
+ *         description: Login berhasil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login berhasil
+ *                 token:
+ *                   type: string
+ *                   description: JWT token autentikasi
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id_user:
+ *                       type: integer
+ *                       example: 1
+ *                     nama_user:
+ *                       type: string
+ *                       example: John Doe
+ *                     username:
+ *                       type: string
+ *                       example: johndoe
+ *                     id_level:
+ *                       type: integer
+ *                       example: 2
+ *                     level:
+ *                       type: string
+ *                       example: admin
+ *                     email:
+ *                       type: string
+ *                       example: johndoe@email.com
+ *       400:
+ *         description: Request body tidak valid atau field kurang
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Username/Email dan password diperlukan
+ *       401:
+ *         description: Kredensial salah
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Kredensial salah untuk level admin
+ *       404:
+ *         description: Tipe login tidak valid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Tipe login 'admin' tidak valid.
+ *       500:
+ *         description: Kesalahan server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Terjadi kesalahan pada server
+ */
 
 export async function POST(
   request: NextRequest,
