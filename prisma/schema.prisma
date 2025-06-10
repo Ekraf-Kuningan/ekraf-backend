@@ -61,7 +61,7 @@ model tbl_umkm {
 }
 
 model tbl_user {
-  id_user     Int           @id
+  id_user     Int         @id @default(autoincrement())
   id_level    Int
   nama_user   String?       @db.VarChar(35)
   jk          tbl_user_jk
