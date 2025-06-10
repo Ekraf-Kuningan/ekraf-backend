@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "../../../../app/generated/prisma";
-import bcryptjs from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -76,14 +75,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password baru
-    const hashedPassword = await bcryptjs.hash(password, 10);
-
-    // Update password dan hapus token reset
+    // Update password tanpa hash dan hapus token reset
     await prisma.tbl_user.update({
       where: { id_user: user.id_user },
       data: {
-        password: hashedPassword,
+        password: password,
         resetPasswordToken: null,
         resetPasswordTokenExpiry: null,
       },
