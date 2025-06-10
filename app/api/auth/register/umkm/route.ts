@@ -3,6 +3,96 @@ import { PrismaClient } from "../../../../../app/generated/prisma";
 
 const prisma = new PrismaClient();
 
+/**
+ * @swagger
+ * /api/auth/register/umkm:
+ *   post:
+ *     summary: Register a new UMKM user
+ *     description: Membuat user baru dengan level UMKM. Password tidak di-hash (hanya untuk keperluan pengujian, jangan gunakan di produksi).
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nama_user
+ *               - username
+ *               - email
+ *               - password
+ *               - jk
+ *             properties:
+ *               nama_user:
+ *                 type: string
+ *                 description: Nama lengkap user
+ *               username:
+ *                 type: string
+ *                 description: Username unik untuk login
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Email user
+ *               password:
+ *                 type: string
+ *                 description: Password user (tidak di-hash)
+ *               jk:
+ *                 type: string
+ *                 description: Jenis kelamin user
+ *     responses:
+ *       201:
+ *         description: User UMKM berhasil dibuat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id_user:
+ *                       type: integer
+ *                     nama_user:
+ *                       type: string
+ *                     username:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     jk:
+ *                       type: string
+ *                     id_level:
+ *                       type: integer
+ *       400:
+ *         description: Field tidak lengkap
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       409:
+ *         description: Username atau Email sudah digunakan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Terjadi kesalahan pada server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
