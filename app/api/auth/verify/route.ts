@@ -56,14 +56,14 @@ export async function GET(request: NextRequest) {
     });
 
     // Arahkan pengguna ke halaman login atau halaman sukses
-    // return NextResponse.redirect(new URL('/login?verified=true', request.url));
-    return NextResponse.json(
-        {
-          message: "Email berhasil diverifikasi!",
-          success: true
-        },
-        { status: 200 }
-      );
+    return NextResponse.redirect('ekraf://verification-success');
+    // return NextResponse.json(
+    //     {
+    //       message: "Email berhasil diverifikasi!",
+    //       success: true
+    //     },
+    //     { status: 200 }
+    //   );
 
   } catch (error: unknown) {
     if (error instanceof Error) {
