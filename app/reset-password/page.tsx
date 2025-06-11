@@ -28,8 +28,8 @@ async function validateToken(token: string) {
 
 
 
-export default async function ResetPasswordPage({ searchParams }: { searchParams: { token?: string } }) {
-    const token = typeof searchParams.token === 'string' ? searchParams.token : '';
+export default async function ResetPasswordPage({params}: {params: Promise<{ token: string }>}) {
+    const { token } = await params;
     const user = await validateToken(token);
 
     if (!user) {
