@@ -60,28 +60,22 @@ export const sendEmail = async ({
     
     // Link untuk frontend web
     const webUrl = `${process.env.NEXT_PUBLIC_URL}/${isVerify ? 'api/auth/verify' : 'api/auth/reset-password'}?token=${hashedToken}`;
-    // Link untuk deep link aplikasi Android/iOSa
-    const appUrl = `ekraf://${isVerify ? 'verify' : 'reset-password'}?token=${hashedToken}`;
 
     const htmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-            <h2 style="color: #333;">${subject}</h2>
-            <p>Halo,</p>
-            <p>Silakan klik tombol di bawah ini untuk ${actionText}.</p>
-            <a 
-              href="${appUrl}" 
-              style="background-color:#007bff; color:white; padding:12px 20px; text-align: center; text-decoration:none; border-radius:5px; display:inline-block; font-weight: bold;"
-            >
-              Lanjutkan di Aplikasi
-            </a>
-            <p style="margin-top: 25px; font-size: 0.9em; color: #555;">
-              Jika tombol tidak berfungsi, atau Anda ingin membukanya di browser, silakan salin dan tempel link di bawah ini:
-            </p>
-            <p style="word-break: break-all; font-size: 0.9em;"><a href="${appUrl}">${appUrl}</a></p>
-            <p style="word-break: break-all; font-size: 0.9em;"><a href="${webUrl}">${webUrl}</a></p>
-            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-            <p style="font-size: 0.8em; color: #aaa;">Jika Anda tidak meminta ini, abaikan saja email ini. Link ini akan kedaluwarsa dalam 1 jam.</p>
-        </div>`;
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 480px; margin: 40px auto; padding: 32px 28px; border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.04);">
+      <h2 style="color: #2563eb; margin-bottom: 18px; font-size: 1.5em;">${subject}</h2>
+      <p style="color: #222; font-size: 1.08em; margin-bottom: 18px;">Halo,</p>
+      <p style="color: #444; margin-bottom: 28px;">Silakan klik tombol di bawah ini untuk ${actionText}.</p>
+      <a 
+        href="${webUrl}" 
+        style="background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%); color: #fff; padding: 14px 32px; text-align: center; text-decoration: none; border-radius: 7px; display: inline-block; font-weight: 600; font-size: 1.08em; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(37,99,235,0.08); transition: background 0.2s;"
+      >
+        Lanjutkan di Aplikasi
+      </a>
+      <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 32px 0 18px 0;" />
+      <p style="font-size: 0.92em; color: #888;">Jika Anda tidak meminta ini, abaikan saja email ini.<br/>Link ini akan kedaluwarsa dalam 10 menit.</p>
+      </div>
+    `;
 
     const mailOptions = {
       from: `Notifikasi <noreply@${process.env.MAIL_HOST?.split('.').slice(-2).join('.')}>`,
