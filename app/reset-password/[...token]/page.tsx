@@ -32,11 +32,11 @@ export default async function ResetPasswordPage({
     params: Promise<{ token: string[] }>;
 }) {
     const { token } = await params;
-    console.log('Received token:', token);
+    // console.log('Received token:', token);
     const fullToken = decodeURIComponent(token.join('/'));
-    console.log('Full token:', fullToken);
+    // console.log('Full token:', fullToken);
     const user = await validateToken(fullToken);
-    console.log('User found:', user);
+    // console.log('User found:', user);
 
     if (!user) {
         return (
