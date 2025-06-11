@@ -77,6 +77,7 @@ export const sendEmail = async ({
             <p style="margin-top: 25px; font-size: 0.9em; color: #555;">
               Jika tombol tidak berfungsi, atau Anda ingin membukanya di browser, silakan salin dan tempel link di bawah ini:
             </p>
+            <p style="word-break: break-all; font-size: 0.9em;"><a href="${appUrl}">${appUrl}</a></p>
             <p style="word-break: break-all; font-size: 0.9em;"><a href="${webUrl}">${webUrl}</a></p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
             <p style="font-size: 0.8em; color: #aaa;">Jika Anda tidak meminta ini, abaikan saja email ini. Link ini akan kedaluwarsa dalam 1 jam.</p>
