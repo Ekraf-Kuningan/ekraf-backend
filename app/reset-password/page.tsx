@@ -26,11 +26,9 @@ async function validateToken(token: string) {
     }
 }
 
-interface ResetPasswordPageProps {
-    searchParams: { [key: string]: string | string[] | undefined };
-}
 
-export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
+
+export default async function ResetPasswordPage({ searchParams }: { searchParams: { token?: string } }) {
     const token = typeof searchParams.token === 'string' ? searchParams.token : '';
     const user = await validateToken(token);
 
