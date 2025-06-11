@@ -59,7 +59,7 @@ export const sendEmail = async ({
     const actionText = isVerify ? "memverifikasi email Anda" : "mereset password Anda";
     
     // Link untuk frontend web
-    const webUrl = `${process.env.NEXT_PUBLIC_URL}/${isVerify ? 'api/auth/verify' : 'api/auth/reset-password'}?token=${hashedToken}`;
+    const webUrl = `${process.env.NEXT_PUBLIC_URL}/${isVerify ? 'api/auth/verify' : 'reset-password'}?token=${hashedToken}`;
 
     const htmlContent = `
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 480px; margin: 40px auto; padding: 32px 28px; border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.04);">
