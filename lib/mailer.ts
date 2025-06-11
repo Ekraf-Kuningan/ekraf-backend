@@ -19,7 +19,7 @@ export const sendEmail = async ({
     // 1. Buat token unik dan tanggal kedaluwarsa (1 jam dari sekarang)
     // Menggunakan userId + salt untuk token yang lebih aman daripada hanya hash userId
     const hashedToken = await bcryptjs.hash(userId.toString(), 10);
-    const tokenExpiry = new Date(new Date().getTime() + 3600 * 1000); // 1 jam
+    const tokenExpiry = new Date(new Date().getTime() + 10 * 60 * 1000); // 10 menit
 
     // 2. Simpan token ke database yang sesuai
     if (emailType === "VERIFY") {
