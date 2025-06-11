@@ -63,9 +63,9 @@ export async function GET(request: NextRequest) {
       <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-      <title>Verifikasi Berhasil</title>
+      <title>Pendaftaran Berhasil</title>
       <style>
-        body {
+      body {
         font-family: Arial, sans-serif;
         background: #f8fafc;
         display: flex;
@@ -74,71 +74,35 @@ export async function GET(request: NextRequest) {
         justify-content: center;
         min-height: 100vh;
         margin: 0;
-        }
-        .container {
+      }
+      .container {
         background: #fff;
         padding: 2rem 2.5rem;
         border-radius: 12px;
         box-shadow: 0 2px 16px rgba(0,0,0,0.07);
         text-align: center;
-        }
-        h1 {
+      }
+      h1 {
         color: #16a34a;
         margin-bottom: 0.5rem;
-        }
-        p {
+      }
+      p {
         color: #334155;
         margin-bottom: 1.5rem;
-        }
-        .countdown {
+      }
+      .close-info {
         font-weight: bold;
         color: #2563eb;
-        font-size: 1.2rem;
-        }
-        .open-btn {
-        margin-top: 1.5rem;
-        padding: 0.7rem 1.5rem;
-        background: #2563eb;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background 0.2s;
-        }
-        .open-btn:disabled {
-        background: #94a3b8;
-        cursor: not-allowed;
-        }
+        font-size: 1.1rem;
+      }
       </style>
       </head>
       <body>
       <div class="container">
-        <h1>Verifikasi Berhasil!</h1>
-        <p>Email Anda telah berhasil diverifikasi.<br/>
-        Anda akan diarahkan ke aplikasi dalam <span class="countdown" id="countdown">5</span> detik.</p>
-        <button class="open-btn" id="openBtn" disabled>Buka Aplikasi Sekarang</button>
+      <h1>Pendaftaran Berhasil!</h1>
+      <p>Email Anda telah berhasil diverifikasi dan pendaftaran selesai.</p>
+      <div class="close-info">Silakan tutup browser ini.</div>
       </div>
-      <script>
-        let seconds = 5;
-        const countdownEl = document.getElementById('countdown');
-        const openBtn = document.getElementById('openBtn');
-        const appUrl = 'ekraf://verification-success';
-
-        const timer = setInterval(() => {
-        seconds--;
-        countdownEl.textContent = seconds;
-        if (seconds <= 0) {
-          clearInterval(timer);
-          openBtn.disabled = false;
-          window.location.href = appUrl;
-        }
-        }, 1000);
-
-        openBtn.addEventListener('click', () => {
-        window.location.href = appUrl;
-        });
-      </script>
       </body>
       </html>
     `;
