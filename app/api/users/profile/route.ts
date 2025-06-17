@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from 'next-auth/react'; // Contoh: menggunakan next-auth
+import { verifyToken } from '@/lib/verifyToken';
 
 async function getUserIdFromSession(request: Request): Promise<number | null> {
   // Logika untuk mendapatkan ID pengguna dari sesi.
@@ -48,11 +49,19 @@ export async function GET(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
-  const userId = await getUserIdFromSession(request);
-  if (!userId) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
+export async function PUT(request: NextRequest) {
+  const verificationResult = await verifyToken(request);
+  
+    if (
+      !verificationResult.success ||
+      !verificationResult.user ||
+      ![1, 2, 3].includes(verificationResult.user.id_level) 
+    ) {
+      return NextResponse.json(
+        { message: verificationResult.error || "Akses ditolak." },
+        { status: verificationResult.status || 401 }
+      );
+    }
 
   try {
     const body = await request.json();

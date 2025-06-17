@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { verifyToken } from "@/lib/verifyToken";
 
 interface RouteParams {
   params: {
@@ -10,7 +11,7 @@ interface RouteParams {
 export async function GET(request: Request, { params }: RouteParams) {
   const id = parseInt(params.id, 10);
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID format' }, { status: 400 });
+    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
 
   try {
@@ -20,7 +21,7 @@ export async function GET(request: Request, { params }: RouteParams) {
         tbl_user: {
           select: {
             nama_user: true,
-            email: true,
+            email: true
           }
         }
       }
@@ -34,22 +35,35 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 
     return NextResponse.json({
-      message: 'Article fetched successfully',
-      data: article,
+      message: "Article fetched successfully",
+      data: article
     });
-
   } catch (error) {
     return NextResponse.json(
-      { message: 'Failed to fetch article', error },
+      { message: "Failed to fetch article", error },
       { status: 500 }
     );
   }
 }
 
-export async function PUT(request: Request, { params }: RouteParams) {
+export async function PUT(request: NextRequest, { params }: RouteParams) {
+  const verificationResult = await verifyToken(request);
+
+  if (
+    !verificationResult.success ||
+    !verificationResult.user ||
+    ![1, 2, 3].includes(verificationResult.user.id_level)
+  ) {
+    return NextResponse.json(
+      { message: verificationResult.error || "Akses ditolak." },
+      { status: verificationResult.status || 401 }
+    );
+  }
+
+//   const user = verificationResult.user as DecodedUserPayload;
   const id = parseInt(params.id, 10);
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID format' }, { status: 400 });
+    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
 
   try {
@@ -62,15 +76,14 @@ export async function PUT(request: Request, { params }: RouteParams) {
         judul,
         deskripsi_singkat,
         isi_lengkap,
-        gambar,
-      },
+        gambar
+      }
     });
 
     return NextResponse.json({
-      message: 'Article updated successfully',
-      data: updatedArticle,
+      message: "Article updated successfully",
+      data: updatedArticle
     });
-
   } catch (error) {
     return NextResponse.json(
       { message: `Failed to update article with ID ${id}`, error },
@@ -79,21 +92,32 @@ export async function PUT(request: Request, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(request: Request, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  const verificationResult = await verifyToken(request);
+
+  if (
+    !verificationResult.success ||
+    !verificationResult.user ||
+    ![1, 2, 3].includes(verificationResult.user.id_level)
+  ) {
+    return NextResponse.json(
+      { message: verificationResult.error || "Akses ditolak." },
+      { status: verificationResult.status || 401 }
+    );
+  }
   const id = parseInt(params.id, 10);
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID format' }, { status: 400 });
+    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
 
   try {
     await prisma.tbl_artikel.delete({
-      where: { id_artikel: id },
+      where: { id_artikel: id }
     });
 
     return NextResponse.json({
-      message: `Article with ID ${id} deleted successfully`,
+      message: `Article with ID ${id} deleted successfully`
     });
-    
   } catch (error) {
     return NextResponse.json(
       { message: `Failed to delete article with ID ${id}`, error },

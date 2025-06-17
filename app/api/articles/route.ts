@@ -1,18 +1,19 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { verifyToken } from "@/lib/verifyToken";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '10', 10);
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const limit = parseInt(searchParams.get("limit") || "10", 10);
 
   if (page < 1 || limit < 1) {
     return NextResponse.json(
-      { message: 'Page and limit must be positive integers' },
+      { message: "Page and limit must be positive integers" },
       { status: 400 }
     );
   }
-  
+
   const skip = (page - 1) * limit;
 
   try {
@@ -23,47 +24,51 @@ export async function GET(request: Request) {
         tbl_user: {
           select: {
             nama_user: true,
-            email: true,
+            email: true
           }
         }
       },
       orderBy: {
-        tanggal_upload: 'desc',
-      },
+        tanggal_upload: "desc"
+      }
     });
 
     const totalArticles = await prisma.tbl_artikel.count();
 
     return NextResponse.json({
-      message: 'Articles fetched successfully',
+      message: "Articles fetched successfully",
       totalPages: Math.ceil(totalArticles / limit),
       currentPage: page,
-      data: articles,
+      data: articles
     });
-
   } catch (error) {
     return NextResponse.json(
-      { message: 'Failed to fetch articles', error },
+      { message: "Failed to fetch articles", error },
       { status: 500 }
     );
   }
 }
 
+export async function POST(request: NextRequest) {
+  const verificationResult = await verifyToken(request);
 
-export async function POST(request: Request) {
+  if (
+    !verificationResult.success ||
+    !verificationResult.user ||
+    ![1, 2, 3].includes(verificationResult.user.id_level) // hanya admin (1) dan superadmin (2)
+  ) {
+    return NextResponse.json(
+      { message: verificationResult.error || "Akses ditolak." },
+      { status: verificationResult.status || 401 }
+    );
+  }
   try {
     const body = await request.json();
-    const { 
-      judul, 
-      deskripsi_singkat, 
-      isi_lengkap, 
-      id_user,
-      gambar 
-    } = body;
+    const { judul, deskripsi_singkat, isi_lengkap, id_user, gambar } = body;
 
     if (!judul || !isi_lengkap || !id_user) {
       return NextResponse.json(
-        { message: 'Required fields are missing: judul, isi_lengkap, id_user' },
+        { message: "Required fields are missing: judul, isi_lengkap, id_user" },
         { status: 400 }
       );
     }
@@ -76,18 +81,17 @@ export async function POST(request: Request) {
         isi_lengkap,
         id_user,
         gambar,
-        tanggal_upload: new Date(),
-      },
+        tanggal_upload: new Date()
+      }
     });
 
     return NextResponse.json(
-      { message: 'Article created successfully', data: newArticle },
+      { message: "Article created successfully", data: newArticle },
       { status: 201 }
     );
-
   } catch (error) {
     return NextResponse.json(
-      { message: 'Failed to create article', error },
+      { message: "Failed to create article", error },
       { status: 500 }
     );
   }

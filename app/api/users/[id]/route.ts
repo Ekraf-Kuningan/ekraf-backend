@@ -1,11 +1,24 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { verifyToken } from '@/lib/verifyToken';
 
 interface RouteParams {
   params: { id: string };
 }
 
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
+  const verificationResult = await verifyToken(request);
+  
+    if (
+      !verificationResult.success ||
+      !verificationResult.user ||
+      ![1, 2, 3].includes(verificationResult.user.id_level) 
+    ) {
+      return NextResponse.json(
+        { message: verificationResult.error || "Akses ditolak." },
+        { status: verificationResult.status || 401 }
+      );
+    }
   const id = parseInt(params.id, 10);
   if (isNaN(id)) {
     return NextResponse.json({ message: 'Invalid ID format' }, { status: 400 });

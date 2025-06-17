@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { verifyToken,DecodedUserPayload } from '@/lib/verifyToken';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -55,42 +56,56 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const {
-      nama_produk,
-      deskripsi,
-      harga,
-      stok,
-      nohp,
-      id_sub,
-      id_user,
-      gambar,
-    } = body;
+export async function POST(request: NextRequest) {
+    
+    const verificationResult = await verifyToken(request);
+    const user = verificationResult.user as DecodedUserPayload;
 
-    if (!nama_produk || !harga || !stok || !id_sub || !id_user) {
-      return NextResponse.json(
-        { message: 'Required fields are missing' },
-        { status: 400 }
-      );
+    if (
+        !verificationResult.success ||
+        !verificationResult.user ||
+        ![1, 2, 3].includes(verificationResult.user.id_level)
+    ) {
+        return NextResponse.json(
+            { message: verificationResult.error || "Akses ditolak." },
+            { status: verificationResult.status || 401 }
+        );
     }
+    try {
+        const body = await request.json();
+        const {
+            nama_produk,
+            deskripsi,
+            harga,
+            stok,
+            nohp,
+            id_sub,
+            gambar,
+        } = body;
 
-    const newProduct = await prisma.tbl_product.create({
-      data: {
-        ...body,
-        tgl_upload: new Date(),
-      },
-    });
+        if (!nama_produk || !harga || !stok || !id_sub) {
+            return NextResponse.json(
+                { message: 'Required fields are missing' },
+                { status: 400 }
+            );
+        }
 
-    return NextResponse.json(
-      { message: 'Product created successfully', data: newProduct },
-      { status: 201 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { message: 'Failed to create product', error },
-      { status: 500 }
-    );
-  }
+        const newProduct = await prisma.tbl_product.create({
+            data: {
+                ...body,
+                id_user: user.id_user, 
+                tgl_upload: new Date(),
+            },
+        });
+
+        return NextResponse.json(
+            { message: 'Product created successfully', data: newProduct },
+            { status: 201 }
+        );
+    } catch (error) {
+        return NextResponse.json(
+            { message: 'Failed to create product', error },
+            { status: 500 }
+        );
+    }
 }
