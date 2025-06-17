@@ -49,6 +49,84 @@ export async function GET(request: Request) {
   }
 }
 
+/**
+ * @swagger
+ * /api/articles:
+ *   post:
+ *     summary: Create a new article
+ *     description: Creates a new article. Only users with admin (1), superadmin (2), or editor (3) privileges can access this endpoint.
+ *     tags:
+ *       - Articles
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - judul
+ *               - isi_lengkap
+ *               - id_user
+ *             properties:
+ *               judul:
+ *                 type: string
+ *                 description: Title of the article
+ *               deskripsi_singkat:
+ *                 type: string
+ *                 description: Short description of the article
+ *               isi_lengkap:
+ *                 type: string
+ *                 description: Full content of the article
+ *               id_user:
+ *                 type: integer
+ *                 description: ID of the user creating the article
+ *               gambar:
+ *                 type: string
+ *                 description: Image URL or path (optional)
+ *     responses:
+ *       201:
+ *         description: Article created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Article'
+ *       400:
+ *         description: Required fields are missing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized or access denied
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Failed to create article
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 error:
+ *                   type: string
+ */
 export async function POST(request: NextRequest) {
   const verificationResult = await verifyToken(request);
 

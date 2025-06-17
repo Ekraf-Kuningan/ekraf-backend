@@ -49,6 +49,69 @@ export async function GET(request: Request) {
   }
 }
 
+/**
+ * @swagger
+ * /api/users/profile:
+ *   put:
+ *     summary: Update the authenticated user's profile
+ *     description: Updates the profile information of the currently authenticated user. Only users with id_level 1, 2, or 3 are authorized.
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nama:
+ *                 type: string
+ *                 description: User's name
+ *               email:
+ *                 type: string
+ *                 description: User's email
+ *               [other fields]:
+ *                 type: string
+ *                 description: Other updatable profile fields
+ *             example:
+ *               nama: "John Doe"
+ *               email: "john@example.com"
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   description: Updated user profile (without password)
+ *       401:
+ *         description: Unauthorized or access denied
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Failed to update profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 error:
+ *                   type: string
+ */
 export async function PUT(request: NextRequest) {
   const verificationResult = await verifyToken(request);
   

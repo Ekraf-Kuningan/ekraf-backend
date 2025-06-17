@@ -5,6 +5,54 @@ interface RouteParams {
   params: { id: string };
 }
 
+/**
+ * @swagger
+ * /api/users/{id}/products:
+ *   get:
+ *     summary: Get products for a specific user
+ *     description: Fetches all products associated with a given user ID, ordered by upload date (descending).
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Numeric ID of the user to get products for
+ *     responses:
+ *       200:
+ *         description: Products for the user fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Invalid User ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Failed to fetch products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 error:
+ *                   type: string
+ */
 export async function GET(request: Request, { params }: RouteParams) {
   const userId = parseInt(params.id, 10);
   if (isNaN(userId)) {

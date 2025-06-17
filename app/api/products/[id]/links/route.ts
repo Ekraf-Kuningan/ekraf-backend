@@ -22,6 +22,88 @@ export async function GET(request: Request, { params }: RouteParams) {
   }
 }
 
+/**
+ * @swagger
+ * /api/products/{id}/links:
+ *   post:
+ *     summary: Create a new online shop link for a product
+ *     description: Adds a new link to an online shop platform for the specified product. Requires authentication and appropriate user level.
+ *     tags:
+ *       - Products
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the product
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nama_platform
+ *               - url
+ *             properties:
+ *               nama_platform:
+ *                 type: string
+ *                 description: The name of the online shop platform
+ *                 example: Tokopedia
+ *               url:
+ *                 type: string
+ *                 description: The URL to the product on the platform
+ *                 example: https://tokopedia.com/produk/123
+ *     responses:
+ *       201:
+ *         description: Link created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Link created successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/TblOlshopLink'
+ *       400:
+ *         description: Invalid Product ID or required fields missing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid Product ID
+ *       401:
+ *         description: Unauthorized or access denied
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Akses ditolak.
+ *       500:
+ *         description: Failed to create link due to server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Failed to create link
+ *                 error:
+ *                   type: string
+ *                   example: Error details
+ */
 export async function POST(request: NextRequest, { params }: RouteParams) {
     const verificationResult = await verifyToken(request);
     

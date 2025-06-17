@@ -56,6 +56,91 @@ export async function GET(request: Request) {
   }
 }
 
+/**
+ * @swagger
+ * /api/products:
+ *   post:
+ *     summary: Create a new product
+ *     description: Creates a new product entry in the database. Only users with id_level 1, 2, or 3 are authorized.
+ *     tags:
+ *       - Products
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nama_produk
+ *               - harga
+ *               - stok
+ *               - id_sub
+ *             properties:
+ *               nama_produk:
+ *                 type: string
+ *                 description: Name of the product
+ *               deskripsi:
+ *                 type: string
+ *                 description: Description of the product
+ *               harga:
+ *                 type: number
+ *                 description: Price of the product
+ *               stok:
+ *                 type: number
+ *                 description: Stock quantity
+ *               nohp:
+ *                 type: string
+ *                 description: Contact phone number
+ *               id_sub:
+ *                 type: integer
+ *                 description: Subcategory ID
+ *               gambar:
+ *                 type: string
+ *                 description: Image URL or base64 string
+ *     responses:
+ *       201:
+ *         description: Product created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Required fields are missing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized or access denied
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Failed to create product
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 error:
+ *                   type: string
+ */
 export async function POST(request: NextRequest) {
     
     const verificationResult = await verifyToken(request);
