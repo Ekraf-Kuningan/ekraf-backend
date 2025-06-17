@@ -18,9 +18,10 @@ export default function SwaggerUIComponent({ spec }: SwaggerUIComponentProps) {
 
   useEffect(() => {
     if (swaggerUIRef.current && spec) {
+      const domNode = swaggerUIRef.current;
       const ui = SwaggerUIBundle({
         spec: spec,
-        domNode: swaggerUIRef.current,
+        domNode: domNode,
         deepLinking: true,
         tryItOutEnabled: true,
         persistAuthorization: true,
@@ -33,8 +34,8 @@ export default function SwaggerUIComponent({ spec }: SwaggerUIComponentProps) {
       });
 
       return () => {
-        if (swaggerUIRef.current) {
-          swaggerUIRef.current.innerHTML = '';
+        if (domNode) {
+          domNode.innerHTML = '';
         }
         ui.getSystem().specActions.updateSpec('{}');
       };
