@@ -22,42 +22,26 @@ model tbl_artikel {
 }
 
 model tbl_level {
-  id_level Int        @id
-  level    String?    @db.VarChar(25)
-  tbl_user tbl_user[]
+  id_level      Int             @id
+  level         String?         @db.VarChar(25)
+  tbl_user      tbl_user[]
+  tbl_user_temp tbl_user_temp[]
 }
 
 model tbl_olshop_link {
-  id_link       Int      @id @default(autoincrement())
+  id_link       Int         @id @default(autoincrement())
   id_produk     Int
-  nama_platform String?  @db.VarChar(50)
-  url           String   @db.Text
-  tbl_umkm      tbl_umkm @relation(fields: [id_produk], references: [id_produk], onUpdate: Restrict, map: "fk_produk_olshop")
+  nama_platform String?     @db.VarChar(50)
+  url           String      @db.Text
+  tbl_umkm      tbl_product @relation(fields: [id_produk], references: [id_produk], onUpdate: Restrict, map: "fk_produk_olshop")
 
   @@index([id_produk], map: "fk_produk_olshop")
 }
 
 model tbl_subsektor {
-  id_sub     Int        @id
-  sub_sektor String?    @db.VarChar(25)
-  tbl_umkm   tbl_umkm[]
-}
-
-model tbl_umkm {
-  id_produk       Int               @id
-  id_sub          Int
-  nama_pelaku     String?           @db.VarChar(35)
-  nama_produk     String            @db.VarChar(50)
-  deskripsi       String            @db.VarChar(500)
-  harga           Float
-  stok            Int
-  gambar          String            @db.VarChar(35)
-  nohp            String            @db.VarChar(12)
-  tgl_upload      DateTime          @db.Date
-  tbl_olshop_link tbl_olshop_link[]
-  tbl_subsektor   tbl_subsektor     @relation(fields: [id_sub], references: [id_sub], onUpdate: Restrict, map: "fk_user_sub")
-
-  @@index([id_sub], map: "fk_user_sub")
+  id_sub      Int           @id
+  sub_sektor  String?       @db.VarChar(25)
+  tbl_product tbl_product[]
 }
 
 model tbl_user {
@@ -76,6 +60,7 @@ model tbl_user {
   status_usaha             tbl_user_status_usaha?
   id_kategori_usaha        Int?
   tbl_artikel              tbl_artikel[]
+  tbl_product              tbl_product[]
   tbl_kategori_usaha       tbl_kategori_usaha?    @relation(fields: [id_kategori_usaha], references: [id_kategori_usaha], onDelete: Restrict, onUpdate: Restrict, map: "fk_user_kategori_usaha")
   tbl_level                tbl_level              @relation(fields: [id_level], references: [id_level], onUpdate: Restrict, map: "fk_user_level")
 
@@ -84,25 +69,54 @@ model tbl_user {
 }
 
 model tbl_user_temp {
-  id                       Int              @id @default(autoincrement())
-  nama_user                String           @db.VarChar(35)
-  username                 String           @unique(map: "username") @db.VarChar(45)
-  email                    String           @unique(map: "email") @db.VarChar(100)
-  password                 String           @db.VarChar(255)
+  id                       Int                         @id @default(autoincrement())
+  nama_user                String                      @db.VarChar(35)
+  username                 String                      @unique(map: "username") @db.VarChar(45)
+  email                    String                      @unique(map: "email") @db.VarChar(100)
+  password                 String                      @db.VarChar(255)
   jk                       tbl_user_temp_jk
-  nohp                     String?          @db.VarChar(20)
+  nohp                     String?                     @db.VarChar(20)
   id_level                 Int
-  verificationToken        String           @unique(map: "verificationToken") @db.VarChar(255)
-  createdAt                DateTime         @default(now()) @db.DateTime(0)
-  resetPasswordToken       String?          @unique(map: "resetPasswordToken") @db.VarChar(255)
-  resetPasswordTokenExpiry DateTime?        @db.DateTime(0)
-  verificationTokenExpiry  DateTime?        @db.DateTime(0)
+  verificationToken        String                      @unique(map: "verificationToken") @db.VarChar(255)
+  createdAt                DateTime                    @default(now()) @db.DateTime(0)
+  resetPasswordToken       String?                     @unique(map: "resetPasswordToken") @db.VarChar(255)
+  resetPasswordTokenExpiry DateTime?                   @db.DateTime(0)
+  verificationTokenExpiry  DateTime?                   @db.DateTime(0)
+  nama_usaha               String?                     @db.VarChar(100)
+  status_usaha             tbl_user_temp_status_usaha?
+  id_kategori_usaha        Int?
+  tbl_kategori_usaha       tbl_kategori_usaha?         @relation(fields: [id_kategori_usaha], references: [id_kategori_usaha], onDelete: Restrict, onUpdate: Restrict, map: "fk_user_temp_kategori_usaha")
+  tbl_level                tbl_level                   @relation(fields: [id_level], references: [id_level], onDelete: NoAction, onUpdate: Restrict, map: "fk_user_temp_level")
+
+  @@index([id_kategori_usaha], map: "fk_user_temp_kategori_usaha_idx")
+  @@index([id_level], map: "fk_user_temp_level_idx")
 }
 
 model tbl_kategori_usaha {
-  id_kategori_usaha Int        @id @default(autoincrement())
-  nama_kategori     String     @unique(map: "nama_kategori_UNIQUE") @db.VarChar(50)
+  id_kategori_usaha Int             @id @default(autoincrement())
+  nama_kategori     String          @unique(map: "nama_kategori_UNIQUE") @db.VarChar(50)
   tbl_user          tbl_user[]
+  tbl_user_temp     tbl_user_temp[]
+}
+
+model tbl_product {
+  id_produk       Int               @id
+  id_sub          Int
+  nama_pelaku     String?           @db.VarChar(35)
+  nama_produk     String            @db.VarChar(50)
+  deskripsi       String            @db.VarChar(500)
+  harga           Float
+  stok            Int
+  gambar          String            @db.VarChar(35)
+  nohp            String            @db.VarChar(12)
+  tgl_upload      DateTime          @db.Date
+  id_user         Int?
+  tbl_olshop_link tbl_olshop_link[]
+  tbl_user        tbl_user?         @relation(fields: [id_user], references: [id_user], onUpdate: Restrict, map: "fk_umkm_user")
+  tbl_subsektor   tbl_subsektor     @relation(fields: [id_sub], references: [id_sub], onUpdate: Restrict, map: "fk_user_sub")
+
+  @@index([id_user], map: "fk_umkm_user")
+  @@index([id_sub], map: "fk_user_sub")
 }
 
 enum tbl_user_jk {
@@ -116,6 +130,11 @@ enum tbl_user_temp_jk {
 }
 
 enum tbl_user_status_usaha {
+  BARU
+  SUDAH_LAMA
+}
+
+enum tbl_user_temp_status_usaha {
   BARU
   SUDAH_LAMA
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 // Ensure you have the correct path to your generated Prisma Client
-import { PrismaClient, tbl_user_temp_jk } from "../../../../../app/generated/prisma"; 
+import { PrismaClient, tbl_user_temp_jk, tbl_user_status_usaha } from "../../../../../app/generated/prisma"; 
 import { sendEmail } from "@/lib/mailer";
 // import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -11,78 +11,123 @@ const prisma = new PrismaClient();
 /**
  * @swagger
  * /api/auth/register/umkm:
- * post:
- * summary: Register a new UMKM user
- * description: Creates a new temporary user with the UMKM level and sends a verification email. The password is now securely hashed.
- * tags:
- * - Auth
- * requestBody:
- * required: true
- * content:
- * application/json:
- * schema:
- * type: object
- * required:
- * - nama_user
- * - username
- * - email
- * - password
- * - jk
- * - nohp
- * properties:
- * nama_user:
- * type: string
- * description: Full name of the user
- * username:
- * type: string
- * description: Unique username for login
- * email:
- * type: string
- * format: email
- * description: User's email for verification and communication
- * password:
- * type: string
- * description: User's password (will be hashed)
- * jk:
- * type: string
- * enum: ["Laki-laki", "Perempuan"]
- * description: User's gender
- * nohp:
- * type: string
- * description: User's phone number
- * responses:
- * 201:
- * description: User created successfully. Awaiting email verification.
- * content:
- * application/json:
- * schema:
- * type: object
- * properties:
- * message:
- * type: string
- * success:
- * type: boolean
- * 400:
- * description: Missing required fields or invalid gender value
- * 409:
- * description: Username or Email already in use or pending verification
- * 500:
- * description: Internal server error
+ *   post:
+ *     summary: Registrasi user UMKM baru
+ *     description: Membuat user baru pada sistem UMKM dan mengirim email verifikasi.
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nama_user
+ *               - username
+ *               - email
+ *               - password
+ *               - jk
+ *               - nohp
+ *             properties:
+ *               nama_user:
+ *                 type: string
+ *                 example: Budi Santoso
+ *               username:
+ *                 type: string
+ *                 example: budisantoso
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: budi@email.com
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: rahasia123
+ *               jk:
+ *                 type: string
+ *                 enum: [Laki-laki, Perempuan]
+ *                 example: Laki-laki
+ *               nohp:
+ *                 type: string
+ *                 example: "08123456789"
+ *               nama_usaha:
+ *                 type: string
+ *                 example: Toko Budi
+ *               status_usaha:
+ *                 type: string
+ *                 enum: [BARU, SUDAH_LAMA]
+ *                 example: BARU
+ *               id_kategori_usaha:
+ *                 type: string
+ *                 example: "1"
+ *     responses:
+ *       201:
+ *         description: User berhasil dibuat dan email verifikasi dikirim.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User berhasil dibuat. Silakan cek email Anda untuk verifikasi.
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *       400:
+ *         description: Permintaan tidak valid (field wajib tidak diisi atau format salah).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Semua field wajib diisi kecuali data usaha
+ *       409:
+ *         description: Username atau email sudah terdaftar/menunggu verifikasi.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Username atau Email sudah terdaftar
+ *       500:
+ *         description: Terjadi kesalahan pada server.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Terjadi kesalahan pada server
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { nama_user, username, email, password, jk, nohp } = body;
+    const { 
+        nama_user, 
+        username, 
+        email, 
+        password, 
+        jk, 
+        nohp,
+        nama_usaha,
+        status_usaha,
+        id_kategori_usaha 
+    } = body;
 
-    // --- Validation for required fields ---
     if (!nama_user || !username || !email || !password || !jk || !nohp) {
       return NextResponse.json(
-        { message: "Semua field wajib diisi" },
+        { message: "Semua field wajib diisi kecuali data usaha" },
         { status: 400 }
       );
     }
     
-    // --- Validate gender value against the enum ---
     const validJk = jk === "Laki-laki" ? tbl_user_temp_jk.Laki_laki : jk === "Perempuan" ? tbl_user_temp_jk.Perempuan : null;
     if (!validJk) {
         return NextResponse.json(
@@ -91,7 +136,17 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    // --- Check if user already exists in the main user table ---
+    let validStatusUsaha = null;
+    if (status_usaha) {
+        validStatusUsaha = status_usaha === "BARU" ? tbl_user_status_usaha.BARU : status_usaha === "SUDAH_LAMA" ? tbl_user_status_usaha.SUDAH_LAMA : null;
+        if (!validStatusUsaha) {
+            return NextResponse.json(
+                { message: "Status usaha tidak valid. Harap gunakan 'BARU' atau 'SUDAH_LAMA'." },
+                { status: 400 }
+            );
+        }
+    }
+
     const existingUser = await prisma.tbl_user.findFirst({
       where: { OR: [{ username }, { email }] },
     });
@@ -103,7 +158,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // --- Check if user is already pending verification in the temp table ---
     const existingTempUser = await prisma.tbl_user_temp.findFirst({
       where: { OR: [{ username }, { email }] },
     });
@@ -115,16 +169,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // --- Securely hash the password ---
-    // Note: You need to install bcryptjs: npm install bcryptjs
     // const salt = await bcrypt.genSalt(10);
     // const hashedPassword = await bcrypt.hash(password, salt);
 
-    // --- Generate a unique verification token ---
     const verificationToken = crypto.randomBytes(32).toString("hex");
-    const verificationTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
+    const verificationTokenExpiry = new Date(Date.now() + 3600000);
 
-    // --- Create a temporary user entry for verification ---
     const newUserTemp = await prisma.tbl_user_temp.create({
       data: {
         nama_user,
@@ -133,13 +183,15 @@ export async function POST(request: NextRequest) {
         password: password, 
         jk: validJk,
         nohp,
-        id_level: 3, // Assuming 3 is the ID for UMKM level
+        id_level: 3,
         verificationToken,
         verificationTokenExpiry,
+        nama_usaha,
+        status_usaha: validStatusUsaha,
+        id_kategori_usaha: id_kategori_usaha ? parseInt(id_kategori_usaha) : null,
       },
     });
 
-    // --- Send verification email ---
     await sendEmail({
         email,
         emailType: "VERIFY",
@@ -160,7 +212,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    // --- Disconnect Prisma Client ---
     await prisma.$disconnect().catch(console.error);
   }
 }
