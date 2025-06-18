@@ -2,33 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
 
-export async function GET(request : NextRequest,{ params }: RouteParams) {
-  const id = parseInt(params.id, 10);
-  if (isNaN(id)) {
-    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
-  }
+
+export async function GET( request: NextRequest,
+  {
+    params
+  }: {
+    params: Promise<{ id: number }>;
+  }) {
+  const { id } = await params;
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
   // 2. Jika ada errorResponse, langsung kembalikan.
   if (errorResponse) {
     return errorResponse;
   }
-  const productId = parseInt(params.id, 10);
-  if (isNaN(productId)) {
-    return NextResponse.json(
-      { message: "Invalid Product ID" },
-      { status: 400 }
-    );
-  }
+  
   try {
     const article = await prisma.tbl_artikel.findUnique({
-      where: { id_artikel: id },
+      where: { id_artikel: Number(id) },
       include: {
         tbl_user: {
           select: {
@@ -136,7 +128,12 @@ export async function GET(request : NextRequest,{ params }: RouteParams) {
  *                 error:
  *                   type: string
  */
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function PUT( request: NextRequest,
+  {
+    params
+  }: {
+    params: Promise<{ id: number }>;
+  }) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]); // Hanya untuk Admin & SuperAdmin
 
   // 2. Jika ada errorResponse, langsung kembalikan.
@@ -144,18 +141,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return errorResponse;
   }
 
-//   const user = verificationResult.user as DecodedUserPayload;
-  const id = parseInt(params.id, 10);
-  if (isNaN(id)) {
-    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
-  }
-
+  const {id} = await params
   try {
     const body = await request.json();
     const { judul, deskripsi_singkat, isi_lengkap, gambar } = body;
 
     const updatedArticle = await prisma.tbl_artikel.update({
-      where: { id_artikel: id },
+      where: { id_artikel: Number(id) },
       data: {
         judul,
         deskripsi_singkat,
@@ -176,28 +168,22 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE( request: NextRequest,
+  {
+    params
+  }: {
+    params: Promise<{ id: number }>;
+  }) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
   // 2. Jika ada errorResponse, langsung kembalikan.
   if (errorResponse) {
     return errorResponse;
   }
-  const productId = parseInt(params.id, 10);
-  if (isNaN(productId)) {
-    return NextResponse.json(
-      { message: "Invalid Product ID" },
-      { status: 400 }
-    );
-  }
-  const id = parseInt(params.id, 10);
-  if (isNaN(id)) {
-    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
-  }
-
+  const { id } = await params;
   try {
     await prisma.tbl_artikel.delete({
-      where: { id_artikel: id }
+      where: { id_artikel: Number(id) }
     });
 
     return NextResponse.json({
