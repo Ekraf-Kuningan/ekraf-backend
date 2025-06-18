@@ -3,18 +3,19 @@ import prisma from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth/verifyToken";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
-
-
-export async function GET({
+export async function GET(
+  {
     params
   }: {
     params: Promise<{ id: number }>;
-  }, request: NextRequest) {
+  },
+  request: NextRequest
+) {
   const { id } = await params;
   if (isNaN(id)) {
     return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
-   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
+  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
   // 2. Jika ada errorResponse, langsung kembalikan.
   if (errorResponse) {
@@ -116,11 +117,14 @@ export async function GET({
  *                 error:
  *                   type: string
  */
-export async function PUT(request: NextRequest, {
+export async function PUT(
+  request: NextRequest,
+  {
     params
   }: {
     params: Promise<{ id: number }>;
-  }) {
+  }
+) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]); // Hanya untuk Admin & SuperAdmin
 
   // 2. Jika ada errorResponse, langsung kembalikan.
@@ -152,11 +156,14 @@ export async function PUT(request: NextRequest, {
   }
 }
 
-export async function DELETE(request: NextRequest, {
+export async function DELETE(
+  request: NextRequest,
+  {
     params
   }: {
     params: Promise<{ id: number }>;
-  }) {
+  }
+) {
   const verificationResult = await verifyToken(request);
 
   if (
