@@ -21,9 +21,7 @@ jobs:
 
       - name: Install Dependencies
         run: npm install --force # Atau yarn install
-      - name: Run generators
-        run: npx prisma generate # Hanya jika menggunakan Prisma
-
+      
       - name: Prepare .env file for production
         env:
           ENV_FILE_PRODUCTION: ${{ secrets.ENV_FILE_PRODUCTION }}
@@ -31,6 +29,8 @@ jobs:
           if [ -n "$ENV_FILE_PRODUCTION" ]; then
             echo "$ENV_FILE_PRODUCTION" > .env.production
           fi
+      - name: Run generators
+        run: npx prisma generate # Hanya jika menggunakan Prisma
 
       - name: Build Next.js App
         run: npm run build # Atau yarn build
