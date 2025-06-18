@@ -1,9 +1,8 @@
 import nodemailer from "nodemailer";
 import bcryptjs from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
+import prisma from "./prisma";
 
 
-const prisma = new PrismaClient();
 
 interface SendEmailParams {
   email: string;
