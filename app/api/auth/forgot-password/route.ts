@@ -8,7 +8,7 @@ import { sendEmail } from "@/lib/mailer";
  * /api/auth/forgot-password:
  *   post:
  *     summary: Meminta reset password
- *     description: Endpoint untuk meminta link reset password berdasarkan email yang terdaftar..
+ *     description: Endpoint untuk meminta link reset password berdasarkan email yang terdaftars..
  *     tags:
  *       - Auth
  *     requestBody:
@@ -21,7 +21,7 @@ import { sendEmail } from "@/lib/mailer";
  *               email:
  *                 type: string
  *                 format: email
- *                 description: Alamat email pengguna yang ingin mereset password.
+ *                 description: Alamat email pengguna yang ingin mereset password. 
  *     responses:
  *       200:
  *         description: Link reset password telah dikirim jika email terdaftar.
