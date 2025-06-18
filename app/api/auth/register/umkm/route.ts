@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 // Ensure you have the correct path to your generated Prisma Client
-import { PrismaClient, tbl_user_temp_jk, tbl_user_status_usaha } from "../../../../../app/generated/prisma"; 
+import { prisma, tbl_user_temp_jk, tbl_user_status_usaha } from "@/lib/prisma"; 
 import { sendEmail } from "@/lib/mailer";
 // import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
 // It's a good practice to instantiate Prisma Client once and reuse it.
-const prisma = new PrismaClient();
 
 /**
  * @swagger

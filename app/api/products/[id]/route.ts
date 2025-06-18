@@ -4,12 +4,12 @@ import { verifyToken } from "@/lib/auth/verifyToken";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
 export async function GET(
+  request: NextRequest,
   {
     params
   }: {
     params: Promise<{ id: number }>;
-  },
-  request: NextRequest
+  }
 ) {
   const { id } = await params;
   if (isNaN(id)) {

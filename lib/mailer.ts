@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import bcryptjs from "bcryptjs";
-import { PrismaClient } from "../app/generated/prisma";
+import { PrismaClient } from "@prisma/client";
+
 
 const prisma = new PrismaClient();
 

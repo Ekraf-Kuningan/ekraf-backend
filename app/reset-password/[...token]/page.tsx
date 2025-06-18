@@ -1,9 +1,8 @@
 // app/reset-password/[token]/page.tsx
 
-import { PrismaClient } from '../../generated/prisma';
 import ResetPasswordForm from '../ResetPasswordForm';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
 
 async function validateToken(token: string) {
     if (!token) return null;
