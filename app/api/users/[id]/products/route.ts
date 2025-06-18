@@ -2,23 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { authorizeRequest } from '@/lib/auth/authorizeRequest';
 
-
 /**
  * @swagger
  * /api/users/{id}/products:
  *   get:
  *     summary: Get products for a specific user
- *     description: Fetches all products associated with a given user ID, ordered by upload date (descending).
+ *     description: Returns a list of products belonging to the specified user. Requires authentication.
+ *     tags:
+ *       - Products
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Numeric ID of the user to get products for
+ *         description: ID of the user
  *     responses:
  *       200:
- *         description: Products for the user fetched successfully
+ *         description: Products fetched successfully
  *         content:
  *           application/json:
  *             schema:
@@ -30,26 +33,10 @@ import { authorizeRequest } from '@/lib/auth/authorizeRequest';
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Product'
- *       400:
- *         description: Invalid User ID
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Failed to fetch products
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 error:
- *                   type: string
  */
 export async function GET(request: NextRequest,{
   params,
@@ -57,7 +44,7 @@ export async function GET(request: NextRequest,{
   params: Promise<{ id: number }>
 }) {
   
-  const { id: userId } = await params;
+  const { id } = await params;
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
   
     // 2. Jika ada errorResponse, langsung kembalikan.
@@ -66,14 +53,14 @@ export async function GET(request: NextRequest,{
     }
   try {
     const products = await prisma.tbl_product.findMany({
-      where: { id_user: userId },
+      where: { id_user: Number(id) },
       orderBy: {
         tgl_upload: 'desc',
       },
     });
 
     return NextResponse.json({
-      message: `Products for user ${userId} fetched successfully`,
+      message: `Products for user ${id} fetched successfully`,
       data: products,
     });
   } catch (error) {
