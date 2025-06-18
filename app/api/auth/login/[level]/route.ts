@@ -216,7 +216,7 @@ export async function POST(
     };
 
     const token = jwt.sign(tokenPayload, JWT_SECRET, {
-      expiresIn: "1d",
+      expiresIn: "365d",
     });
 
     return NextResponse.json(
