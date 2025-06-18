@@ -1,28 +1,110 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { getSession } from 'next-auth/react'; // Contoh: menggunakan next-auth
-import { verifyToken } from '@/lib/verifyToken';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
-async function getUserIdFromSession(request: Request): Promise<number | null> {
-  // Logika untuk mendapatkan ID pengguna dari sesi.
-  // Ini adalah placeholder. Anda harus mengimplementasikannya
-  // sesuai dengan library autentikasi Anda (misalnya Next-Auth, Clerk, dll).
-  // Contoh dengan Next-Auth:
-  // const session = await getSession({ req: request });
-  // return session?.user?.id || null;
-  return 1; // Ganti dengan ID pengguna dinamis dari sesi
-}
+/**
+ * @swagger
+ * /api/users/profile:
+ *   get:
+ *     summary: Get the authenticated user's profile
+ *     description: Returns the profile information of the currently authenticated user.
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profile fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Profile fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id_user:
+ *                       type: integer
+ *                       example: 1
+ *                     nama_user:
+ *                       type: string
+ *                       example: John Doe
+ *                     username:
+ *                       type: string
+ *                       example: johndoe
+ *                     email:
+ *                       type: string
+ *                       example: johndoe@example.com
+ *                     nohp:
+ *                       type: string
+ *                       example: "08123456789"
+ *                     jk:
+ *                       type: string
+ *                       example: L
+ *                     nama_usaha:
+ *                       type: string
+ *                       example: Usaha Jaya
+ *                     status_usaha:
+ *                       type: string
+ *                       example: Aktif
+ *                     verifiedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2024-06-01T12:00:00Z"
+ *                     tbl_level:
+ *                       type: object
+ *                       description: User level information
+ *                     tbl_kategori_usaha:
+ *                       type: object
+ *                       description: Business category information
+ *       401:
+ *         description: Unauthorized - Invalid or missing authentication
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized
+ *       404:
+ *         description: Profile not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Profile not found
+ *       500:
+ *         description: Failed to fetch profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Failed to fetch profile
+ *                 error:
+ *                   type: string
+ *                   example: Internal server error
+ */
+export async function GET(request: NextRequest) {
+  const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
 
-
-export async function GET(request: Request) {
-  const userId = await getUserIdFromSession(request);
-  if (!userId) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  // 2. Jika ada errorResponse, langsung kembalikan.
+  if (errorResponse) {
+    return errorResponse;
   }
 
   try {
     const userProfile = await prisma.tbl_user.findUnique({
-      where: { id_user: userId },
+      where: { id_user: user?.id_user },
       select: {
         id_user: true,
         nama_user: true,
@@ -34,114 +116,25 @@ export async function GET(request: Request) {
         status_usaha: true,
         verifiedAt: true,
         tbl_level: true,
-        tbl_kategori_usaha: true,
-      },
+        tbl_kategori_usaha: true
+      }
     });
 
     if (!userProfile) {
-      return NextResponse.json({ message: 'Profile not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ message: 'Profile fetched successfully', data: userProfile });
-
-  } catch (error) {
-    return NextResponse.json({ message: 'Failed to fetch profile', error }, { status: 500 });
-  }
-}
-
-/**
- * @swagger
- * /api/users/profile:
- *   put:
- *     summary: Update the authenticated user's profile
- *     description: Updates the profile information of the currently authenticated user. Only users with id_level 1, 2, or 3 are authorized.
- *     tags:
- *       - Users
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               nama:
- *                 type: string
- *                 description: User's name
- *               email:
- *                 type: string
- *                 description: User's email
- *               [other fields]:
- *                 type: string
- *                 description: Other updatable profile fields
- *             example:
- *               nama: "John Doe"
- *               email: "john@example.com"
- *     responses:
- *       200:
- *         description: Profile updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   description: Updated user profile (without password)
- *       401:
- *         description: Unauthorized or access denied
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *       500:
- *         description: Failed to update profile
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 error:
- *                   type: string
- */
-export async function PUT(request: NextRequest) {
-  const verificationResult = await verifyToken(request);
-  
-    if (
-      !verificationResult.success ||
-      !verificationResult.user ||
-      ![1, 2, 3].includes(verificationResult.user.id_level) 
-    ) {
       return NextResponse.json(
-        { message: verificationResult.error || "Akses ditolak." },
-        { status: verificationResult.status || 401 }
+        { message: "Profile not found" },
+        { status: 404 }
       );
     }
 
-  try {
-    const body = await request.json();
-    const { password, id_level, username, ...updateData } = body;
-
-    const updatedProfile = await prisma.tbl_user.update({
-      where: { id_user: userId },
-      data: updateData,
-    });
-
-    const { password: _, ...profileWithoutPassword } = updatedProfile;
-
     return NextResponse.json({
-      message: 'Profile updated successfully',
-      data: profileWithoutPassword,
+      message: "Profile fetched successfully",
+      data: userProfile
     });
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to update profile', error }, { status: 500 });
+    return NextResponse.json(
+      { message: "Failed to fetch profile", error },
+      { status: 500 }
+    );
   }
 }

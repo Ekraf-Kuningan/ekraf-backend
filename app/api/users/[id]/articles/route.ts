@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
 interface RouteParams {
   params: { id: string };
@@ -53,25 +54,33 @@ interface RouteParams {
  *                 error:
  *                   type: string
  */
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   const userId = parseInt(params.id, 10);
   if (isNaN(userId)) {
-    return NextResponse.json({ message: 'Invalid User ID' }, { status: 400 });
+    return NextResponse.json({ message: "Invalid User ID" }, { status: 400 });
   }
+  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
+  // 2. Jika ada errorResponse, langsung kembalikan.
+  if (errorResponse) {
+    return errorResponse;
+  }
   try {
     const articles = await prisma.tbl_artikel.findMany({
       where: { id_user: userId },
       orderBy: {
-        tanggal_upload: 'desc',
-      },
+        tanggal_upload: "desc"
+      }
     });
 
     return NextResponse.json({
       message: `Articles for user ${userId} fetched successfully`,
-      data: articles,
+      data: articles
     });
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to fetch articles', error }, { status: 500 });
+    return NextResponse.json(
+      { message: "Failed to fetch articles", error },
+      { status: 500 }
+    );
   }
 }

@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { verifyToken } from "@/lib/verifyToken";
+import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest , { params }: { params: { id: string } }) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = parseInt(searchParams.get("limit") || "10", 10);
+  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
+  // 2. Jika ada errorResponse, langsung kembalikan.
+  if (errorResponse) {
+    return errorResponse;
+  }
+  const productId = parseInt(params.id, 10);
+  if (isNaN(productId)) {
+    return NextResponse.json(
+      { message: "Invalid Product ID" },
+      { status: 400 }
+    );
+  }
   if (page < 1 || limit < 1) {
     return NextResponse.json(
       { message: "Page and limit must be positive integers" },
@@ -128,17 +140,11 @@ export async function GET(request: Request) {
  *                   type: string
  */
 export async function POST(request: NextRequest) {
-  const verificationResult = await verifyToken(request);
+  const [, errorResponse] = await authorizeRequest(request, [1, 2]); // Hanya untuk Admin & SuperAdmin
 
-  if (
-    !verificationResult.success ||
-    !verificationResult.user ||
-    ![1, 2, 3].includes(verificationResult.user.id_level) // hanya admin (1) dan superadmin (2)
-  ) {
-    return NextResponse.json(
-      { message: verificationResult.error || "Akses ditolak." },
-      { status: verificationResult.status || 401 }
-    );
+  // 2. Jika ada errorResponse, langsung kembalikan.
+  if (errorResponse) {
+    return errorResponse;
   }
   try {
     const body = await request.json();

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { verifyToken } from "@/lib/verifyToken";
+import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
 /**
  * @swagger
@@ -82,19 +82,13 @@ import { verifyToken } from "@/lib/verifyToken";
  *                 error:
  *                   type: string
  */
-export async function GET(req: NextRequest) {
-  const verificationResult = await verifyToken(req);
-
-  if (
-    !verificationResult.success ||
-    !verificationResult.user ||
-    ![1, 2].includes(verificationResult.user.id_level) 
-  ) {
-    return NextResponse.json(
-      { message: verificationResult.error || "Akses ditolak." },
-      { status: verificationResult.status || 401 }
-    );
-  }
+export async function GET(request: NextRequest) {
+   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
+  
+    // 2. Jika ada errorResponse, langsung kembalikan.
+    if (errorResponse) {
+      return errorResponse;
+    }
 
   try {
     const users = await prisma.tbl_user.findMany({

@@ -1,27 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { verifyToken } from '@/lib/verifyToken';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { verifyToken } from "@/lib/auth/verifyToken";
+import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
 interface RouteParams {
   params: { id: string };
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  const verificationResult = await verifyToken(request);
-  
-    if (
-      !verificationResult.success ||
-      !verificationResult.user ||
-      ![1, 2, 3].includes(verificationResult.user.id_level) 
-    ) {
-      return NextResponse.json(
-        { message: verificationResult.error || "Akses ditolak." },
-        { status: verificationResult.status || 401 }
-      );
-    }
+  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
+
+  // 2. Jika ada errorResponse, langsung kembalikan.
+  if (errorResponse) {
+    return errorResponse;
+  }
   const id = parseInt(params.id, 10);
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID format' }, { status: 400 });
+    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
 
   try {
@@ -38,37 +34,37 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         status_usaha: true,
         verifiedAt: true,
         tbl_level: true,
-        tbl_kategori_usaha: true,
-      },
+        tbl_kategori_usaha: true
+      }
     });
 
     if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: 'User fetched successfully', data: user });
+    return NextResponse.json({
+      message: "User fetched successfully",
+      data: user
+    });
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to fetch user', error }, { status: 500 });
+    return NextResponse.json(
+      { message: "Failed to fetch user", error },
+      { status: 500 }
+    );
   }
 }
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
-    const verificationResult = await verifyToken(request);
+  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
-  if (
-    !verificationResult.success ||
-    !verificationResult.user ||
-    ![1, 2, 3].includes(verificationResult.user.id_level) 
-  ) {
-    return NextResponse.json(
-      { message: verificationResult.error || "Akses ditolak." },
-      { status: verificationResult.status || 401 }
-    );
+  // 2. Jika ada errorResponse, langsung kembalikan.
+  if (errorResponse) {
+    return errorResponse;
   }
-  
+
   const id = parseInt(params.id, 10);
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID format' }, { status: 400 });
+    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
 
   try {
@@ -77,32 +73,38 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const updatedUser = await prisma.tbl_user.update({
       where: { id_user: id },
-      data: updateData,
+      data: updateData
     });
 
     const { password: _, ...userWithoutPassword } = updatedUser;
 
     return NextResponse.json({
-      message: 'User updated successfully',
-      data: userWithoutPassword,
+      message: "User updated successfully",
+      data: userWithoutPassword
     });
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to update user', error }, { status: 500 });
+    return NextResponse.json(
+      { message: "Failed to update user", error },
+      { status: 500 }
+    );
   }
 }
 
 export async function DELETE(request: Request, { params }: RouteParams) {
-    const id = parseInt(params.id, 10);
-    if (isNaN(id)) {
-        return NextResponse.json({ message: 'Invalid ID format' }, { status: 400 });
-    }
+  const id = parseInt(params.id, 10);
+  if (isNaN(id)) {
+    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
+  }
 
-    try {
-        await prisma.tbl_user.delete({
-            where: { id_user: id },
-        });
-        return NextResponse.json({ message: 'User deleted successfully' });
-    } catch (error) {
-        return NextResponse.json({ message: 'Failed to delete user', error }, { status: 500 });
-    }
+  try {
+    await prisma.tbl_user.delete({
+      where: { id_user: id }
+    });
+    return NextResponse.json({ message: "User deleted successfully" });
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Failed to delete user", error },
+      { status: 500 }
+    );
+  }
 }
