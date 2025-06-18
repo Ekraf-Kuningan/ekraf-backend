@@ -6,17 +6,17 @@ import SwaggerUIComponent from './SwaggerUIComponent';
 
 export const metadata = {
   title: {
-    default: 'Dokumentasi API Gratis',
-    template: '%s | Dokumentasi API',
+    default: 'Dokumentasi API Ekonomi Kreatif',
+    template: '%s | Dokumentasi API Ekonomi Kreatif',
   },
   description:
-    'Dokumentasi lengkap untuk API gratis kami dengan contoh request, parameter, dan response.',
+    'Dokumentasi lengkap untuk API Ekonomi Kreatif dengan contoh request, parameter, dan response.',
   keywords:
-    'API gratis, dokumentasi API, REST API, integrasi API, nextjs, openapi, swagger',
+    'ekonomi kreatif, API ekonomi kreatif, dokumentasi API, REST API, integrasi API, nextjs, openapi, swagger',
   openGraph: {
-    title: 'Dokumentasi API Gratis',
+    title: 'Dokumentasi API Ekonomi Kreatif',
     description:
-      'Dokumentasi lengkap untuk API gratis kami dengan contoh request, parameter, dan response.',
+      'Dokumentasi lengkap untuk API Ekonomi Kreatif dengan contoh request, parameter, dan response.',
     images: [
       {
         url: '/api-docs-og.png',
