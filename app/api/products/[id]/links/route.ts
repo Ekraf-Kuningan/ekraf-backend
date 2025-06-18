@@ -2,20 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
-interface RouteParams {
-  params: { id: string };
-}
-
-export async function GET(request:NextRequest,{ params }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: number }> }
+) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
   // 2. Jika ada errorResponse, langsung kembalikan.
   if (errorResponse) {
     return errorResponse;
   }
-
-  const productId = parseInt(params.id, 10);
-  if (isNaN(productId)) {
+  const { id } = await params;
+  if (isNaN(id)) {
     return NextResponse.json(
       { message: "Invalid Product ID" },
       { status: 400 }
@@ -24,7 +22,7 @@ export async function GET(request:NextRequest,{ params }: RouteParams) {
 
   try {
     const links = await prisma.tbl_olshop_link.findMany({
-      where: { id_produk: productId }
+      where: { id_produk: Number(id) }
     });
     return NextResponse.json({
       message: "Links fetched successfully",
@@ -120,15 +118,17 @@ export async function GET(request:NextRequest,{ params }: RouteParams) {
  *                   type: string
  *                   example: Error details
  */
-export async function POST(request: NextRequest, { params }: RouteParams) {
+export async function POST(request: NextRequest, 
+  { params }: { params: Promise<{ id: number }> }
+) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
   // 2. Jika ada errorResponse, langsung kembalikan.
   if (errorResponse) {
     return errorResponse;
   }
-  const productId = parseInt(params.id, 10);
-  if (isNaN(productId)) {
+  const { id } = await params;
+  if (isNaN(id)) {
     return NextResponse.json(
       { message: "Invalid Product ID" },
       { status: 400 }
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const newLink = await prisma.tbl_olshop_link.create({
       data: {
-        id_produk: productId,
+        id_produk: Number(id),
         nama_platform,
         url
       }
