@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '@/lib/prisma';
 import { sendEmail } from "@/lib/mailer";
 
-const prisma = new PrismaClient();
 
 /**
  * @swagger
