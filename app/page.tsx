@@ -1,58 +1,37 @@
-"use client"; // Tambahkan directive ini untuk menandakan komponen client
-
-import { useState, useEffect } from 'react';
 import type { OpenAPIV3 } from 'openapi-types';
 import SwaggerUIComponent from './SwaggerUIComponent';
 
-export default function OpenApiDocsPage() {
-  const [openApiSpec, setOpenApiSpec] = useState<OpenAPIV3.Document | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+async function getOpenApiSpec(): Promise<OpenAPIV3.Document> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  const fetchUrl = apiUrl ? `${apiUrl}/api/swagger` : `http://localhost:4097/api/swagger`;
 
-  useEffect(() => {
-    async function getOpenApiSpec() {
-      try {
-        // Gunakan NEXT_PUBLIC_API_URL untuk fleksibilitas di berbagai lingkungan
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''; 
-        // Jika kamu ingin HARDCODE localhost hanya untuk development, 
-        // kamu bisa menggunakan ini, tapi ini tidak disarankan untuk produksi
-        // const res = await fetch(`http://localhost:4097/api/swagger`);
-        
-        // Pilihan terbaik: gunakan variabel lingkungan
-        const fetchUrl = apiUrl ? `${apiUrl}/api/swagger` : `http://localhost:4097/api/swagger`; // Fallback ke localhost jika NEXT_PUBLIC_API_URL kosong
+  const res = await fetch(fetchUrl, { cache: 'no-store' });
 
-        const res = await fetch(fetchUrl);
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Gagal mengambil spesifikasi OpenAPI dari ${fetchUrl}. Status: ${res.status}, Respon: ${errorText}`);
+  }
 
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(`Gagal mengambil spesifikasi OpenAPI dari ${fetchUrl}. Status: ${res.status}, Respon: ${errorText}`);
-        }
-        const spec = await res.json();
+  const spec = await res.json();
 
-        if (!spec.openapi?.startsWith('3.0.')) {
-          throw new Error('Hanya mendukung OpenAPI versi 3.0.x');
-        }
-        setOpenApiSpec(spec as OpenAPIV3.Document);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error
-            ? err.message
-            : 'Terjadi kesalahan yang tidak diketahui.';
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  if (!spec.openapi?.startsWith('3.0.')) {
+    throw new Error('Hanya mendukung OpenAPI versi 3.0.x');
+  }
 
-    getOpenApiSpec();
-  }, []); // Array dependensi kosong agar hanya berjalan sekali saat komponen di-mount
+  return spec as OpenAPIV3.Document;
+}
 
-  if (isLoading) {
-    return (
-      <div className="loading-container" style={{ padding: '40px', textAlign: 'center' }}>
-        <p style={{ color: '#555', fontSize: '1.2rem' }}>Memuat dokumentasi...</p>
-      </div>
-    );
+export default async function OpenApiDocsPage() {
+  let openApiSpec: OpenAPIV3.Document | null = null;
+  let error: string | null = null;
+
+  try {
+    openApiSpec = await getOpenApiSpec();
+  } catch (err) {
+    error =
+      err instanceof Error
+        ? err.message
+        : 'Terjadi kesalahan yang tidak diketahui.';
   }
 
   if (error) {
@@ -73,7 +52,6 @@ export default function OpenApiDocsPage() {
   }
 
   if (!openApiSpec) {
-    // Ini seharusnya tidak terjadi jika loading dan error sudah dihandle
     return (
       <div className="error-container" style={{ padding: '40px', textAlign: 'center' }}>
         <p style={{ color: '#555', fontSize: '1.1rem' }}>Spesifikasi API tidak ditemukan setelah dimuat.</p>
