@@ -8,7 +8,7 @@ import prisma from '@/lib/prisma';
  *     summary: Retrieve a list of business categories
  *     description: Fetches all business categories from the database, ordered by category name.
  *     tags:
- *       - Business Categories
+ *       - Master Data
  *     responses:
  *       200:
  *         description: Business categories fetched successfully

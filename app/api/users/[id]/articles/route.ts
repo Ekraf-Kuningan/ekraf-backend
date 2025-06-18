@@ -8,6 +8,10 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *   get:
  *     summary: Get articles for a specific user
  *     description: Fetches all articles associated with a given user ID, ordered by upload date (descending).
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

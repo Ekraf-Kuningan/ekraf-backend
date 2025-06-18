@@ -13,7 +13,9 @@ interface RouteParams {
  *     summary: Update a specific product link
  *     description: Updates the details of a product link by its ID. Requires authentication and appropriate user level.
  *     tags:
- *       - Product Links
+ *       - Products
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

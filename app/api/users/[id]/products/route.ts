@@ -9,7 +9,7 @@ import { authorizeRequest } from '@/lib/auth/authorizeRequest';
  *     summary: Get products for a specific user
  *     description: Returns a list of products belonging to the specified user. Requires authentication.
  *     tags:
- *       - Products
+ *       - Users
  *     security:
  *       - bearerAuth: []
  *     parameters:

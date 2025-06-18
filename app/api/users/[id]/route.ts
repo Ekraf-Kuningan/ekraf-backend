@@ -111,6 +111,8 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *     summary: Delete user by ID
  *     tags:
  *       - Users
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
