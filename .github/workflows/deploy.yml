@@ -79,6 +79,8 @@ jobs:
             echo "Files copied. Running server-side commands at $(date)" >> deployment.log
             npm install --omit=dev --force # Atau yarn install --production
             echo "Dependencies installed on server." >> deployment.log
+            npx prisma generate # Hanya jika menggunakan Prisma
+            echo "Prisma client generated." >> deployment.log
             pm2 startOrRestart pm2.config.js --env production # Menggunakan startOrRestart
             echo "PM2 process restarted/started." >> deployment.log
             pm2 save
