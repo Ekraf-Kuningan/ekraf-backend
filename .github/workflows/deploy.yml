@@ -74,6 +74,8 @@ jobs:
           script: |
             export PATH=$PATH:/root/.local/share/pnpm # Tambahkan ini jika pm2 ada di path ini dan dibutuhkan
             cd ${{ secrets.VPS_TARGET_PATH }}
+            git pull origin main || true # Pastikan untuk menarik perubahan terbaru jika ada
+            echo "Pulled latest changes from repository." >> deployment.log
             echo "Files copied. Running server-side commands at $(date)" >> deployment.log
             npm install --omit=dev --force # Atau yarn install --production
             echo "Dependencies installed on server." >> deployment.log
