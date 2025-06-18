@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
-interface RouteParams {
-  params: { id: string; linkId: string };
-}
-
 /**
  * @swagger
  * /api/products/{id}/links/{linkId}:
@@ -78,22 +74,29 @@ interface RouteParams {
  *                 error:
  *                   type: string
  */
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function PUT(
+  request: NextRequest,
+  {
+    params
+  }: {
+    params: Promise<{ id: number }>;
+  }
+) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]); // Hanya untuk Admin & SuperAdmin
 
   // 2. Jika ada errorResponse, langsung kembalikan.
   if (errorResponse) {
     return errorResponse;
   }
-  const linkId = parseInt(params.linkId, 10);
-  if (isNaN(linkId)) {
+  const { id } = await params;
+  if (isNaN(id)) {
     return NextResponse.json({ message: "Invalid Link ID" }, { status: 400 });
   }
 
   try {
     const body = await request.json();
     const updatedLink = await prisma.tbl_olshop_link.update({
-      where: { id_link: linkId },
+      where: { id_link: Number(id) },
       data: body
     });
     return NextResponse.json({
@@ -108,21 +111,28 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(
+  request: NextRequest,
+  {
+    params
+  }: {
+    params: Promise<{ id: number }>;
+  }
+) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]); // Hanya untuk Admin & SuperAdmin
 
   // 2. Jika ada errorResponse, langsung kembalikan.
   if (errorResponse) {
     return errorResponse;
   }
-  const linkId = parseInt(params.linkId, 10);
-  if (isNaN(linkId)) {
+  const { id } = await params;
+  if (isNaN(id)) {
     return NextResponse.json({ message: "Invalid Link ID" }, { status: 400 });
   }
 
   try {
     await prisma.tbl_olshop_link.delete({
-      where: { id_link: linkId }
+      where: { id_link: Number(id) }
     });
     return NextResponse.json({ message: "Link deleted successfully" });
   } catch (error) {
