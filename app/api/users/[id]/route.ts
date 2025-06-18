@@ -65,6 +65,8 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *     summary: Update user by ID
  *     tags:
  *       - Users
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -182,25 +184,38 @@ export async function PUT(
     return errorResponse;
   }
   const { id } = await params;
-
+  console.log("ID:", id);
   try {
     const body = await request.json();
     const { password, ...updateData } = body;
 
+    if (!id || isNaN(Number(id))) {
+      return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
+    }
+
     const updatedUser = await prisma.tbl_user.update({
-      where: { id_user: id },
+      where: { id_user: Number(id) },
       data: updateData
     });
 
+    if (!updatedUser) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
     const { password: _, ...userWithoutPassword } = updatedUser;
 
+    console.log(userWithoutPassword);
     return NextResponse.json({
       message: "User updated successfully",
       data: userWithoutPassword
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error("Update user error:", error);
     return NextResponse.json(
-      { message: "Failed to update user", error },
+      {
+        message: "Failed to update user",
+        error: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }
@@ -223,7 +238,7 @@ export async function DELETE(
 
   try {
     await prisma.tbl_user.delete({
-      where: { id_user: id }
+      where: { id_user: Number(id) }
     });
     return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {
