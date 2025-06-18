@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Sesuaikan dengan versi Node.js yang Anda gunakan
+          node-version: '22' # Sesuaikan dengan versi Node.js yang Anda gunakan
           cache: 'npm' # Atau 'yarn' jika Anda menggunakan Yarn
 
       - name: Install Dependencies
