@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { authorizeRequest } from '@/lib/auth/authorizeRequest';
 
-interface RouteParams {
-  params: { id: string };
-}
 
 /**
  * @swagger
@@ -54,11 +51,13 @@ interface RouteParams {
  *                 error:
  *                   type: string
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
-  const userId = parseInt(params.id, 10);
-  if (isNaN(userId)) {
-    return NextResponse.json({ message: 'Invalid User ID' }, { status: 400 });
-  }
+export async function GET(request: NextRequest,{
+  params,
+}: {
+  params: Promise<{ id: number }>
+}) {
+  
+  const { id: userId } = await params;
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
   
     // 2. Jika ada errorResponse, langsung kembalikan.
