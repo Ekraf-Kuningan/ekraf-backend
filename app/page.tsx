@@ -1,75 +1,89 @@
-// import { readFile } from 'fs/promises';
-// import path from 'path';
-// import yaml from 'js-yaml';
+"use client"; // Tambahkan directive ini untuk menandakan komponen client
+
+import { useState, useEffect } from 'react';
 import type { OpenAPIV3 } from 'openapi-types';
 import SwaggerUIComponent from './SwaggerUIComponent';
 
-export const metadata = {
-  title: {
-    default: 'Dokumentasi API Ekonomi Kreatif',
-    template: '%s | Dokumentasi API Ekonomi Kreatif',
-  },
-  description:
-    'Dokumentasi lengkap untuk API Ekonomi Kreatif dengan contoh request, parameter, dan response.',
-  keywords:
-    'ekonomi kreatif, API ekonomi kreatif, dokumentasi API, REST API, integrasi API, nextjs, openapi, swagger',
-  openGraph: {
-    title: 'Dokumentasi API Ekonomi Kreatif',
-    description:
-      'Dokumentasi lengkap untuk API Ekonomi Kreatif dengan contoh request, parameter, dan response.',
-    images: [
-      {
-        url: '/api-docs-og.png',
-        width: 1200,
-        height: 630,
-      },
-    ],
-  },
-};
+export default function OpenApiDocsPage() {
+  const [openApiSpec, setOpenApiSpec] = useState<OpenAPIV3.Document | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-async function getOpenApiSpec(): Promise<OpenAPIV3.Document> {
-  const res = await fetch('http://localhost:3000/api/swagger');
-  if (!res.ok) {
-    throw new Error('Gagal mengambil spesifikasi OpenAPI dari /api/swagger');
-  }
-  const spec = await res.json();
-  return spec as OpenAPIV3.Document;
-  // const fileContent = await readFile(filePath, 'utf8');
-  // const spec = yaml.load(fileContent) as OpenAPIV3.Document;
+  useEffect(() => {
+    async function getOpenApiSpec() {
+      try {
+        // Gunakan NEXT_PUBLIC_API_URL untuk fleksibilitas di berbagai lingkungan
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''; 
+        // Jika kamu ingin HARDCODE localhost hanya untuk development, 
+        // kamu bisa menggunakan ini, tapi ini tidak disarankan untuk produksi
+        // const res = await fetch(`http://localhost:4097/api/swagger`);
+        
+        // Pilihan terbaik: gunakan variabel lingkungan
+        const fetchUrl = apiUrl ? `${apiUrl}/api/swagger` : `http://localhost:4097/api/swagger`; // Fallback ke localhost jika NEXT_PUBLIC_API_URL kosong
 
-  if (!spec.openapi?.startsWith('3.0.')) {
-    throw new Error('Hanya mendukung OpenAPI versi 3.0.x');
-  }
+        const res = await fetch(fetchUrl);
 
-  return spec;
-}
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Gagal mengambil spesifikasi OpenAPI dari ${fetchUrl}. Status: ${res.status}, Respon: ${errorText}`);
+        }
+        const spec = await res.json();
 
-export default async function OpenApiDocsPage() {
-  try {
-    const openApiSpec = await getOpenApiSpec();
+        if (!spec.openapi?.startsWith('3.0.')) {
+          throw new Error('Hanya mendukung OpenAPI versi 3.0.x');
+        }
+        setOpenApiSpec(spec as OpenAPIV3.Document);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : 'Terjadi kesalahan yang tidak diketahui.';
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    getOpenApiSpec();
+  }, []); // Array dependensi kosong agar hanya berjalan sekali saat komponen di-mount
+
+  if (isLoading) {
     return (
-      <main className="api-docs-container">
-        <SwaggerUIComponent spec={openApiSpec} />
-      </main>
+      <div className="loading-container" style={{ padding: '40px', textAlign: 'center' }}>
+        <p style={{ color: '#555', fontSize: '1.2rem' }}>Memuat dokumentasi...</p>
+      </div>
     );
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Terjadi kesalahan yang tidak diketahui.';
+  }
+
+  if (error) {
     return (
       <div className="error-container" style={{ padding: '40px', textAlign: 'center' }}>
         <h1 style={{ color: '#d32f2f' }}>⚠️ Gagal Memuat Dokumentasi</h1>
-        <p style={{ color: '#555', fontSize: '1.1rem' }}>{errorMessage}</p>
+        <p style={{ color: '#555', fontSize: '1.1rem' }}>{error}</p>
         <div style={{ marginTop: '20px', textAlign: 'left', display: 'inline-block' }}>
-            <p>Silakan coba langkah berikut:</p>
-            <ul style={{ listStylePosition: 'inside' }}>
-                <li>Refresh halaman ini.</li>
-                <li>Pastikan file `public/OpenApi.yaml` ada dan formatnya benar.</li>
-                <li>Hubungi administrator jika masalah berlanjut.</li>
-            </ul>
+          <p>Silakan coba langkah berikut:</p>
+          <ul style={{ listStylePosition: 'inside' }}>
+            <li>Refresh halaman ini.</li>
+            <li>Pastikan server API berjalan dan dapat diakses dari browser Anda.</li>
+            <li>Hubungi administrator jika masalah berlanjut.</li>
+          </ul>
         </div>
       </div>
     );
   }
+
+  if (!openApiSpec) {
+    // Ini seharusnya tidak terjadi jika loading dan error sudah dihandle
+    return (
+      <div className="error-container" style={{ padding: '40px', textAlign: 'center' }}>
+        <p style={{ color: '#555', fontSize: '1.1rem' }}>Spesifikasi API tidak ditemukan setelah dimuat.</p>
+      </div>
+    );
+  }
+
+  return (
+    <main className="api-docs-container">
+      <SwaggerUIComponent spec={openApiSpec} />
+    </main>
+  );
 }
