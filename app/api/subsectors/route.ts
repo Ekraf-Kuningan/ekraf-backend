@@ -8,7 +8,7 @@ import { z } from "zod";
  *   get:
  *     summary: Mendapatkan daftar subsektor
  *     tags:
- *       - Subsektor
+ *       - Subsectors
  *     responses:
  *       200:
  *         description: Daftar subsektor berhasil diambil
@@ -40,7 +40,7 @@ import { z } from "zod";
  *   post:
  *     summary: Membuat subsektor baru
  *     tags:
- *       - Subsektor
+ *       - Subsectors
  *     security:
  *       - bearerAuth: []
  *     requestBody:
