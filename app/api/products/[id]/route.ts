@@ -205,10 +205,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: number }> }
 ) {
-  // 1. Validasi dan parse ID
-  const id = parseInt(params.id, 10);
+  const { id } = await params;
   if (isNaN(id)) {
     return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
   }
