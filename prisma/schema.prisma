@@ -39,7 +39,7 @@ model tbl_olshop_link {
 }
 
 model tbl_subsektor {
-  id_sub     Int     @id
+  id_sub     Int     @id @default(autoincrement())
   sub_sektor String? @db.VarChar(25)
 }
 
