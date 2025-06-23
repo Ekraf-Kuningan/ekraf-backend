@@ -63,6 +63,70 @@ export async function GET(request: NextRequest) {
 /**
  * @swagger
  * /api/products:
+ *   get:
+ *     summary: Mengambil daftar produk
+ *     description: Endpoint untuk mengambil daftar produk dengan pagination, pencarian, dan filter subkategori.
+ *     tags:
+ *       - Products
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Nomor halaman untuk pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Jumlah produk per halaman
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         description: Query pencarian untuk nama produk
+ *       - in: query
+ *         name: subsector
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan ID subkategori
+ *     responses:
+ *       200:
+ *         description: Daftar produk berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Products fetched successfully"
+ *                 totalPages:
+ *                   type: integer
+ *                   description: Total halaman tersedia
+ *                 currentPage:
+ *                   type: integer
+ *                   description: Halaman saat ini
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Product'
+ *       500:
+ *         description: Gagal mengambil produk
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 error:
+ *                   type: string
+ * 
  *   post:
  *     summary: Membuat produk baru
  *     description: Endpoint untuk membuat produk baru dengan mengunggah gambar ke RyzenCDN.
