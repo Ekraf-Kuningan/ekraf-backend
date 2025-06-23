@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
  *                   type: string
  */
 export async function POST(request: NextRequest) {
-  const [user, errorResponse] = await authorizeRequest(request, [1, 2]);
+  const [user, errorResponse] = await authorizeRequest(request, [1, 2,3]);
 
   if (errorResponse) {
     return errorResponse;

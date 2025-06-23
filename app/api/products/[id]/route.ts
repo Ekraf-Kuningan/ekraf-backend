@@ -5,19 +5,18 @@ import { uploadToRyzenCDN } from "@/lib/RyzenCDN";
 
 export async function GET(
   request: NextRequest,
-  
+
   {
     params
   }: {
     params: Promise<{ id: number }>;
   }
 ) {
-   const { id } = await params;
+  const { id } = await params;
 
   if (isNaN(id)) {
     return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
-
 
   try {
     const product = await prisma.tbl_product.findUnique({
@@ -178,56 +177,75 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-{
+  {
     params
   }: {
-    params: Promise<{ id: number }>;
+    params: { id: string }; // Parameter URL adalah string
   }
 ) {
-   const { id } = await params;
-
+  // 1. Validasi dan parse ID dari string ke number
+  const id = parseInt(params.id, 10);
   if (isNaN(id)) {
     return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
-  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
+  // 2. Otorisasi user, izinkan level 1, 2, dan 3 untuk melanjutkan
+  const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
+  
   if (errorResponse) {
-    return errorResponse;
+    return errorResponse; // Gagal jika tidak login atau level tidak diizinkan
   }
 
-
   try {
-    const formData = await request.formData();
-    const updateData: Record<string, string | number | undefined> = {};
+    // 3. Ambil data produk untuk verifikasi kepemilikan
+    const productToUpdate = await prisma.tbl_product.findUnique({
+      where: { id_produk: id },
+      select: { id_user: true } // Cukup ambil id_user untuk verifikasi
+    });
 
-    const fields = [
-      "nama_produk",
-      "deskripsi",
-      "harga",
-      "stok",
-      "nohp",
-      "id_sub"
-    ];
+    // Jika produk tidak ditemukan
+    if (!productToUpdate) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    // 4. Terapkan logika hak akses
+    // Jika user adalah level 3 (UMKM), periksa apakah dia pemilik produk
+    if (user?.id_level === 3 && productToUpdate.id_user !== user?.id_user) {
+      // Jika bukan pemilik, kembalikan error 403 (Forbidden)
+      return NextResponse.json(
+        { message: "Akses ditolak: Anda hanya dapat menyunting produk milik sendiri." },
+        { status: 403 }
+      );
+    }
+    
+    // Jika user adalah admin (level 1, 2) atau pemilik produk (level 3), lanjutkan pembaruan
+
+    const formData = await request.formData();
+    const updateData: Record<string, string | number> = {};
+
+    // Proses semua field teks dari form data
+    const fields = ["nama_produk", "deskripsi", "harga", "stok", "nohp", "id_sub"];
     fields.forEach((field) => {
       if (formData.has(field)) {
         const value = formData.get(field) as string;
+        // Konversi tipe data sesuai kebutuhan skema Prisma
         if (field === "harga") updateData[field] = parseFloat(value);
-        else if (field === "stok" || field === "id_sub")
-          updateData[field] = parseInt(value, 10);
+        else if (field === "stok" || field === "id_sub") updateData[field] = parseInt(value, 10);
         else updateData[field] = value;
       }
     });
 
+    // Proses file gambar jika ada yang diunggah
     const gambarFile = formData.get("gambar") as File | null;
-
     if (gambarFile) {
-      // Tidak perlu menghapus gambar lama dari CDN karena API-nya mungkin tidak ada
-      // Cukup unggah yang baru dan ganti URL-nya.
+      // Unggah gambar baru ke CDN dan dapatkan URL-nya
       const imageUrl = await uploadToRyzenCDN(gambarFile);
       if (imageUrl) {
         updateData.gambar = imageUrl;
       } else {
-        // Opsional: Batalkan pembaruan jika unggah gambar gagal
         return NextResponse.json(
           { message: "Gagal mengunggah gambar baru, pembaruan dibatalkan" },
           { status: 500 }
@@ -235,6 +253,7 @@ export async function PUT(
       }
     }
 
+    // Lakukan pembaruan data di database
     const updatedProduct = await prisma.tbl_product.update({
       where: { id_produk: id },
       data: updateData
@@ -244,37 +263,66 @@ export async function PUT(
       message: "Product updated successfully",
       data: updatedProduct
     });
+
   } catch (error) {
-    console.error(error);
+    console.error("Failed to update product:", error); // Log error untuk debugging
     return NextResponse.json(
-      { message: "Failed to update product", error },
+      { message: "Failed to update product" },
       { status: 500 }
     );
   }
 }
-
 export async function DELETE(
   request: NextRequest,
-{
+  {
     params
   }: {
-    params: Promise<{ id: number }>;
+    params: { id: string }; // ID dari URL biasanya string, perlu di-parse
   }
 ) {
-   const { id } = await params;
-
+  // 1. Validasi dan parse ID dari string ke number
+  const id = parseInt(params.id, 10);
   if (isNaN(id)) {
     return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
-  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
+
+  // 2. Otorisasi user, izinkan level 1, 2, dan 3 untuk melanjutkan
+  //    Level 3 akan divalidasi lebih lanjut di bawah
+  const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
 
   if (errorResponse) {
-    return errorResponse;
+    return errorResponse; // Gagal jika tidak login atau level tidak diizinkan
   }
 
-
   try {
-    // Tidak perlu lagi menghapus file gambar dari server lokal
+    // 3. Ambil data produk untuk verifikasi kepemilikan
+    const productToDelete = await prisma.tbl_product.findUnique({
+      where: { id_produk: id },
+      select: { id_user: true } // Cukup ambil id_user untuk verifikasi
+    });
+
+    // Jika produk tidak ditemukan
+    if (!productToDelete) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    // 4. Terapkan logika hak akses
+    // Jika user adalah level 3 (UMKM), periksa apakah dia pemilik produk
+    if (user?.id_level === 3 && productToDelete.id_user !== user?.id_user) {
+      // Jika bukan pemilik, kembalikan error 403 (Forbidden)
+      return NextResponse.json(
+        {
+          message:
+            "Akses ditolak: Anda hanya dapat menghapus produk milik sendiri."
+        },
+        { status: 403 }
+      );
+    }
+
+    // Jika user adalah admin (level 1, 2) atau pemilik produk (level 3), lanjutkan penghapusan
 
     // Hapus link toko online yang terkait terlebih dahulu
     await prisma.tbl_olshop_link.deleteMany({
@@ -288,8 +336,9 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Product deleted successfully" });
   } catch (error) {
+    console.error("Failed to delete product:", error); // Log error untuk debugging
     return NextResponse.json(
-      { message: "Failed to delete product", error },
+      { message: "Failed to delete product" },
       { status: 500 }
     );
   }
