@@ -16,12 +16,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Sesuaikan dengan versi Node.js yang Anda gunakan
-          cache: 'npm' # Atau 'yarn' jika Anda menggunakan Yarn
+          node-version: "22" # Sesuaikan dengan versi Node.js yang Anda gunakan
+          cache: "npm" # Atau 'yarn' jika Anda menggunakan Yarn
 
       - name: Install Dependencies
         run: npm install --force # Atau yarn install
-      
+
       - name: Prepare .env file for production
         env:
           ENV_FILE_PRODUCTION: ${{ secrets.ENV_FILE_PRODUCTION }}
@@ -74,6 +74,7 @@ jobs:
           script: |
             export PATH=$PATH:/root/.local/share/pnpm # Tambahkan ini jika pm2 ada di path ini dan dibutuhkan
             cd ${{ secrets.VPS_TARGET_PATH }}
+            git pull origin main || true # Pastikan untuk menarik perubahan terbaru jika ada
             git reset --hard origin/main || true # Pastikan untuk menarik perubahan terbaru jika ada
             npx prisma generate || true # Hanya jika Anda menggunakan Prisma
             echo "Running deployment commands at $(date)" >> deployment.log
