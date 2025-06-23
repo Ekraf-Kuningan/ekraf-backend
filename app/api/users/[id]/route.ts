@@ -134,15 +134,15 @@ export async function GET(
     params: Promise<{ id: number }>;
   }
 ) {
-  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
-  // 2. Jika ada errorResponse, langsung kembalikan.
-  if (errorResponse) {
-    return errorResponse;
-  }
   const { id } = await params;
 
   if (isNaN(id)) {
     return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
+  }
+  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
+  // 2. Jika ada errorResponse, langsung kembalikan.
+  if (errorResponse) {
+    return errorResponse;
   }
 
   try {

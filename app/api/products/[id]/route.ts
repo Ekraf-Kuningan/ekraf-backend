@@ -177,18 +177,17 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  {
+   {
     params
   }: {
-    params: { id: string }; // Parameter URL adalah string
+    params: Promise<{ id: number }>;
   }
 ) {
-  // 1. Validasi dan parse ID dari string ke number
-  const id = parseInt(params.id, 10);
+  const { id } = await params;
+
   if (isNaN(id)) {
     return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
-
   // 2. Otorisasi user, izinkan level 1, 2, dan 3 untuk melanjutkan
   const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
   
