@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { verifyToken, DecodedUserPayload } from "@/lib/auth/verifyToken";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
+import { uploadToRyzenCDN } from "@/lib/RyzenCDN";
+
+
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -14,7 +15,8 @@ export async function GET(request: NextRequest) {
   const whereClause: Record<string, unknown> = {};
   if (searchQuery) {
     whereClause.nama_produk = {
-      contains: searchQuery
+      contains: searchQuery,
+      mode: "insensitive"
     };
   }
   if (subSectorId && !isNaN(parseInt(subSectorId))) {
@@ -22,12 +24,7 @@ export async function GET(request: NextRequest) {
   }
 
   const skip = (page - 1) * limit;
-  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
-  // 2. Jika ada errorResponse, langsung kembalikan.
-  if (errorResponse) {
-    return errorResponse;
-  }
   try {
     const products = await prisma.tbl_product.findMany({
       where: whereClause,
@@ -68,8 +65,8 @@ export async function GET(request: NextRequest) {
  * @swagger
  * /api/products:
  *   post:
- *     summary: Create a new product
- *     description: Creates a new product entry in the database. Only users with id_level 1, 2, or 3 are authorized.
+ *     summary: Membuat produk baru
+ *     description: Endpoint untuk membuat produk baru dengan mengunggah gambar ke RyzenCDN.
  *     tags:
  *       - Products
  *     security:
@@ -77,7 +74,7 @@ export async function GET(request: NextRequest) {
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -85,31 +82,33 @@ export async function GET(request: NextRequest) {
  *               - harga
  *               - stok
  *               - id_sub
+ *               - gambar
  *             properties:
  *               nama_produk:
  *                 type: string
- *                 description: Name of the product
+ *                 description: Nama produk
  *               deskripsi:
  *                 type: string
- *                 description: Description of the product
+ *                 description: Deskripsi produk
  *               harga:
- *                 type: number
- *                 description: Price of the product
+ *                 type: string
+ *                 description: Harga produk
  *               stok:
- *                 type: number
- *                 description: Stock quantity
+ *                 type: string
+ *                 description: Stok produk
  *               nohp:
  *                 type: string
- *                 description: Contact phone number
+ *                 description: Nomor HP penjual
  *               id_sub:
- *                 type: integer
- *                 description: Subcategory ID
+ *                 type: string
+ *                 description: ID subkategori produk
  *               gambar:
  *                 type: string
- *                 description: Image URL or base64 string
+ *                 format: binary
+ *                 description: File gambar produk
  *     responses:
  *       201:
- *         description: Product created successfully
+ *         description: Produk berhasil dibuat
  *         content:
  *           application/json:
  *             schema:
@@ -120,16 +119,7 @@ export async function GET(request: NextRequest) {
  *                 data:
  *                   $ref: '#/components/schemas/Product'
  *       400:
- *         description: Required fields are missing
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *       401:
- *         description: Unauthorized or access denied
+ *         description: Field wajib tidak diisi
  *         content:
  *           application/json:
  *             schema:
@@ -138,7 +128,7 @@ export async function GET(request: NextRequest) {
  *                 message:
  *                   type: string
  *       500:
- *         description: Failed to create product
+ *         description: Gagal membuat produk atau mengunggah gambar
  *         content:
  *           application/json:
  *             schema:
@@ -150,27 +140,50 @@ export async function GET(request: NextRequest) {
  *                   type: string
  */
 export async function POST(request: NextRequest) {
-  const [user, errorResponse] = await authorizeRequest(request, [1, 2]); // Hanya untuk Admin & SuperAdmin
+  const [user, errorResponse] = await authorizeRequest(request, [1, 2]);
 
-  // 2. Jika ada errorResponse, langsung kembalikan.
   if (errorResponse) {
     return errorResponse;
   }
-  try {
-    const body = await request.json();
-    const { nama_produk, deskripsi, harga, stok, nohp, id_sub, gambar } = body;
 
-    if (!nama_produk || !harga || !stok || !id_sub) {
+  try {
+    const formData = await request.formData();
+    const nama_produk = formData.get("nama_produk") as string;
+    const deskripsi = formData.get("deskripsi") as string;
+    const harga = formData.get("harga") as string;
+    const stok = formData.get("stok") as string;
+    const nohp = formData.get("nohp") as string;
+    const id_sub = formData.get("id_sub") as string;
+    const gambarFile = formData.get("gambar") as File | null;
+
+    if (!nama_produk || !harga || !stok || !id_sub || !gambarFile) {
       return NextResponse.json(
-        { message: "Required fields are missing" },
+        { message: "Field wajib (termasuk gambar) harus diisi" },
         { status: 400 }
+      );
+    }
+
+    // Upload gambar ke RyzenCDN
+    const imageUrl = await uploadToRyzenCDN(gambarFile);
+
+    if (!imageUrl) {
+      return NextResponse.json(
+        { message: "Gagal mengunggah gambar ke CDN" },
+        { status: 500 }
       );
     }
 
     const newProduct = await prisma.tbl_product.create({
       data: {
-        ...body,
-        id_user: user?.id_user,
+        // id_produk will be omitted if your schema uses @id @default(autoincrement())
+        nama_produk,
+        deskripsi,
+        harga: parseFloat(harga),
+        stok: parseInt(stok, 10),
+        nohp,
+        id_sub: parseInt(id_sub, 10),
+        gambar: imageUrl, // Simpan URL dari RyzenCDN
+        id_user: user!.id_user,
         tgl_upload: new Date()
       }
     });
@@ -180,6 +193,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { message: "Failed to create product", error },
       { status: 500 }

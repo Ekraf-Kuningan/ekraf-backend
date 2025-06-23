@@ -94,6 +94,7 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *                   type: string
  *                   example: Internal server error
  */
+
 export async function GET(request: NextRequest) {
   const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
 
