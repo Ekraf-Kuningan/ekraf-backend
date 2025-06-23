@@ -42,7 +42,7 @@ import { z } from "zod";
  *     summary: Membuat kategori usaha baru
  *     tags:
  *       - Kategori Usaha
- *      security:
+ *     security:
  *       - bearerAuth: []
  *     requestBody:
  *       required: true
