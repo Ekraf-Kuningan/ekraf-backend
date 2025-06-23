@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma, { Prisma } from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
-import { uploadToRyzenCDN } from "@/lib/RyzenCDN";
 import { z } from "zod";
 
 
@@ -61,15 +60,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 // Skema Zod disesuaikan sepenuhnya ke tbl_kategori_usaha
 const productSchema = z.object({
   nama_produk: z.string()
     .min(3, { message: "Nama produk harus memiliki minimal 3 karakter." })
     .max(100, { message: "Nama produk tidak boleh lebih dari 100 karakter." }),
-  nama_pelaku: z.string().optional(),
+  nama_pelaku: z.string()
+    .min(1, { message: "Nama pelaku usaha wajib diisi." }),
   deskripsi: z.string().optional(),
   harga: z.coerce
     .number({ invalid_type_error: "Harga harus berupa angka." })
@@ -82,15 +80,17 @@ const productSchema = z.object({
     .regex(/^(\+62|62|0)8[1-9][0-9]{7,11}$/, { message: "Format nomor HP tidak valid." })
     .optional()
     .or(z.literal('')),
-  id_kategori_usaha: z.coerce // DIUBAH DARI id_sub
-    .number({ invalid_type_error: "Kategori Usaha tidak valid." })
+  id_kategori_usaha: z.coerce
+    .number({ invalid_type_error: "Kategori tidak valid." })
     .int()
-    .positive({ message: "Kategori Usaha harus dipilih." }),
-  gambar: z.instanceof(File, { message: "Gambar wajib diunggah." })
-    .refine((file) => file.size <= MAX_FILE_SIZE, `Ukuran gambar maksimal adalah 5MB.`)
-    .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), "Format gambar tidak didukung (.jpg, .jpeg, .png, .webp).")
+    .positive({ message: "Kategori harus dipilih." }),
+  
+  // --- PERUBAHAN UTAMA DI SINI ---
+  gambar: z.string({ required_error: "URL gambar wajib diisi." })
+    .url({ message: "Format URL gambar tidak valid." })
+    .min(1, { message: "URL gambar tidak boleh kosong." }),
 });
-
+export const updateProductSchema = productSchema.partial();
 
 /**
  * @swagger
@@ -160,7 +160,7 @@ const productSchema = z.object({
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         application/json:
  *           schema:
  *             type: object
  *             properties:
@@ -187,8 +187,7 @@ const productSchema = z.object({
  *                 description: ID kategori usaha
  *               gambar:
  *                 type: string
- *                 format: binary
- *                 description: File gambar produk
+ *                 description: URL gambar produk
  *     responses:
  *       201:
  *         description: Produk berhasil dibuat
@@ -222,7 +221,7 @@ const productSchema = z.object({
  *                 message:
  *                   type: string
  *       500:
- *         description: Terjadi kesalahan pada server saat membuat produk atau gagal upload gambar
+ *         description: Terjadi kesalahan pada server saat membuat produk
  *         content:
  *           application/json:
  *             schema:
@@ -231,25 +230,26 @@ const productSchema = z.object({
  *                 message:
  *                   type: string
  */
+// Skema Zod yang telah diperbarui diimpor dari lokasi yang sesuai
+// import { productSchema } from './schemas'; 
+
 export async function POST(request: NextRequest) {
+  // 1. Otorisasi (tidak berubah)
   const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
   if (errorResponse) {
     return errorResponse;
   }
 
-  const formData = await request.formData();
-  const dataToValidate = {
-    nama_produk: formData.get("nama_produk"),
-    nama_pelaku: formData.get("nama_pelaku"),
-    deskripsi: formData.get("deskripsi"),
-    harga: formData.get("harga"),
-    stok: formData.get("stok"),
-    nohp: formData.get("nohp"),
-    id_kategori_usaha: formData.get("id_kategori_usaha"),
-    gambar: formData.get("gambar"),
-  };
-  
-  const validationResult = productSchema.safeParse(dataToValidate);
+  // 2. Baca body request sebagai JSON, bukan FormData
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ message: "Request body tidak valid (bukan JSON)." }, { status: 400 });
+  }
+
+  // 3. Validasi data menggunakan skema Zod yang baru
+  const validationResult = productSchema.safeParse(body);
 
   if (!validationResult.success) {
     return NextResponse.json(
@@ -261,24 +261,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { gambar: gambarFile, ...productData } = validationResult.data;
+  // Data sudah bersih, tervalidasi, dan siap disimpan
+  const productData = validationResult.data;
 
   try {
-    const imageUrl = await uploadToRyzenCDN(gambarFile);
-    if (!imageUrl) {
-      return NextResponse.json(
-        { message: "Gagal mengunggah gambar ke CDN." },
-        { status: 500 }
-      );
-    }
-
+    // 4. Logika upload ke CDN dihapus. Langsung simpan ke database.
     const newProduct = await prisma.tbl_product.create({
       data: {
-        ...productData, // productData sekarang berisi id_kategori_usaha
-        nama_pelaku: productData.nama_pelaku || null,
-        deskripsi: productData.deskripsi || "",
-        nohp: productData.nohp || "",
-        gambar: imageUrl,
+        ...productData,
+        deskripsi: productData.deskripsi ?? "",
+        nohp: productData.nohp ?? "",
         id_user: user!.id_user,
         tgl_upload: new Date(),
       },
@@ -291,7 +283,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error("Gagal membuat produk:", error);
-
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
         return NextResponse.json(
@@ -300,10 +291,11 @@ export async function POST(request: NextRequest) {
         );
       }
       if (error.code === 'P2003') {
-           return NextResponse.json(
-             { message: `Kategori Usaha yang dipilih tidak valid atau tidak ada.` },
-             { status: 400 }
-           );
+        // Error ini terjadi jika id_kategori_usaha atau id_user tidak valid
+        return NextResponse.json(
+          { message: `Kategori atau User yang dipilih tidak valid.` },
+          { status: 400 }
+        );
       }
     }
     

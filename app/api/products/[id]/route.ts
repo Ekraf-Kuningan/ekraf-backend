@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma, { Prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
-import { uploadToRyzenCDN } from "@/lib/RyzenCDN";
-import { z } from "zod";
+import { updateProductSchema } from "../route";
 /**
  * @swagger
  * /api/products/{id}:
@@ -51,7 +50,7 @@ import { z } from "zod";
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         application/json:
  *           schema:
  *             type: object
  *             properties:
@@ -71,7 +70,8 @@ import { z } from "zod";
  *                 type: integer
  *               gambar:
  *                 type: string
- *                 format: binary
+ *             additionalProperties: false
+ *             description: All fields are optional for partial update
  *     responses:
  *       200:
  *         description: Product updated successfully
@@ -161,6 +161,7 @@ import { z } from "zod";
  *           type: array
  *           items:
  *             type: object
+ *       required: []
  */
 export async function GET(
   request: NextRequest,
@@ -200,37 +201,26 @@ export async function GET(
   }
 }
 
-// ... Skema Zod tidak berubah ...
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-const updateProductSchema = z.object({
-  nama_produk: z.string().min(3).optional(),
-  nama_pelaku: z.string().optional(),
-  deskripsi: z.string().optional(),
-  harga: z.coerce.number().positive().optional(),
-  stok: z.coerce.number().int().nonnegative().optional(),
-  nohp: z.string().regex(/^(\+62|62|0)8[1-9][0-9]{7,11}$/).optional().or(z.literal('')),
-  id_kategori_usaha: z.coerce.number().int().positive().optional(),
-  gambar: z.instanceof(File).refine((file) => file.size <= MAX_FILE_SIZE).refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type)).optional()
-});
 
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: number }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  // 1. Validasi dan parse ID
+  const id = parseInt(params.id, 10);
   if (isNaN(id)) {
     return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
   }
 
+  // 2. Otorisasi dan verifikasi kepemilikan (tidak berubah)
   const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
   if (errorResponse) return errorResponse;
   if (!user) return NextResponse.json({ message: "User tidak terautentikasi" }, { status: 401 });
-  
+
   try {
     const productToUpdate = await prisma.tbl_product.findUnique({
-      where: { id_produk: Number(id) }, // DIUBAH
+      where: { id_produk: id },
       select: { id_user: true }
     });
 
@@ -238,37 +228,37 @@ export async function PUT(
       return NextResponse.json({ message: "Produk tidak ditemukan" }, { status: 404 });
     }
 
-    const isOwner = productToUpdate.id_user === user.id_user;
-    const isAdmin = user.id_level === 1 || user.id_level === 2;
-
-    if (!isOwner && !isAdmin) {
-      return NextResponse.json({ message: "Akses ditolak: Anda hanya dapat menyunting produk milik sendiri." }, { status: 403 });
+    if (user.id_level === 3 && productToUpdate.id_user !== user.id_user) {
+      return NextResponse.json(
+        { message: "Akses ditolak: Anda hanya dapat menyunting produk milik sendiri." },
+        { status: 403 }
+      );
     }
+    
+    // 3. Baca body request sebagai JSON
+    const body = await request.json();
 
-    const formData = await request.formData();
-    const dataToValidate: Record<string, FormDataEntryValue> = {};
-    formData.forEach((value, key) => {
-      dataToValidate[key] = value;
-    });
-
-    const validationResult = updateProductSchema.safeParse(dataToValidate);
+    // 4. Validasi data menggunakan skema update (parsial)
+    const validationResult = updateProductSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return NextResponse.json({ message: "Data tidak valid.", errors: validationResult.error.flatten().fieldErrors }, { status: 400 });
+      return NextResponse.json(
+        { message: "Data tidak valid.", errors: validationResult.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
 
-    const { gambar: gambarFile, ...productData } = validationResult.data;
-    const updateData: Prisma.tbl_productUpdateInput = { ...productData };
+    // 5. Logika upload file dihapus, langsung siapkan data untuk update
+    const dataToUpdate = validationResult.data;
 
-    if (gambarFile) {
-      const imageUrl = await uploadToRyzenCDN(gambarFile);
-      if (!imageUrl) return NextResponse.json({ message: "Gagal mengunggah gambar baru." }, { status: 500 });
-      updateData.gambar = imageUrl;
+    // Jika tidak ada data yang dikirim untuk diupdate
+    if (Object.keys(dataToUpdate).length === 0) {
+        return NextResponse.json({ message: "Tidak ada data untuk diperbarui." }, { status: 400 });
     }
 
     const updatedProduct = await prisma.tbl_product.update({
-      where: { id_produk: Number(id) }, // DIUBAH
-      data: updateData,
+      where: { id_produk: id },
+      data: dataToUpdate, // Langsung gunakan data yang sudah tervalidasi
     });
 
     return NextResponse.json({
@@ -278,6 +268,7 @@ export async function PUT(
 
   } catch (error) {
     console.error("Gagal memperbarui produk:", error);
+    // ... (Penanganan error Prisma lainnya bisa ditambahkan di sini jika perlu) ...
     return NextResponse.json({ message: "Gagal memperbarui produk" }, { status: 500 });
   }
 }
