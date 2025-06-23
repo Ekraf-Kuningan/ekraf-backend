@@ -42,6 +42,8 @@ import { z } from "zod";
  *     summary: Membuat kategori usaha baru
  *     tags:
  *       - Kategori Usaha
+ *      security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -103,7 +105,7 @@ export async function GET() {
   try {
     const kategoriUsaha = await prisma.tbl_kategori_usaha.findMany({
       orderBy: {
-        nama_kategori: 'asc'
+        nama_kategori: "asc"
       }
     });
     return NextResponse.json({
@@ -119,12 +121,13 @@ export async function GET() {
 }
 
 const KategoriUsahaSchema = z.object({
-  nama_kategori_usaha: z.string().min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." })
+  nama_kategori_usaha: z
+    .string()
+    .min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." })
 });
 
-
 export async function POST(request: NextRequest) {
-  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
+  const [, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
   if (errorResponse) return errorResponse;
 
   try {
@@ -132,7 +135,13 @@ export async function POST(request: NextRequest) {
     const validationResult = KategoriUsahaSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return NextResponse.json({ message: "Data tidak valid", errors: validationResult.error.flatten().fieldErrors }, { status: 400 });
+      return NextResponse.json(
+        {
+          message: "Data tidak valid",
+          errors: validationResult.error.flatten().fieldErrors
+        },
+        { status: 400 }
+      );
     }
 
     const newKategori = await prisma.tbl_kategori_usaha.create({
@@ -141,12 +150,23 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ message: "Kategori usaha berhasil dibuat", data: newKategori }, { status: 201 });
-
+    return NextResponse.json(
+      { message: "Kategori usaha berhasil dibuat", data: newKategori },
+      { status: 201 }
+    );
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return NextResponse.json({ message: "Nama kategori usaha sudah ada." }, { status: 409 });
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return NextResponse.json(
+        { message: "Nama kategori usaha sudah ada." },
+        { status: 409 }
+      );
     }
-    return NextResponse.json({ message: "Gagal membuat kategori usaha" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Gagal membuat kategori usaha" },
+      { status: 500 }
+    );
   }
 }
