@@ -197,7 +197,7 @@ export async function PUT(
   try {
     // 3. Ambil data produk untuk verifikasi kepemilikan
     const productToUpdate = await prisma.tbl_product.findUnique({
-      where: { id_produk: id },
+      where: { id_produk: Number(id) },
       select: { id_user: true } // Cukup ambil id_user untuk verifikasi
     });
 
