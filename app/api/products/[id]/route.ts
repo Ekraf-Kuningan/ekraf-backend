@@ -3,7 +3,165 @@ import prisma, { Prisma } from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { uploadToRyzenCDN } from "@/lib/RyzenCDN";
 import { z } from "zod";
-
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     summary: Get product by ID
+ *     tags:
+ *       - Products
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Numeric ID of the product to get
+ *     responses:
+ *       200:
+ *         description: Product fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Invalid ID format
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Server error
+ *   put:
+ *     summary: Update product by ID
+ *     tags:
+ *       - Products
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Numeric ID of the product to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nama_produk:
+ *                 type: string
+ *               nama_pelaku:
+ *                 type: string
+ *               deskripsi:
+ *                 type: string
+ *               harga:
+ *                 type: number
+ *               stok:
+ *                 type: integer
+ *               nohp:
+ *                 type: string
+ *               id_kategori_usaha:
+ *                 type: integer
+ *               gambar:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Product updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Invalid data
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Server error
+ *   delete:
+ *     summary: Delete product by ID
+ *     tags:
+ *       - Products
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Numeric ID of the product to delete
+ *     responses:
+ *       200:
+ *         description: Product deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Invalid ID format
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Server error
+ *
+ * components:
+ *   schemas:
+ *     Product:
+ *       type: object
+ *       properties:
+ *         id_produk:
+ *           type: integer
+ *         nama_produk:
+ *           type: string
+ *         nama_pelaku:
+ *           type: string
+ *         deskripsi:
+ *           type: string
+ *         harga:
+ *           type: number
+ *         stok:
+ *           type: integer
+ *         nohp:
+ *           type: string
+ *         id_kategori_usaha:
+ *           type: integer
+ *         gambar:
+ *           type: string
+ *         id_user:
+ *           type: integer
+ *         tbl_kategori_usaha:
+ *           type: object
+ *         tbl_user:
+ *           type: object
+ *         tbl_olshop_link:
+ *           type: array
+ *           items:
+ *             type: object
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: number }> }
