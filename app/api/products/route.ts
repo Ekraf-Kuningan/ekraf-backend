@@ -31,7 +31,6 @@ export async function GET(request: NextRequest) {
       skip: skip,
       take: limit,
       include: {
-        tbl_subsektor: true,
         tbl_user: {
           select: {
             nama_user: true
@@ -181,7 +180,6 @@ export async function POST(request: NextRequest) {
         harga: parseFloat(harga),
         stok: parseInt(stok, 10),
         nohp,
-        id_sub: parseInt(id_sub, 10),
         gambar: imageUrl, // Simpan URL dari RyzenCDN
         id_user: user!.id_user,
         tgl_upload: new Date()

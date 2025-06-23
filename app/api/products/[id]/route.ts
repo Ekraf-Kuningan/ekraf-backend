@@ -22,7 +22,6 @@ export async function GET(
     const product = await prisma.tbl_product.findUnique({
       where: { id_produk: id },
       include: {
-        tbl_subsektor: true,
         tbl_user: { select: { nama_user: true, email: true } },
         tbl_olshop_link: true
       }

@@ -39,9 +39,8 @@ model tbl_olshop_link {
 }
 
 model tbl_subsektor {
-  id_sub      Int           @id
-  sub_sektor  String?       @db.VarChar(25)
-  tbl_product tbl_product[]
+  id_sub     Int     @id
+  sub_sektor String? @db.VarChar(25)
 }
 
 model tbl_user {
@@ -102,7 +101,6 @@ model tbl_kategori_usaha {
 
 model tbl_product {
   id_produk       Int               @id @default(autoincrement())
-  id_sub          Int
   nama_pelaku     String?           @db.VarChar(35)
   nama_produk     String            @db.VarChar(50)
   deskripsi       String            @db.VarChar(500)
@@ -114,10 +112,8 @@ model tbl_product {
   id_user         Int?
   tbl_olshop_link tbl_olshop_link[]
   tbl_user        tbl_user?         @relation(fields: [id_user], references: [id_user], onUpdate: Restrict, map: "fk_umkm_user")
-  tbl_subsektor   tbl_subsektor     @relation(fields: [id_sub], references: [id_sub], onUpdate: Restrict, map: "fk_user_sub")
 
   @@index([id_user], map: "fk_umkm_user")
-  @@index([id_sub], map: "fk_user_sub")
 }
 
 model cache {
