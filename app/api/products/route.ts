@@ -99,7 +99,7 @@ const productSchema = z.object({
  *     summary: Mendapatkan daftar produk
  *     description: Mengambil daftar produk dengan opsi pencarian, filter kategori, dan paginasi.
  *     tags:
- *       - Produk
+ *       - Products
  *     parameters:
  *       - in: query
  *         name: page
@@ -154,7 +154,7 @@ const productSchema = z.object({
  *     summary: Membuat produk baru
  *     description: Endpoint untuk membuat produk baru. Hanya dapat diakses oleh user dengan role tertentu (1, 2, 3).
  *     tags:
- *       - Produk
+ *       - Products
  *     security:
  *       - bearerAuth: []
  *     requestBody:
