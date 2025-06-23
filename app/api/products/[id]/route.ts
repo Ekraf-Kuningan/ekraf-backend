@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
-import { updateProductSchema } from "../route";
+import { updateProductSchema } from "@/lib/zod";
+
 /**
  * @swagger
  * /api/products/{id}:
