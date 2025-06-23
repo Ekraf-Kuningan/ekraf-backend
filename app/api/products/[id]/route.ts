@@ -5,16 +5,19 @@ import { uploadToRyzenCDN } from "@/lib/RyzenCDN";
 
 export async function GET(
   request: NextRequest,
+  
   {
     params
   }: {
-    params: { id: string };
+    params: Promise<{ id: number }>;
   }
 ) {
-  const id = parseInt(params.id, 10);
+   const { id } = await params;
+
   if (isNaN(id)) {
     return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
+
 
   try {
     const product = await prisma.tbl_product.findUnique({
@@ -175,22 +178,23 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  {
+{
     params
   }: {
-    params: { id: string };
+    params: Promise<{ id: number }>;
   }
 ) {
+   const { id } = await params;
+
+  if (isNaN(id)) {
+    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
+  }
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
   if (errorResponse) {
     return errorResponse;
   }
 
-  const id = parseInt(params.id, 10);
-  if (isNaN(id)) {
-    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
-  }
 
   try {
     const formData = await request.formData();
@@ -251,22 +255,23 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  {
+{
     params
   }: {
-    params: { id: string };
+    params: Promise<{ id: number }>;
   }
 ) {
+   const { id } = await params;
+
+  if (isNaN(id)) {
+    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
+  }
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
   if (errorResponse) {
     return errorResponse;
   }
 
-  const id = parseInt(params.id, 10);
-  if (isNaN(id)) {
-    return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
-  }
 
   try {
     // Tidak perlu lagi menghapus file gambar dari server lokal
