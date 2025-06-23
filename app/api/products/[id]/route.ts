@@ -112,8 +112,6 @@ export async function GET(
  *                 type: integer
  *               nohp:
  *                 type: string
- *               id_sub:
- *                 type: integer
  *               gambar:
  *                 type: string
  *                 format: binary
@@ -225,13 +223,13 @@ export async function PUT(
     const updateData: Record<string, string | number> = {};
 
     // Proses semua field teks dari form data
-    const fields = ["nama_produk", "deskripsi", "harga", "stok", "nohp", "id_sub"];
+    const fields = ["nama_produk", "deskripsi", "harga", "stok", "nohp"];
     fields.forEach((field) => {
       if (formData.has(field)) {
         const value = formData.get(field) as string;
         // Konversi tipe data sesuai kebutuhan skema Prisma
         if (field === "harga") updateData[field] = parseFloat(value);
-        else if (field === "stok" || field === "id_sub") updateData[field] = parseInt(value, 10);
+        else if (field === "stok") updateData[field] = parseInt(value, 10);
         else updateData[field] = value;
       }
     });
