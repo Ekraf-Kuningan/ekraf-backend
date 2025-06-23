@@ -20,7 +20,7 @@ export async function GET(
 
   try {
     const product = await prisma.tbl_product.findUnique({
-      where: { id_produk: id },
+      where: { id_produk: Number(id) },
       include: {
         tbl_user: { select: { nama_user: true, email: true } },
         tbl_olshop_link: true
@@ -251,7 +251,7 @@ export async function PUT(
 
     // Lakukan pembaruan data di database
     const updatedProduct = await prisma.tbl_product.update({
-      where: { id_produk: id },
+      where: { id_produk: Number(id) },
       data: updateData
     });
 
@@ -293,7 +293,7 @@ export async function DELETE(
   try {
     // 3. Ambil data produk untuk verifikasi kepemilikan
     const productToDelete = await prisma.tbl_product.findUnique({
-      where: { id_produk: id },
+      where: { id_produk: Number(id) },
       select: { id_user: true } // Cukup ambil id_user untuk verifikasi
     });
 
@@ -322,12 +322,12 @@ export async function DELETE(
 
     // Hapus link toko online yang terkait terlebih dahulu
     await prisma.tbl_olshop_link.deleteMany({
-      where: { id_produk: id }
+      where: { id_produk: Number(id) }
     });
 
     // Hapus produk dari database
     await prisma.tbl_product.delete({
-      where: { id_produk: id }
+      where: { id_produk: Number(id) }
     });
 
     return NextResponse.json({ message: "Product deleted successfully" });
