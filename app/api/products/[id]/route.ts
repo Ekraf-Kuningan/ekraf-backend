@@ -273,14 +273,14 @@ export async function PUT(
 }
 export async function DELETE(
   request: NextRequest,
-  {
+ {
     params
   }: {
-    params: { id: string }; // ID dari URL biasanya string, perlu di-parse
+    params: Promise<{ id: number }>;
   }
 ) {
-  // 1. Validasi dan parse ID dari string ke number
-  const id = parseInt(params.id, 10);
+  const { id } = await params;
+
   if (isNaN(id)) {
     return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
