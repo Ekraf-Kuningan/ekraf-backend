@@ -219,16 +219,7 @@ export async function PUT(
 
   // 2. Otorisasi dan verifikasi kepemilikan (tidak berubah)
   const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
-  const cekIdUser = await prisma.tbl_product.findUnique({
-    where: { id_produk: Number(id) },
-    select: { id_user: true }
-  });
-  if (user?.id_user !== cekIdUser?.id_user) {
-    return NextResponse.json(
-      { message: "Forbidden: You can only access your own products." },
-      { status: 403 }
-    );
-  }
+
   if (errorResponse) return errorResponse;
   if (!user)
     return NextResponse.json(
