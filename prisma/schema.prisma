@@ -109,7 +109,7 @@ model tbl_product {
   stok               Int
   gambar             String                    @db.VarChar(255)
   nohp               String                    @db.VarChar(12)
-  tgl_upload         DateTime                  @db.Date
+  tgl_upload         DateTime                  @default(now()) @db.Timestamp(0)
   id_user            Int?
   id_kategori_usaha  Int?
   status_produk      tbl_product_status_produk @default(pending)

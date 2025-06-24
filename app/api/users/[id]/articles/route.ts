@@ -65,7 +65,7 @@ export async function GET(
   const { id: userId } = await params;
   const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
 
-  // 2. Jika ada errorResponse, langsung kembalikan.
+  // 2. Jika ada errorResponse, langsung kembalikaan.
   if (errorResponse) {
     return errorResponse;
   }
