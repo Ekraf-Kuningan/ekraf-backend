@@ -170,7 +170,10 @@ export async function GET(
 ) {
   const { id } = await params;
   if (isNaN(id)) {
-    return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
+    return NextResponse.json(
+      { message: "Format ID tidak valid" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -202,39 +205,60 @@ export async function GET(
   }
 }
 
-
-
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: number }> }
 ) {
   const { id } = await params;
   if (isNaN(id)) {
-    return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
+    return NextResponse.json(
+      { message: "Format ID tidak valid" },
+      { status: 400 }
+    );
   }
 
   // 2. Otorisasi dan verifikasi kepemilikan (tidak berubah)
   const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
+  const cekIdUser = await prisma.tbl_product.findUnique({
+    where: { id_produk: Number(id) },
+    select: { id_user: true }
+  });
+  if (user?.id_user !== cekIdUser?.id_user) {
+    return NextResponse.json(
+      { message: "Forbidden: You can only access your own products." },
+      { status: 403 }
+    );
+  }
   if (errorResponse) return errorResponse;
-  if (!user) return NextResponse.json({ message: "User tidak terautentikasi" }, { status: 401 });
+  if (!user)
+    return NextResponse.json(
+      { message: "User tidak terautentikasi" },
+      { status: 401 }
+    );
 
   try {
     const productToUpdate = await prisma.tbl_product.findUnique({
-      where: { id_produk: id },
+      where: { id_produk: Number(id) },
       select: { id_user: true }
     });
 
     if (!productToUpdate) {
-      return NextResponse.json({ message: "Produk tidak ditemukan" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Produk tidak ditemukan" },
+        { status: 404 }
+      );
     }
 
     if (user.id_level === 3 && productToUpdate.id_user !== user.id_user) {
       return NextResponse.json(
-        { message: "Akses ditolak: Anda hanya dapat menyunting produk milik sendiri." },
+        {
+          message:
+            "Akses ditolak: Anda hanya dapat menyunting produk milik sendiri."
+        },
         { status: 403 }
       );
     }
-    
+
     // 3. Baca body request sebagai JSON
     const body = await request.json();
 
@@ -243,7 +267,10 @@ export async function PUT(
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { message: "Data tidak valid.", errors: validationResult.error.flatten().fieldErrors },
+        {
+          message: "Data tidak valid.",
+          errors: validationResult.error.flatten().fieldErrors
+        },
         { status: 400 }
       );
     }
@@ -253,23 +280,28 @@ export async function PUT(
 
     // Jika tidak ada data yang dikirim untuk diupdate
     if (Object.keys(dataToUpdate).length === 0) {
-        return NextResponse.json({ message: "Tidak ada data untuk diperbarui." }, { status: 400 });
+      return NextResponse.json(
+        { message: "Tidak ada data untuk diperbarui." },
+        { status: 400 }
+      );
     }
 
     const updatedProduct = await prisma.tbl_product.update({
-      where: { id_produk: id },
-      data: dataToUpdate, // Langsung gunakan data yang sudah tervalidasi
+      where: { id_produk: Number(id) },
+      data: dataToUpdate // Langsung gunakan data yang sudah tervalidasi
     });
 
     return NextResponse.json({
       message: "Produk berhasil diperbarui",
       data: updatedProduct
     });
-
   } catch (error) {
     console.error("Gagal memperbarui produk:", error);
     // ... (Penanganan error Prisma lainnya bisa ditambahkan di sini jika perlu) ...
-    return NextResponse.json({ message: "Gagal memperbarui produk" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Gagal memperbarui produk" },
+      { status: 500 }
+    );
   }
 }
 
@@ -279,12 +311,19 @@ export async function DELETE(
 ) {
   const { id } = await params;
   if (isNaN(id)) {
-    return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
+    return NextResponse.json(
+      { message: "Format ID tidak valid" },
+      { status: 400 }
+    );
   }
 
   const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
   if (errorResponse) return errorResponse;
-  if (!user) return NextResponse.json({ message: "User tidak terautentikasi" }, { status: 401 });
+  if (!user)
+    return NextResponse.json(
+      { message: "User tidak terautentikasi" },
+      { status: 401 }
+    );
 
   try {
     const productToDelete = await prisma.tbl_product.findUnique({
@@ -293,14 +332,23 @@ export async function DELETE(
     });
 
     if (!productToDelete) {
-      return NextResponse.json({ message: "Produk tidak ditemukan" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Produk tidak ditemukan" },
+        { status: 404 }
+      );
     }
 
     const isOwner = productToDelete.id_user === user.id_user;
     const isAdmin = user.id_level === 1 || user.id_level === 2;
 
     if (!isOwner && !isAdmin) {
-      return NextResponse.json({ message: "Akses ditolak: Anda hanya dapat menghapus produk milik sendiri." }, { status: 403 });
+      return NextResponse.json(
+        {
+          message:
+            "Akses ditolak: Anda hanya dapat menghapus produk milik sendiri."
+        },
+        { status: 403 }
+      );
     }
 
     await prisma.tbl_olshop_link.deleteMany({
@@ -314,6 +362,9 @@ export async function DELETE(
     return NextResponse.json({ message: "Produk berhasil dihapus" });
   } catch (error) {
     console.error("Gagal menghapus produk:", error);
-    return NextResponse.json({ message: "Gagal menghapus produk" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Gagal menghapus produk" },
+      { status: 500 }
+    );
   }
 }
