@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { authorizeRequest } from '@/lib/auth/authorizeRequest';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
 /**
  * @swagger
@@ -38,32 +38,46 @@ import { authorizeRequest } from '@/lib/auth/authorizeRequest';
  *       500:
  *         description: Failed to fetch products
  */
-export async function GET(request: NextRequest,{
-  params,
-}: {
-  params: Promise<{ id: number }>
-}) {
-  
+export async function GET(
+  request: NextRequest,
+  {
+    params
+  }: {
+    params: Promise<{ id: number }>;
+  }
+) {
   const { id } = await params;
-  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
-  
-    // 2. Jika ada errorResponse, langsung kembalikan.
-    if (errorResponse) {
-      return errorResponse;
-    }
+  const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
+
+  // Jika ada errorResponse, langsung kembalikan.
+  if (errorResponse) {
+    return errorResponse;
+  }
+
+  // Hanya bisa dirinya sendiri
+  if (user?.id_user !== Number(id)) {
+    return NextResponse.json(
+      { message: "Forbidden: You can only access your own products." },
+      { status: 403 }
+    );
+  }
+
   try {
     const products = await prisma.tbl_product.findMany({
       where: { id_user: Number(id) },
       orderBy: {
-        tgl_upload: 'desc',
-      },
+        tgl_upload: "desc"
+      }
     });
 
     return NextResponse.json({
       message: `Products for user ${id} fetched successfully`,
-      data: products,
+      data: products
     });
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to fetch products', error }, { status: 500 });
+    return NextResponse.json(
+      { message: "Failed to fetch products", error },
+      { status: 500 }
+    );
   }
 }

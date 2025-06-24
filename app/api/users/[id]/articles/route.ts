@@ -63,13 +63,18 @@ export async function GET(
   }
 ) {
   const { id: userId } = await params;
-  const [, errorResponse] = await authorizeRequest(request, [1, 2]);
+  const [user, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
 
   // 2. Jika ada errorResponse, langsung kembalikan.
   if (errorResponse) {
     return errorResponse;
   }
-
+  if (user?.id_user !== Number(userId)) {
+    return NextResponse.json(
+      { message: "Forbidden: You can only access your own products." },
+      { status: 403 }
+    );
+  }
   try {
     const articles = await prisma.tbl_artikel.findMany({
       where: { id_user: userId },
