@@ -101,20 +101,21 @@ model tbl_kategori_usaha {
 }
 
 model tbl_product {
-  id_produk          Int                 @id @default(autoincrement())
-  nama_pelaku        String?             @db.VarChar(35)
-  nama_produk        String              @db.VarChar(50)
-  deskripsi          String              @db.VarChar(500)
+  id_produk          Int                       @id @default(autoincrement())
+  nama_pelaku        String?                   @db.VarChar(35)
+  nama_produk        String                    @db.VarChar(50)
+  deskripsi          String                    @db.VarChar(500)
   harga              Float
   stok               Int
-  gambar             String              @db.VarChar(255)
-  nohp               String              @db.VarChar(12)
-  tgl_upload         DateTime            @db.Date
+  gambar             String                    @db.VarChar(255)
+  nohp               String                    @db.VarChar(12)
+  tgl_upload         DateTime                  @db.Date
   id_user            Int?
   id_kategori_usaha  Int?
+  status_produk      tbl_product_status_produk @default(pending)
   tbl_olshop_link    tbl_olshop_link[]
-  tbl_kategori_usaha tbl_kategori_usaha? @relation(fields: [id_kategori_usaha], references: [id_kategori_usaha], onDelete: Restrict, onUpdate: Restrict, map: "fk_product_kategori_usaha")
-  tbl_user           tbl_user?           @relation(fields: [id_user], references: [id_user], onUpdate: Restrict, map: "fk_umkm_user")
+  tbl_kategori_usaha tbl_kategori_usaha?       @relation(fields: [id_kategori_usaha], references: [id_kategori_usaha], onDelete: Restrict, onUpdate: Restrict, map: "fk_product_kategori_usaha")
+  tbl_user           tbl_user?                 @relation(fields: [id_user], references: [id_user], onUpdate: Restrict, map: "fk_umkm_user")
 
   @@index([id_user], map: "fk_umkm_user")
   @@index([id_kategori_usaha], map: "fk_product_kategori_usaha")
@@ -220,4 +221,11 @@ enum tbl_user_status_usaha {
 enum tbl_user_temp_status_usaha {
   BARU
   SUDAH_LAMA
+}
+
+enum tbl_product_status_produk {
+  disetujui
+  pending
+  ditolak
+  tidak_aktif @map("tidak aktif")
 }
