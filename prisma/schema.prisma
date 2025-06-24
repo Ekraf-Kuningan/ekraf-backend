@@ -95,6 +95,7 @@ model tbl_user_temp {
 model tbl_kategori_usaha {
   id_kategori_usaha Int             @id @default(autoincrement())
   nama_kategori     String          @unique(map: "nama_kategori_UNIQUE") @db.VarChar(50)
+  image             String?         @db.VarChar(255)
   tbl_product       tbl_product[]
   tbl_user          tbl_user[]
   tbl_user_temp     tbl_user_temp[]

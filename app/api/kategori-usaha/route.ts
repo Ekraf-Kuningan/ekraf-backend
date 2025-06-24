@@ -29,6 +29,9 @@ import { z } from "zod";
  *                         type: integer
  *                       nama_kategori:
  *                         type: string
+ *                       image:
+ *                         type: string
+ *                         nullable: true
  *       500:
  *         description: Gagal mengambil data Kategori Usaha
  *         content:
@@ -54,6 +57,9 @@ import { z } from "zod";
  *               nama_kategori_usaha:
  *                 type: string
  *                 minLength: 3
+ *               image:
+ *                 type: string
+ *                 nullable: true
  *     responses:
  *       201:
  *         description: Kategori usaha berhasil dibuat
@@ -71,6 +77,9 @@ import { z } from "zod";
  *                       type: integer
  *                     nama_kategori:
  *                       type: string
+ *                     image:
+ *                       type: string
+ *                       nullable: true
  *       400:
  *         description: Data tidak valid
  *         content:
@@ -106,6 +115,11 @@ export async function GET() {
     const kategoriUsaha = await prisma.tbl_kategori_usaha.findMany({
       orderBy: {
         nama_kategori: "asc"
+      },
+      select: {
+        id_kategori_usaha: true,
+        nama_kategori: true,
+        image: true
       }
     });
     return NextResponse.json({
@@ -123,7 +137,8 @@ export async function GET() {
 const KategoriUsahaSchema = z.object({
   nama_kategori_usaha: z
     .string()
-    .min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." })
+    .min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." }),
+  image: z.string().max(255).nullable().optional()
 });
 
 export async function POST(request: NextRequest) {
@@ -146,7 +161,8 @@ export async function POST(request: NextRequest) {
 
     const newKategori = await prisma.tbl_kategori_usaha.create({
       data: {
-        nama_kategori: validationResult.data.nama_kategori_usaha
+        nama_kategori: validationResult.data.nama_kategori_usaha,
+        image: validationResult.data.image ?? null
       }
     });
 

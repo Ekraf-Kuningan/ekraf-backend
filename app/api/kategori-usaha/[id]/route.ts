@@ -3,114 +3,6 @@ import prisma, { Prisma } from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { z } from "zod";
 
-/**
- * @swagger
- * /api/kategori-usaha/{id}:
- *   get:
- *     summary: Get kategori usaha by ID
- *     tags:
- *       - Kategori Usaha
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID kategori usaha
- *     responses:
- *       200:
- *         description: Data berhasil diambil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   $ref: '#/components/schemas/KategoriUsaha'
- *       400:
- *         description: Format ID tidak valid
- *       404:
- *         description: Kategori usaha tidak ditemukan
- *       500:
- *         description: Gagal mengambil data
- *   put:
- *     summary: Update kategori usaha by ID
- *     tags:
- *       - Kategori Usaha
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID kategori usaha
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               nama_kategori_usaha:
- *                 type: string
- *                 minLength: 3
- *     responses:
- *       200:
- *         description: Kategori usaha berhasil diperbarui
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   $ref: '#/components/schemas/KategoriUsaha'
- *       400:
- *         description: Data tidak valid / Format ID tidak valid
- *       404:
- *         description: Kategori usaha tidak ditemukan
- *       409:
- *         description: Nama kategori usaha sudah ada
- *       500:
- *         description: Gagal memperbarui kategori usaha
- *   delete:
- *     summary: Delete kategori usaha by ID
- *     tags:
- *       - Kategori Usaha
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID kategori usaha
- *     responses:
- *       200:
- *         description: Kategori usaha berhasil dihapus
- *       400:
- *         description: Format ID tidak valid
- *       404:
- *         description: Kategori usaha tidak ditemukan
- *       500:
- *         description: Gagal menghapus kategori usaha
- *
- * components:
- *   schemas:
- *     KategoriUsaha:
- *       type: object
- *       properties:
- *         id_kategori_usaha:
- *           type: integer
- *         nama_kategori:
- *           type: string
- */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
   const { id } = await params;
   if (isNaN(id)) return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
@@ -131,11 +23,188 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 const KategoriUsahaSchema = z.object({
-  nama_kategori_usaha: z.string().min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." })
+  nama_kategori: z.string().min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." }),
+  image: z.string().max(255).optional().nullable()
 });
 
-
-
+/**
+ * @swagger
+ * /api/kategori-usaha/{id}:
+ *   get:
+ *     summary: Mengambil data kategori usaha berdasarkan ID
+ *     description: Mengambil detail kategori usaha berdasarkan ID.
+ *     tags:
+ *       - Kategori Usaha
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID kategori usaha yang akan diambil
+ *     responses:
+ *       200:
+ *         description: Data berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/KategoriUsaha'
+ *       400:
+ *         description: Format ID tidak valid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Kategori usaha tidak ditemukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Gagal mengambil data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *
+ *   put:
+ *     summary: Memperbarui data kategori usaha berdasarkan ID
+ *     description: Memperbarui nama dan gambar kategori usaha yang sudah ada berdasarkan ID.
+ *     tags:
+ *       - Kategori Usaha
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID kategori usaha yang akan diperbarui
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/KategoriUsaha'
+ *     responses:
+ *       200:
+ *         description: Kategori usaha berhasil diperbarui
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/KategoriUsaha'
+ *       400:
+ *         description: Format ID tidak valid atau data tidak valid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 errors:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *       404:
+ *         description: Kategori usaha tidak ditemukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       409:
+ *         description: Nama kategori usaha sudah ada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Gagal memperbarui kategori usaha karena kesalahan server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *
+ *   delete:
+ *     summary: Menghapus kategori usaha berdasarkan ID
+ *     description: Menghapus kategori usaha berdasarkan ID.
+ *     tags:
+ *       - Kategori Usaha
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID kategori usaha yang akan dihapus
+ *     responses:
+ *       200:
+ *         description: Kategori usaha berhasil dihapus
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Format ID tidak valid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Kategori usaha tidak ditemukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Gagal menghapus kategori usaha
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
   const { id } = await params;
   if (isNaN(id)) return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
@@ -152,7 +221,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const updatedKategori = await prisma.tbl_kategori_usaha.update({
       where: { id_kategori_usaha: Number(id) },
-      data: { nama_kategori: validationResult.data.nama_kategori_usaha }
+      data: { 
+        nama_kategori: validationResult.data.nama_kategori,
+        image: validationResult.data.image ?? undefined
+      }
     });
 
     return NextResponse.json({ message: "Kategori usaha berhasil diperbarui", data: updatedKategori });
@@ -165,8 +237,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ message: "Gagal memperbarui kategori usaha" }, { status: 500 });
   }
 }
-
-
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
   const { id } = await params;
