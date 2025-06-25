@@ -54,7 +54,7 @@ import { z } from "zod";
  *           schema:
  *             type: object
  *             properties:
- *               nama_kategori_usaha:
+ *               nama_kategori:
  *                 type: string
  *                 minLength: 3
  *               image:
