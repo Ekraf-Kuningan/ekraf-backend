@@ -55,7 +55,11 @@ export async function GET(
   }
 
   // Hanya bisa dirinya sendiri
-  if (user?.id_user !== Number(id)) {
+  // Jika bukan admin (role 1 atau 2), hanya bisa akses dirinya sendiri
+  if (
+    (user?.id_level === undefined || ![1, 2].includes(user.id_level)) &&
+    user?.id_user !== Number(id)
+  ) {
     return NextResponse.json(
       { message: "Forbidden: You can only access your own products." },
       { status: 403 }
