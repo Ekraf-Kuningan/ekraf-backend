@@ -27,5 +27,6 @@ export const productSchema = z.object({
   gambar: z.string({ required_error: "URL gambar wajib diisi." })
     .url({ message: "Format URL gambar tidak valid." })
     .min(1, { message: "URL gambar tidak boleh kosong." }),
+  status_produk: z.enum(['disetujui', 'pending', 'ditolak', 'tidak_aktif']).default('pending'),
 });
 export const updateProductSchema = productSchema.partial();
