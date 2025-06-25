@@ -135,7 +135,7 @@ export async function GET() {
 }
 
 const KategoriUsahaSchema = z.object({
-  nama_kategori_usaha: z
+  nama_kategori: z
     .string()
     .min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." }),
   image: z.string().max(255).nullable().optional()
@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
 
     const newKategori = await prisma.tbl_kategori_usaha.create({
       data: {
-        nama_kategori: validationResult.data.nama_kategori_usaha,
+        nama_kategori: validationResult.data.nama_kategori,
         image: validationResult.data.image ?? null
       }
     });
