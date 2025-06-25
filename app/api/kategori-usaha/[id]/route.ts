@@ -48,12 +48,14 @@ const KategoriUsahaSchema = z.object({
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   $ref: '#/components/schemas/KategoriUsaha'
+ *             type: object
+ *             properties:
+ *               nama_kategori:
+ *                 type: string
+ *                 minLength: 3
+ *               image:
+ *                 type: string
+ *                 nullable: true
  *       400:
  *         description: Format ID tidak valid
  *         content:
