@@ -228,5 +228,5 @@ enum tbl_product_status_produk {
   disetujui
   pending
   ditolak
-  tidak_aktif @map("tidak aktif")
+  tidak_aktif
 }
