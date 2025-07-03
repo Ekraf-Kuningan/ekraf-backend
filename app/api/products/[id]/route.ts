@@ -180,7 +180,7 @@ export async function GET(
     const product = await prisma.products.findUnique({
       where: { id: Number(id) },
       include: {
-        business_category: true,
+        business_categories: true,
         users: { select: { name: true, email: true } },
         online_store_links: true
       }

@@ -24,8 +24,8 @@ jest.mock('../lib/prisma', () => ({
     PrismaClientKnownRequestError: class extends Error {
       code: string;
       clientVersion: string;
-      meta: any;
-      constructor(message: string, options: { code: string; clientVersion: string; meta?: any }) {
+      meta: unknown;
+      constructor(message: string, options: { code: string; clientVersion: string; meta?: unknown }) {
         super(message);
         this.code = options.code;
         this.clientVersion = options.clientVersion;

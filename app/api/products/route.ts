@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/app/generated/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { productSchema } from "@/lib/zod";
 
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       skip: skip,
       take: limit,
       include: {
-        business_category: true, // Diubah dari Subsector
+        business_categories: true, // Diubah dari Subsector
         users: {
           select: {
             name: true
