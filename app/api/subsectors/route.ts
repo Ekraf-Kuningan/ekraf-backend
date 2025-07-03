@@ -43,7 +43,7 @@ const SubsectorSchema = z.object({
  *                       title:
  *                         type: string
  *       500:
- *         description: Gagal mengambil data Subsektor
+ *         description: Gagal mengambil data Subsector
  *         content:
  *           application/json:
  *             schema:
@@ -69,7 +69,7 @@ const SubsectorSchema = z.object({
  *                 minLength: 3
  *     responses:
  *       201:
- *         description: Sub sektor berhasil dibuat
+ *         description: Sub sector berhasil dibuat
  *         content:
  *           application/json:
  *             schema:
@@ -127,7 +127,7 @@ export async function GET() {
     });
   } catch {
     return NextResponse.json(
-      { message: "Gagal mengambil data Subsektor" },
+      { message: "Gagal mengambil data Subsector" },
       { status: 500 }
     );
   }

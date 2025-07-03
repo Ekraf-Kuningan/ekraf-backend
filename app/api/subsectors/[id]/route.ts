@@ -31,7 +31,7 @@ import { z } from "zod";
  *       400:
  *         description: Format ID tidak valid
  *       404:
- *         description: Subsektor tidak ditemukan
+ *         description: Subsector tidak ditemukan
  *       500:
  *         description: Gagal mengambil data
  *   put:
@@ -59,7 +59,7 @@ import { z } from "zod";
  *                 minLength: 3
  *     responses:
  *       200:
- *         description: Subsektor berhasil diperbarui
+ *         description: Subsector berhasil diperbarui
  *         content:
  *           application/json:
  *             schema:
@@ -72,7 +72,7 @@ import { z } from "zod";
  *       400:
  *         description: Data tidak valid / Format ID tidak valid
  *       404:
- *         description: Subsektor tidak ditemukan
+ *         description: Subsector tidak ditemukan
  *       409:
  *         description: Nama subsektor sudah ada
  *       500:
@@ -92,11 +92,11 @@ import { z } from "zod";
  *         description: ID subsektor
  *     responses:
  *       200:
- *         description: Subsektor berhasil dihapus
+ *         description: Subsector berhasil dihapus
  *       400:
  *         description: Format ID tidak valid
  *       404:
- *         description: Subsektor tidak ditemukan
+ *         description: Subsector tidak ditemukan
  *       500:
  *         description: Gagal menghapus subsektor
  *
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
 
     if (!subsector) {
-      return NextResponse.json({ message: "Subsektor tidak ditemukan" }, { status: 404 });
+      return NextResponse.json({ message: "Subsector tidak ditemukan" }, { status: 404 });
     }
     return NextResponse.json({ message: "Data berhasil diambil", data: subsector });
 
@@ -152,11 +152,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       data: { title: validationResult.data.title }
     });
 
-    return NextResponse.json({ message: "Subsektor berhasil diperbarui", data: updatedSubsector });
+    return NextResponse.json({ message: "Subsector berhasil diperbarui", data: updatedSubsector });
 
   } catch (error) {
      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') return NextResponse.json({ message: "Subsektor tidak ditemukan." }, { status: 404 });
+        if (error.code === 'P2025') return NextResponse.json({ message: "Subsector tidak ditemukan." }, { status: 404 });
         if (error.code === 'P2002') return NextResponse.json({ message: "Nama subsektor sudah ada." }, { status: 409 });
      }
     return NextResponse.json({ message: "Gagal memperbarui subsektor" }, { status: 500 });
@@ -174,11 +174,11 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     await prisma.sub_sectors.delete({
       where: { id: Number(id) }
     });
-    return NextResponse.json({ message: "Subsektor berhasil dihapus." });
+    return NextResponse.json({ message: "Subsector berhasil dihapus." });
 
   } catch (error) {
      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        return NextResponse.json({ message: "Subsektor tidak ditemukan." }, { status: 404 });
+        return NextResponse.json({ message: "Subsector tidak ditemukan." }, { status: 404 });
      }
     return NextResponse.json({ message: "Gagal menghapus subsektor" }, { status: 500 });
   }

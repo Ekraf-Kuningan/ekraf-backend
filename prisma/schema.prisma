@@ -23,15 +23,15 @@ model users {
   image                    String?                @db.VarChar(255)
   business_name            String?                @db.VarChar(100)
   business_status          users_business_status?
-  level_id                 BigInt                 @db.UnsignedBigInt
+  level_id                 BigInt                 @default(3) @db.UnsignedBigInt
   business_category_id     Int?                   @db.UnsignedInt
   resetPasswordToken       String?                @unique(map: "users_resetpasswordtoken_unique") @db.VarChar(255)
   resetPasswordTokenExpiry DateTime?              @db.DateTime(0)
   verifiedAt               DateTime?              @db.Timestamp(0)
+  artikels                 artikels[]
   products                 products[]
   business_categories      business_categories?   @relation(fields: [business_category_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "users_business_category_id_foreign")
   levels                   levels                 @relation(fields: [level_id], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "users_level_id_foreign")
-  artikels                 artikels[]
 
   @@index([business_category_id], map: "users_business_category_id_foreign")
   @@index([level_id], map: "users_level_id_foreign")
@@ -56,7 +56,9 @@ model artikels {
   is_featured         Boolean   @default(false)
   created_at          DateTime? @db.Timestamp(0)
   updated_at          DateTime? @db.Timestamp(0)
-  author              users     @relation(fields: [author_id], references: [id])
+  users               users     @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "artikels_author_id_foreign")
+
+  @@index([author_id], map: "artikels_author_id_foreign")
 }
 
 model authors {
@@ -151,9 +153,9 @@ model business_categories {
   id              Int               @id @default(autoincrement()) @db.UnsignedInt
   name            String            @unique(map: "tbl_kategori_usaha_nama_kategori_unique") @db.VarChar(50)
   image           String?           @db.VarChar(255)
+  products        products[]
   temporary_users temporary_users[]
   users           users[]
-  products        products[]
 }
 
 model catalogs {
@@ -196,23 +198,24 @@ model online_store_links {
 }
 
 model products {
-  id                 Int                  @id @default(autoincrement()) @db.UnsignedInt
-  owner_name         String?              @db.VarChar(35)
-  name               String               @db.VarChar(50)
-  description        String               @db.VarChar(500)
-  price              Float
-  stock              Int
-  image              String               @db.VarChar(255)
-  phone_number       String               @db.VarChar(12)
-  uploaded_at        DateTime             @default(now()) @db.Timestamp(0)
-  user_id            BigInt?              @db.UnsignedBigInt
+  id                   Int                  @id @default(autoincrement()) @db.UnsignedInt
+  owner_name           String?              @db.VarChar(35)
+  name                 String               @db.VarChar(50)
+  description          String               @db.VarChar(500)
+  price                Float
+  stock                Int
+  image                String               @db.VarChar(255)
+  phone_number         String               @db.VarChar(12)
+  uploaded_at          DateTime             @default(now()) @db.Timestamp(0)
+  user_id              BigInt?              @db.UnsignedBigInt
   business_category_id Int?                 @db.UnsignedInt
-  status             products_status      @default(pending)
-  online_store_links online_store_links[]
-  users              users?               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "tbl_product_id_user_foreign")
-  business_category  business_categories? @relation(fields: [business_category_id], references: [id])
+  status               products_status      @default(pending)
+  online_store_links   online_store_links[]
+  business_categories  business_categories? @relation(fields: [business_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "products_business_category_id_foreign")
+  users                users?               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "tbl_product_id_user_foreign")
 
   @@index([user_id], map: "tbl_product_id_user_index")
+  @@index([business_category_id], map: "products_business_category_id_foreign")
 }
 
 model sub_sectors {

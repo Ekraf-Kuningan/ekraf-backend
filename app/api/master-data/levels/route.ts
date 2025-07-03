@@ -23,7 +23,7 @@ import prisma from '@/lib/prisma';
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/TblLevel'
+ *                     $ref: '#/components/schemas/Level'
  *       500:
  *         description: Failed to fetch user levels
  *         content:

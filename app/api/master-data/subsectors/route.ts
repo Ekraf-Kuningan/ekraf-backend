@@ -23,7 +23,7 @@ import prisma from '@/lib/prisma';
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Subsektor'
+ *                     $ref: '#/components/schemas/Subsector'
  *       500:
  *         description: Failed to fetch subsectors
  *         content:

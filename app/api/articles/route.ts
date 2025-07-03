@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
       skip: skip,
       take: limit,
       include: {
-        author: {
+        users: {
           select: {
             name: true,
             email: true

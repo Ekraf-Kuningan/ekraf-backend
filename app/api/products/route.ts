@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       skip: skip,
       take: limit,
       include: {
-        business_category: true, // Diubah dari tbl_subsektor
+        business_category: true, // Diubah dari Subsector
         users: {
           select: {
             name: true

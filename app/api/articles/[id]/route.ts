@@ -135,14 +135,13 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *           type: string
  *         thumbnail:
  *           type: string
- *         author: {
- *           type: object,
- *           properties: {
- *             name: { type: 'string' },
- *             email: { type: 'string' }
- *           }
- *         }
- *       }
+ *         author:
+ *           type: object
+ *           properties:
+ *             name:
+ *               type: string
+ *             email:
+ *               type: string
  */
 export async function GET(
   request: NextRequest,
@@ -164,7 +163,7 @@ export async function GET(
     const article = await prisma.artikels.findUnique({
       where: { id: Number(id) },
       include: {
-        author: {
+        users: {
           select: {
             name: true,
             email: true,

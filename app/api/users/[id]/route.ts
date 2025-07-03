@@ -31,10 +31,9 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *                 data:
  *                   type: object
  *                   properties:
- *                     id:
- *                       type: integer
- *                       type: string
- *                     username:
+*                     id:
+*                       type: integer
+*                     username:
  *                       type: string
  *                     email:
  *                       type: string
