@@ -93,9 +93,11 @@ describe('GET /api/kategori-usaha/{id}', () => {
 });
 
 describe('PUT /api/kategori-usaha/{id}', () => {
+  let mockCategoryData: { name: string; image: string };
+  
   beforeEach(() => {
     jest.clearAllMocks();
-    const mockCategoryData = {
+    mockCategoryData = {
       name: 'Updated Category',
       image: 'updated-image.jpg',
     };

@@ -1,17 +1,10 @@
 import { POST } from '../app/api/auth/forgot-password/route';
-import prisma from '../lib/prisma';
+import { prisma } from '../lib/prisma';
 import { sendEmail } from '../lib/mailer';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 jest.mock('../lib/prisma', () => ({
-  __esModule: true,
   prisma: {
-    users: {
-      findFirst: jest.fn(),
-    },
-    $disconnect: jest.fn().mockResolvedValue(undefined),
-  },
-  default: {
     users: {
       findFirst: jest.fn(),
     },
