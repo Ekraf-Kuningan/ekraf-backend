@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/app/generated/prisma";
 
 // Helper function to generate a slug
 function generateSlug(title: string): string {

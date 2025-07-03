@@ -2,7 +2,7 @@ import { GET, PUT, DELETE } from '../app/api/subsectors/[id]/route';
 import prisma from '../lib/prisma';
 import { authorizeRequest } from '../lib/auth/authorizeRequest';
 import { NextRequest, NextResponse } from 'next/server';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../app/generated/prisma';
 
 jest.mock('../lib/prisma', () => ({
   __esModule: true,
@@ -13,16 +13,19 @@ jest.mock('../lib/prisma', () => ({
       delete: jest.fn(),
     },
   },
+}));
+
+jest.mock('../app/generated/prisma', () => ({
   Prisma: {
     PrismaClientKnownRequestError: class extends Error {
       code: string;
       clientVersion: string;
-      meta: any;
-      constructor(message: string, options: { code: string; clientVersion: string; meta?: any }) {
+      meta: Record<string, unknown>;
+      constructor(message: string, options: { code: string; clientVersion: string; meta?: Record<string, unknown> }) {
         super(message);
         this.code = options.code;
         this.clientVersion = options.clientVersion;
-        this.meta = options.meta;
+        this.meta = options.meta || {};
       }
     },
   },
