@@ -12,7 +12,7 @@ jest.mock('@/lib/prisma', () => ({
 
 describe('GET /api/kategori-usaha', () => {
   it('should return a list of business categories', async () => {
-    prisma.business_categories.findMany.mockResolvedValue([
+    (prisma.business_categories.findMany as jest.Mock).mockResolvedValue([
       { id: 1, name: 'Test Category' },
     ]);
 

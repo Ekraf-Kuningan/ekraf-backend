@@ -12,7 +12,7 @@ jest.mock('../lib/prisma', () => ({
 
 describe('GET /api/master-data/subsectors', () => {
   it('should return a list of subsectors', async () => {
-    prisma.sub_sectors.findMany.mockResolvedValue([
+    (prisma.sub_sectors.findMany as jest.Mock).mockResolvedValue([
       { id: 1, title: 'Kuliner', slug: 'kuliner' },
       { id: 2, title: 'Fashion', slug: 'fashion' },
     ]);
@@ -26,7 +26,7 @@ describe('GET /api/master-data/subsectors', () => {
   });
 
   it('should return a 500 error if fetching fails', async () => {
-    prisma.sub_sectors.findMany.mockRejectedValue(new Error('Database error'));
+    (prisma.sub_sectors.findMany as jest.Mock).mockRejectedValue(new Error('Database error'));
 
     const response = await GET();
     const json = await response.json();
