@@ -85,6 +85,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *     description: Memperbarui nama dan gambar kategori usaha yang sudah ada berdasarkan ID.
  *     tags:
  *       - Kategori Usaha
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -158,6 +160,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *     description: Menghapus kategori usaha berdasarkan ID.
  *     tags:
  *       - Kategori Usaha
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
