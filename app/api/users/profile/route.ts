@@ -26,10 +26,10 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *                 data:
  *                   type: object
  *                   properties:
- *                     id_user:
+ *                     id:
  *                       type: integer
  *                       example: 1
- *                     nama_user:
+ *                     name:
  *                       type: string
  *                       example: John Doe
  *                     username:
@@ -38,26 +38,26 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *                     email:
  *                       type: string
  *                       example: johndoe@example.com
- *                     nohp:
+ *                     phone_number:
  *                       type: string
  *                       example: "08123456789"
- *                     jk:
+ *                     gender:
  *                       type: string
  *                       example: L
- *                     nama_usaha:
+ *                     business_name:
  *                       type: string
  *                       example: Usaha Jaya
- *                     status_usaha:
+ *                     business_status:
  *                       type: string
  *                       example: Aktif
  *                     verifiedAt:
  *                       type: string
  *                       format: date-time
  *                       example: "2024-06-01T12:00:00Z"
- *                     tbl_level:
+ *                     levels:
  *                       type: object
  *                       description: User level information
- *                     tbl_kategori_usaha:
+ *                     business_categories:
  *                       type: object
  *                       description: Business category information
  *       401:
@@ -111,13 +111,13 @@ export async function GET(request: NextRequest) {
         name: true,
         username: true,
         email: true,
-        nohp: true,
-        jk: true,
-        nama_usaha: true,
-        status_usaha: true,
+        phone_number: true,
+        gender: true,
+        business_name: true,
+        business_status: true,
         verifiedAt: true,
-        tbl_level: true,
-        tbl_kategori_usaha: true
+        levels: true,
+        business_categories: true
       }
     });
 

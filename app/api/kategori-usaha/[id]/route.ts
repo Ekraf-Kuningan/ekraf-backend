@@ -8,8 +8,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (isNaN(id)) return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
 
   try {
-    const kategori = await prisma.tbl_kategori_usaha.findUnique({
-      where: { id_kategori_usaha: Number(id) }
+    const kategori = await prisma.business_categories.findUnique({
+      where: { id: Number(id) }
     });
 
     if (!kategori) {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 const KategoriUsahaSchema = z.object({
-  nama_kategori: z.string().min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." }),
+  name: z.string().min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." }),
   image: z.string().max(255).optional().nullable()
 });
 
@@ -50,7 +50,7 @@ const KategoriUsahaSchema = z.object({
  *             schema:
  *             type: object
  *             properties:
- *               nama_kategori:
+ *               name:
  *                 type: string
  *                 minLength: 3
  *               image:
@@ -221,10 +221,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ message: "Data tidak valid", errors: validationResult.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const updatedKategori = await prisma.tbl_kategori_usaha.update({
-      where: { id_kategori_usaha: Number(id) },
+    const updatedKategori = await prisma.business_categories.update({
+      where: { id: Number(id) },
       data: { 
-        nama_kategori: validationResult.data.nama_kategori,
+        name: validationResult.data.name,
         image: validationResult.data.image ?? undefined
       }
     });
@@ -248,8 +248,8 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   if (errorResponse) return errorResponse;
 
   try {
-    await prisma.tbl_kategori_usaha.delete({
-      where: { id_kategori_usaha: Number(id) }
+    await prisma.business_categories.delete({
+      where: { id: Number(id) }
     });
     return NextResponse.json({ message: "Kategori usaha berhasil dihapus." });
 

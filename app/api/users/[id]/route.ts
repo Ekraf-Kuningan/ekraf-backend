@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { verifyToken } from "@/lib/auth/verifyToken";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 /**
  * @swagger
@@ -32,27 +31,27 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *                 data:
  *                   type: object
  *                   properties:
- *                     id_user:
+ *                     id:
  *                       type: integer
  *                       type: string
  *                     username:
  *                       type: string
  *                     email:
  *                       type: string
- *                     nohp:
+ *                     phone_number:
  *                       type: string
- *                     jk:
+ *                     gender:
  *                       type: string
- *                     nama_usaha:
+ *                     business_name:
  *                       type: string
- *                     status_usaha:
+ *                     business_status:
  *                       type: string
  *                     verifiedAt:
  *                       type: string
  *                       format: date-time
- *                     tbl_level:
+ *                     levels:
  *                       type: object
- *                     tbl_kategori_usaha:
+ *                     business_categories:
  *                       type: object
  *       400:
  *         description: Invalid ID format
@@ -80,26 +79,26 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *           schema:
  *             type: object
  *             properties:
- *               nama_user:
+ *               name:
  *                 type: string
  *               username:
  *                 type: string
  *               email:
  *                 type: string
- *               nohp:
+ *               phone_number:
  *                 type: string
- *               jk:
+ *               gender:
  *                 type: string
- *               nama_usaha:
+ *               business_name:
  *                 type: string
- *               status_usaha:
+ *               business_status:
  *                 type: string
  *               verifiedAt:
  *                 type: string
  *                 format: date-time
- *               tbl_level:
+ *               levels:
  *                 type: object
- *               tbl_kategori_usaha:
+ *               business_categories:
  *                 type: object
  *     responses:
  *       200:
@@ -124,7 +123,7 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *         description: User deleted successfully
  *       500:
  *         description: Failed to delete user
- */
+ * */
 export async function GET(
   request: NextRequest,
   {
@@ -148,8 +147,8 @@ export async function GET(
     const user = await prisma.users.findUnique({
       where: { id: Number(id) },
       include: {
-        tbl_level: true,
-        tbl_kategori_usaha: true
+        levels: true,
+        business_categories: true
       }
     });
 

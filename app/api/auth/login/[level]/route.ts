@@ -68,16 +68,16 @@ const levelMap: { [key: string]: number } = {
  *                 user:
  *                   type: object
  *                   properties:
- *                     id_user:
+ *                     id:
  *                       type: integer
  *                       example: 1
- *                     nama_user:
+ *                     name:
  *                       type: string
  *                       example: John Doe
  *                     username:
  *                       type: string
  *                       example: johndoe
- *                     id_level:
+ *                     level_id:
  *                       type: integer
  *                       example: 2
  *                     level:
@@ -178,14 +178,14 @@ export async function POST(
             OR: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
           },
           {
-            id_level: id_level,
+            level_id: id_level,
           },
         ],
       },
       include: {
-        tbl_level: {
+        levels: {
           select: {
-            level: true,
+            name: true,
           },
         },
       },
@@ -208,10 +208,10 @@ export async function POST(
     }
 
     const tokenPayload = {
-      id_user: user.id,
+      id: user.id,
       username: user.username,
-      id_level: user.id_level,
-      level: user.tbl_level.level,
+      level_id: user.level_id,
+      level: user.levels.name,
       email: user.email,
     };
 
@@ -224,11 +224,11 @@ export async function POST(
         message: "Login berhasil",
         token,
         user: {
-          id_user: user.id,
-          nama_user: user.name,
+          id: user.id,
+          name: user.name,
           username: user.username,
-          id_level: user.id_level,
-          level: user.tbl_level.level,
+          level_id: user.level_id,
+          level: user.levels.name,
           email: user.email,
         },
       },

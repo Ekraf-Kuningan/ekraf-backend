@@ -40,9 +40,9 @@ import prisma from '@/lib/prisma';
  */
 export async function GET() {
   try {
-    const subsectors = await prisma.tbl_subsektor.findMany({
+    const subsectors = await prisma.sub_sectors.findMany({
       orderBy: {
-        sub_sektor: 'asc',
+        title: 'asc',
       },
     });
 

@@ -40,9 +40,9 @@ import prisma from '@/lib/prisma';
  */
 export async function GET() {
   try {
-    const userLevels = await prisma.tbl_level.findMany({
+    const userLevels = await prisma.levels.findMany({
       orderBy: {
-        id_level: 'asc',
+        id: 'asc',
       },
     });
 

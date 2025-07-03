@@ -55,21 +55,21 @@ import { updateProductSchema } from "@/lib/zod";
  *           schema:
  *             type: object
  *             properties:
- *               nama_produk:
+ *               name:
  *                 type: string
- *               nama_pelaku:
+ *               owner_name:
  *                 type: string
- *               deskripsi:
+ *               description:
  *                 type: string
- *               harga:
+ *               price:
  *                 type: number
- *               stok:
+ *               stock:
  *                 type: integer
- *               nohp:
+ *               phone_number:
  *                 type: string
- *               id_kategori_usaha:
+ *               business_category_id:
  *                 type: integer
- *               gambar:
+ *               image:
  *                 type: string
  *             additionalProperties: false
  *             description: All fields are optional for partial update
@@ -134,31 +134,31 @@ import { updateProductSchema } from "@/lib/zod";
  *     Product:
  *       type: object
  *       properties:
- *         id_produk:
+ *         id:
  *           type: integer
- *         nama_produk:
+ *         name:
  *           type: string
- *         nama_pelaku:
+ *         owner_name:
  *           type: string
- *         deskripsi:
+ *         description:
  *           type: string
- *         harga:
+ *         price:
  *           type: number
- *         stok:
+ *         stock:
  *           type: integer
- *         nohp:
+ *         phone_number:
  *           type: string
- *         id_kategori_usaha:
+ *         business_category_id:
  *           type: integer
- *         gambar:
+ *         image:
  *           type: string
- *         id_user:
+ *         user_id:
  *           type: integer
- *         tbl_kategori_usaha:
+ *         business_categories:
  *           type: object
- *         tbl_user:
+ *         users:
  *           type: object
- *         tbl_olshop_link:
+ *         online_store_links:
  *           type: array
  *           items:
  *             type: object
@@ -177,12 +177,12 @@ export async function GET(
   }
 
   try {
-    const product = await prisma.tbl_product.findUnique({
-      where: { id_produk: Number(id) }, // DIUBAH
+    const product = await prisma.products.findUnique({
+      where: { id: Number(id) },
       include: {
-        tbl_kategori_usaha: true,
+        business_category: true,
         users: { select: { name: true, email: true } },
-        tbl_olshop_link: true
+        online_store_links: true
       }
     });
 
@@ -228,9 +228,9 @@ export async function PUT(
     );
 
   try {
-    const productToUpdate = await prisma.tbl_product.findUnique({
-      where: { id_produk: Number(id) },
-      select: { id_user: true }
+    const productToUpdate = await prisma.products.findUnique({
+      where: { id: Number(id) },
+      select: { user_id: true }
     });
 
     if (!productToUpdate) {
@@ -240,7 +240,7 @@ export async function PUT(
       );
     }
 
-      if (user?.id_level !== 1 && user?.id_level !== 2 && user?.id !== productToUpdate.id_user) {
+      if (user?.level_id !== 1 && user?.level_id !== 2 && user?.id !== productToUpdate.user_id) {
       return NextResponse.json(
         {
           message:
@@ -277,8 +277,8 @@ export async function PUT(
       );
     }
 
-    const updatedProduct = await prisma.tbl_product.update({
-      where: { id_produk: Number(id) },
+    const updatedProduct = await prisma.products.update({
+      where: { id: Number(id) },
       data: dataToUpdate // Langsung gunakan data yang sudah tervalidasi
     });
 
@@ -317,9 +317,9 @@ export async function DELETE(
     );
 
   try {
-    const productToDelete = await prisma.tbl_product.findUnique({
-      where: { id_produk: Number(id) }, // DIUBAH
-      select: { id_user: true }
+    const productToDelete = await prisma.products.findUnique({
+      where: { id: Number(id) },
+      select: { user_id: true }
     });
 
     if (!productToDelete) {
@@ -329,8 +329,8 @@ export async function DELETE(
       );
     }
 
-    const isOwner = Number(productToDelete.id_user) === user.id;
-    const isAdmin = user.id_level === 1 || user.id_level === 2;
+    const isOwner = Number(productToDelete.user_id) === user.id;
+    const isAdmin = user.level_id === 1 || user.level_id === 2;
 
     if (!isOwner && !isAdmin) {
       return NextResponse.json(
@@ -342,12 +342,12 @@ export async function DELETE(
       );
     }
 
-    await prisma.tbl_olshop_link.deleteMany({
-      where: { id_produk: Number(id) } // DIUBAH
+    await prisma.online_store_links.deleteMany({
+      where: { product_id: Number(id) }
     });
 
-    await prisma.tbl_product.delete({
-      where: { id_produk: Number(id) } // DIUBAH
+    await prisma.products.delete({
+      where: { id: Number(id) }
     });
 
     return NextResponse.json({ message: "Produk berhasil dihapus" });

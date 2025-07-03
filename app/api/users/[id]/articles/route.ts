@@ -71,15 +71,15 @@ export async function GET(
   }
   if (user?.id !== Number(userId)) {
     return NextResponse.json(
-      { message: "Forbidden: You can only access your own products." },
+      { message: "Forbidden: You can only access your own articles." },
       { status: 403 }
     );
   }
   try {
-    const articles = await prisma.tbl_artikel.findMany({
-      where: { id_user: Number(userId) },
+    const articles = await prisma.artikels.findMany({
+      where: { author_id: Number(userId) },
       orderBy: {
-        tanggal_upload: "desc"
+        created_at: "desc"
       }
     });
 

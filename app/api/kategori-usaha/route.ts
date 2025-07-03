@@ -25,9 +25,9 @@ import { z } from "zod";
  *                   items:
  *                     type: object
  *                     properties:
- *                       id_kategori_usaha:
+ *                       id:
  *                         type: integer
- *                       nama_kategori:
+ *                       name:
  *                         type: string
  *                       image:
  *                         type: string
@@ -54,7 +54,7 @@ import { z } from "zod";
  *           schema:
  *             type: object
  *             properties:
- *               nama_kategori:
+ *               name:
  *                 type: string
  *                 minLength: 3
  *               image:
@@ -73,9 +73,9 @@ import { z } from "zod";
  *                 data:
  *                   type: object
  *                   properties:
- *                     id_kategori_usaha:
+ *                     id:
  *                       type: integer
- *                     nama_kategori:
+ *                     name:
  *                       type: string
  *                     image:
  *                       type: string
@@ -112,13 +112,13 @@ import { z } from "zod";
  */
 export async function GET() {
   try {
-    const kategoriUsaha = await prisma.tbl_kategori_usaha.findMany({
+    const kategoriUsaha = await prisma.business_categories.findMany({
       orderBy: {
-        nama_kategori: "asc"
+        name: "asc"
       },
       select: {
-        id_kategori_usaha: true,
-        nama_kategori: true,
+        id: true,
+        name: true,
         image: true
       }
     });
@@ -135,7 +135,7 @@ export async function GET() {
 }
 
 const KategoriUsahaSchema = z.object({
-  nama_kategori: z
+  name: z
     .string()
     .min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." }),
   image: z.string().max(255).nullable().optional()
@@ -159,9 +159,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newKategori = await prisma.tbl_kategori_usaha.create({
+    const newKategori = await prisma.business_categories.create({
       data: {
-        nama_kategori: validationResult.data.nama_kategori,
+        name: validationResult.data.name,
         image: validationResult.data.image ?? null
       }
     });

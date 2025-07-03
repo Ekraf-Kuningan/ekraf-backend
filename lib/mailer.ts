@@ -24,7 +24,7 @@ export const sendEmail = async ({
     // 2. Simpan token ke database yang sesuai
     if (emailType === "VERIFY") {
       // Untuk verifikasi, kita update tabel user sementara (temp)
-      await prisma.tbl_user_temp.update({
+      await prisma.temporary_users.update({
         where: { id: userId }, // Di sini userId adalah id dari tbl_user_temp
         data: {
           verificationToken: hashedToken,

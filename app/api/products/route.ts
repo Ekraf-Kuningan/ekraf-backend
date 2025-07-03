@@ -12,26 +12,26 @@ export async function GET(request: NextRequest) {
   const searchQuery = searchParams.get("q");
   const kategoriUsahaId = searchParams.get("kategori"); // Diubah dari 'subsector'
 
-  const whereClause: Prisma.tbl_productWhereInput = {};
+  const whereClause: Prisma.productsWhereInput = {};
   if (searchQuery) {
-    whereClause.nama_produk = {
+    whereClause.name = {
       contains: searchQuery
     };
   }
-  // Diubah untuk memfilter berdasarkan id_kategori_usaha
+  // Diubah untuk memfilter berdasarkan business_category_id
   if (kategoriUsahaId && !isNaN(parseInt(kategoriUsahaId))) {
-    whereClause.id_kategori_usaha = parseInt(kategoriUsahaId);
+    whereClause.business_category_id = parseInt(kategoriUsahaId);
   }
 
   const skip = (page - 1) * limit;
 
   try {
-    const products = await prisma.tbl_product.findMany({
+    const products = await prisma.products.findMany({
       where: whereClause,
       skip: skip,
       take: limit,
       include: {
-        tbl_kategori_usaha: true, // Diubah dari tbl_subsektor
+        business_category: true, // Diubah dari tbl_subsektor
         users: {
           select: {
             name: true
@@ -39,11 +39,11 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: {
-        tgl_upload: "desc"
+        uploaded_at: "desc"
       }
     });
 
-    const totalProducts = await prisma.tbl_product.count({
+    const totalProducts = await prisma.products.count({
       where: whereClause
     });
 
@@ -136,28 +136,28 @@ export async function GET(request: NextRequest) {
  *           schema:
  *             type: object
  *             properties:
- *               nama_produk:
+ *               name:
  *                 type: string
  *                 description: Nama produk
- *               nama_pelaku:
+ *               owner_name:
  *                 type: string
  *                 description: Nama pelaku usaha
- *               deskripsi:
+ *               description:
  *                 type: string
  *                 description: Deskripsi produk
- *               harga:
+ *               price:
  *                 type: number
  *                 description: Harga produk
- *               stok:
+ *               stock:
  *                 type: integer
  *                 description: Stok produk
- *               nohp:
+ *               phone_number:
  *                 type: string
  *                 description: Nomor HP pelaku usaha
- *               id_kategori_usaha:
+ *               business_category_id:
  *                 type: integer
  *                 description: ID kategori usaha
- *               gambar:
+ *               image:
  *                 type: string
  *                 description: URL gambar produk
  *     responses:
@@ -238,13 +238,13 @@ export async function POST(request: NextRequest) {
 
   try {
     // 4. Logika upload ke CDN dihapus. Langsung simpan ke database.
-    const newProduct = await prisma.tbl_product.create({
+    const newProduct = await prisma.products.create({
       data: {
         ...productData,
-        deskripsi: productData.deskripsi ?? "",
-        nohp: productData.nohp ?? "",
-        id_user: user!.id,
-        tgl_upload: new Date(),
+        description: productData.description ?? "",
+        phone_number: productData.phone_number ?? "",
+        user_id: user!.id,
+        uploaded_at: new Date(),
       },
     });
 
@@ -263,7 +263,7 @@ export async function POST(request: NextRequest) {
         );
       }
       if (error.code === 'P2003') {
-        // Error ini terjadi jika id_kategori_usaha atau id_user tidak valid
+        // Error ini terjadi jika business_category_id atau user_id tidak valid
         return NextResponse.json(
           { message: `Kategori atau User yang dipilih tidak valid.` },
           { status: 400 }

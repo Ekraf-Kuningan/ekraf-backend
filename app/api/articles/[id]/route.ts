@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
-
 /**
  * @swagger
  * tags:
@@ -62,13 +61,11 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *           schema:
  *             type: object
  *             properties:
- *               judul:
+ *               title:
  *                 type: string
- *               deskripsi_singkat:
+ *               content:
  *                 type: string
- *               isi_lengkap:
- *                 type: string
- *               gambar:
+ *               thumbnail:
  *                 type: string
  *     responses:
  *       200:
@@ -130,30 +127,31 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *     Article:
  *       type: object
  *       properties:
- *         id_artikel:
+ *         id:
  *           type: integer
- *         judul:
+ *         title:
  *           type: string
- *         deskripsi_singkat:
+ *         content:
  *           type: string
- *         isi_lengkap:
+ *         thumbnail:
  *           type: string
- *         gambar:
- *           type: string
- *         tbl_user:
- *           type: object
- *           properties:
- *             nama_user:
- *               type: string
- *             email:
- *               type: string
+ *         author: {
+ *           type: object,
+ *           properties: {
+ *             name: { type: 'string' },
+ *             email: { type: 'string' }
+ *           }
+ *         }
+ *       }
  */
-export async function GET( request: NextRequest,
+export async function GET(
+  request: NextRequest,
   {
-    params
+    params,
   }: {
     params: Promise<{ id: number }>;
-  }) {
+  }
+) {
   const { id } = await params;
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
@@ -161,18 +159,18 @@ export async function GET( request: NextRequest,
   if (errorResponse) {
     return errorResponse;
   }
-  
+
   try {
-    const article = await prisma.tbl_artikel.findUnique({
-      where: { id_artikel: Number(id) },
+    const article = await prisma.artikels.findUnique({
+      where: { id: Number(id) },
       include: {
-        users: {
+        author: {
           select: {
             name: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     });
 
     if (!article) {
@@ -184,7 +182,7 @@ export async function GET( request: NextRequest,
 
     return NextResponse.json({
       message: "Article fetched successfully",
-      data: article
+      data: article,
     });
   } catch (error) {
     return NextResponse.json(
@@ -194,12 +192,14 @@ export async function GET( request: NextRequest,
   }
 }
 
-export async function PUT( request: NextRequest,
+export async function PUT(
+  request: NextRequest,
   {
-    params
+    params,
   }: {
     params: Promise<{ id: number }>;
-  }) {
+  }
+) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]); // Hanya untuk Admin & SuperAdmin
 
   // 2. Jika ada errorResponse, langsung kembalikan.
@@ -207,24 +207,23 @@ export async function PUT( request: NextRequest,
     return errorResponse;
   }
 
-  const {id} = await params
+  const { id } = await params;
   try {
     const body = await request.json();
-    const { judul, deskripsi_singkat, isi_lengkap, gambar } = body;
+    const { title, content, thumbnail } = body;
 
-    const updatedArticle = await prisma.tbl_artikel.update({
-      where: { id_artikel: Number(id) },
+    const updatedArticle = await prisma.artikels.update({
+      where: { id: Number(id) },
       data: {
-        judul,
-        deskripsi_singkat,
-        isi_lengkap,
-        gambar
-      }
+        title,
+        content,
+        thumbnail,
+      },
     });
 
     return NextResponse.json({
       message: "Article updated successfully",
-      data: updatedArticle
+      data: updatedArticle,
     });
   } catch (error) {
     return NextResponse.json(
@@ -234,12 +233,14 @@ export async function PUT( request: NextRequest,
   }
 }
 
-export async function DELETE( request: NextRequest,
+export async function DELETE(
+  request: NextRequest,
   {
-    params
+    params,
   }: {
     params: Promise<{ id: number }>;
-  }) {
+  }
+) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
   // 2. Jika ada errorResponse, langsung kembalikan.
@@ -248,12 +249,12 @@ export async function DELETE( request: NextRequest,
   }
   const { id } = await params;
   try {
-    await prisma.tbl_artikel.delete({
-      where: { id_artikel: Number(id) }
+    await prisma.artikels.delete({
+      where: { id: Number(id) },
     });
 
     return NextResponse.json({
-      message: `Article with ID ${id} deleted successfully`
+      message: `Article with ID ${id} deleted successfully`,
     });
   } catch (error) {
     return NextResponse.json(

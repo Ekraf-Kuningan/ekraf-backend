@@ -31,6 +31,7 @@ model users {
   products                 products[]
   business_categories      business_categories?   @relation(fields: [business_category_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "users_business_category_id_foreign")
   levels                   levels                 @relation(fields: [level_id], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "users_level_id_foreign")
+  artikels                 artikels[]
 
   @@index([business_category_id], map: "users_business_category_id_foreign")
   @@index([level_id], map: "users_level_id_foreign")
@@ -55,6 +56,7 @@ model artikels {
   is_featured         Boolean   @default(false)
   created_at          DateTime? @db.Timestamp(0)
   updated_at          DateTime? @db.Timestamp(0)
+  author              users     @relation(fields: [author_id], references: [id])
 }
 
 model authors {
@@ -151,6 +153,7 @@ model business_categories {
   image           String?           @db.VarChar(255)
   temporary_users temporary_users[]
   users           users[]
+  products        products[]
 }
 
 model catalogs {
@@ -203,9 +206,11 @@ model products {
   phone_number       String               @db.VarChar(12)
   uploaded_at        DateTime             @default(now()) @db.Timestamp(0)
   user_id            BigInt?              @db.UnsignedBigInt
+  business_category_id Int?                 @db.UnsignedInt
   status             products_status      @default(pending)
   online_store_links online_store_links[]
   users              users?               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "tbl_product_id_user_foreign")
+  business_category  business_categories? @relation(fields: [business_category_id], references: [id])
 
   @@index([user_id], map: "tbl_product_id_user_index")
 }

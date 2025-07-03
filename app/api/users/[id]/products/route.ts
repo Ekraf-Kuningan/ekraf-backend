@@ -57,7 +57,7 @@ export async function GET(
   // Hanya bisa dirinya sendiri
   // Jika bukan admin (role 1 atau 2), hanya bisa akses dirinya sendiri
   if (
-    (user?.id_level === undefined || ![1, 2].includes(user.id_level)) &&
+    (user?.level_id === undefined || ![1, 2].includes(user.level_id)) &&
     user?.id !== Number(id)
   ) {
     return NextResponse.json(
@@ -67,10 +67,10 @@ export async function GET(
   }
 
   try {
-    const products = await prisma.tbl_product.findMany({
-      where: { id_user: Number(id) },
+    const products = await prisma.products.findMany({
+      where: { user_id: Number(id) },
       orderBy: {
-        tgl_upload: "desc"
+        uploaded_at: "desc"
       }
     });
 

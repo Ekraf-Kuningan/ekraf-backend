@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 
+// Helper function to generate a slug
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+    .replace(/\s+/g, '-') // collapse whitespace and replace by -
+    .replace(/-+/g, '-'); // collapse dashes
+}
+
 export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
@@ -24,11 +33,11 @@ export async function GET(request: NextRequest) {
   const skip = (page - 1) * limit;
 
   try {
-    const articles = await prisma.tbl_artikel.findMany({
+    const articles = await prisma.artikels.findMany({
       skip: skip,
       take: limit,
       include: {
-        users: {
+        author: {
           select: {
             name: true,
             email: true
@@ -36,11 +45,11 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: {
-        tanggal_upload: "desc"
+        created_at: "desc"
       }
     });
 
-    const totalArticles = await prisma.tbl_artikel.count();
+    const totalArticles = await prisma.artikels.count();
 
     return NextResponse.json({
       message: "Articles fetched successfully",
@@ -73,23 +82,24 @@ export async function GET(request: NextRequest) {
  *           schema:
  *             type: object
  *             required:
- *               - judul
- *               - isi_lengkap
- *               - id_user
+ *               - title
+ *               - content
+ *               - author_id
+ *               - artikel_kategori_id
  *             properties:
- *               judul:
+ *               title:
  *                 type: string
  *                 description: Title of the article
- *               deskripsi_singkat:
- *                 type: string
- *                 description: Short description of the article
- *               isi_lengkap:
+ *               content:
  *                 type: string
  *                 description: Full content of the article
- *               id_user:
+ *               author_id:
  *                 type: integer
  *                 description: ID of the user creating the article
- *               gambar:
+ *               artikel_kategori_id:
+ *                 type: integer
+ *                 description: ID of the article category
+ *               thumbnail:
  *                 type: string
  *                 description: Image URL or path (optional)
  *     responses:
@@ -143,24 +153,25 @@ export async function POST(request: NextRequest) {
   }
   try {
     const body = await request.json();
-    const { judul, deskripsi_singkat, isi_lengkap, id_user, gambar } = body;
+    const { title, content, author_id, thumbnail, artikel_kategori_id } = body;
 
-    if (!judul || !isi_lengkap || !id_user) {
+    if (!title || !content || !author_id || !artikel_kategori_id) {
       return NextResponse.json(
-        { message: "Required fields are missing: judul, isi_lengkap, id_user" },
+        { message: "Required fields are missing: title, content, author_id, artikel_kategori_id" },
         { status: 400 }
       );
     }
 
-    const newArticle = await prisma.tbl_artikel.create({
+    const slug = generateSlug(title);
+
+    const newArticle = await prisma.artikels.create({
       data: {
-        id_artikel: Date.now(), // or use a proper unique ID generator if needed
-        judul,
-        deskripsi_singkat,
-        isi_lengkap,
-        id_user: body.id_user,
-        gambar,
-        tanggal_upload: new Date()
+        title,
+        content,
+        author_id: Number(author_id),
+        thumbnail,
+        artikel_kategori_id: Number(artikel_kategori_id),
+        slug,
       }
     });
 

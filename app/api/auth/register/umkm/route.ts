@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 // Ensure you have the correct path to your generated Prisma Client
-import { prisma, tbl_user_temp_jk, tbl_user_status_usaha } from "@/lib/prisma"; 
+import { prisma, temporary_users_gender, temporary_users_business_status } from "@/lib/prisma"; 
 import { sendEmail } from "@/lib/mailer";
 // import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -22,14 +22,14 @@ import crypto from "crypto";
  *           schema:
  *             type: object
  *             required:
- *               - nama_user
+ *               - name
  *               - username
  *               - email
  *               - password
- *               - jk
- *               - nohp
+ *               - gender
+ *               - phone_number
  *             properties:
- *               nama_user:
+ *               name:
  *                 type: string
  *                 example: Budi Santoso
  *               username:
@@ -43,21 +43,21 @@ import crypto from "crypto";
  *                 type: string
  *                 format: password
  *                 example: rahasia123
- *               jk:
+ *               gender:
  *                 type: string
  *                 enum: [Laki-laki, Perempuan]
  *                 example: Laki-laki
- *               nohp:
+ *               phone_number:
  *                 type: string
  *                 example: "08123456789"
- *               nama_usaha:
+ *               business_name:
  *                 type: string
  *                 example: Toko Budi
- *               status_usaha:
+ *               business_status:
  *                 type: string
  *                 enum: [BARU, SUDAH_LAMA]
  *                 example: BARU
- *               id_kategori_usaha:
+ *               business_category_id:
  *                 type: string
  *                 example: "1"
  *     responses:
@@ -109,36 +109,36 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { 
-        nama_user, 
+        name, 
         username, 
         email, 
         password, 
-        jk, 
-        nohp,
-        nama_usaha,
-        status_usaha,
-        id_kategori_usaha 
+        gender, 
+        phone_number,
+        business_name,
+        business_status,
+        business_category_id 
     } = body;
 
-    if (!nama_user || !username || !email || !password || !jk || !nohp) {
+    if (!name || !username || !email || !password || !gender || !phone_number) {
       return NextResponse.json(
         { message: "Semua field wajib diisi kecuali data usaha" },
         { status: 400 }
       );
     }
     
-    const validJk = jk === "Laki-laki" ? tbl_user_temp_jk.Laki_laki : jk === "Perempuan" ? tbl_user_temp_jk.Perempuan : null;
-    if (!validJk) {
+    const validGender = gender === "Laki-laki" ? temporary_users_gender.Laki_laki : gender === "Perempuan" ? temporary_users_gender.Perempuan : null;
+    if (!validGender) {
         return NextResponse.json(
             { message: "Jenis kelamin tidak valid. Harap gunakan 'Laki-laki' atau 'Perempuan'." },
             { status: 400 }
         );
     }
 
-    let validStatusUsaha = null;
-    if (status_usaha) {
-        validStatusUsaha = status_usaha === "BARU" ? tbl_user_status_usaha.BARU : status_usaha === "SUDAH_LAMA" ? tbl_user_status_usaha.SUDAH_LAMA : null;
-        if (!validStatusUsaha) {
+    let validBusinessStatus = null;
+    if (business_status) {
+        validBusinessStatus = business_status === "BARU" ? temporary_users_business_status.BARU : business_status === "SUDAH_LAMA" ? temporary_users_business_status.SUDAH_LAMA : null;
+        if (!validBusinessStatus) {
             return NextResponse.json(
                 { message: "Status usaha tidak valid. Harap gunakan 'BARU' atau 'SUDAH_LAMA'." },
                 { status: 400 }
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingTempUser = await prisma.tbl_user_temp.findFirst({
+    const existingTempUser = await prisma.temporary_users.findFirst({
       where: { OR: [{ username }, { email }] },
     });
 
@@ -174,20 +174,20 @@ export async function POST(request: NextRequest) {
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationTokenExpiry = new Date(Date.now() + 3600000);
 
-    const newUserTemp = await prisma.tbl_user_temp.create({
+    const newUserTemp = await prisma.temporary_users.create({
       data: {
-        nama_user,
+        name,
         username,
         email,
         password: password, 
-        jk: validJk,
-        nohp,
-        id_level: 3,
+        gender: validGender,
+        phone_number,
+        level_id: 3,
         verificationToken,
         verificationTokenExpiry,
-        nama_usaha,
-        status_usaha: validStatusUsaha,
-        id_kategori_usaha: id_kategori_usaha ? parseInt(id_kategori_usaha) : null,
+        business_name,
+        business_status: validBusinessStatus,
+        business_category_id: business_category_id ? parseInt(business_category_id) : null,
       },
     });
 

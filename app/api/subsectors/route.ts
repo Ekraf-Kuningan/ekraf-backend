@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma, { Prisma } from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { z } from "zod";
+
+// Helper function to generate a slug
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+    .replace(/\s+/g, '-') // collapse whitespace and replace by -
+    .replace(/-+/g, '-'); // collapse dashes
+}
+
+const SubsectorSchema = z.object({
+  title: z.string().min(3, { message: "Nama subsektor harus memiliki minimal 3 karakter." })
+});
+
 /**
  * @swagger
  * /api/subsectors:
@@ -26,7 +40,7 @@ import { z } from "zod";
  *                     properties:
  *                       id:
  *                         type: integer
- *                       sub_sektor:
+ *                       title:
  *                         type: string
  *       500:
  *         description: Gagal mengambil data Subsektor
@@ -50,7 +64,7 @@ import { z } from "zod";
  *           schema:
  *             type: object
  *             properties:
- *               nama_sub:
+ *               title:
  *                 type: string
  *                 minLength: 3
  *     responses:
@@ -68,7 +82,7 @@ import { z } from "zod";
  *                   properties:
  *                     id:
  *                       type: integer
- *                     sub_sektor:
+ *                     title:
  *                       type: string
  *       400:
  *         description: Data tidak valid
@@ -102,9 +116,9 @@ import { z } from "zod";
  */
 export async function GET() {
   try {
-    const subsectors = await prisma.tbl_subsektor.findMany({
+    const subsectors = await prisma.sub_sectors.findMany({
       orderBy: {
-        sub_sektor: 'asc'
+        title: 'asc'
       }
     });
     return NextResponse.json({
@@ -119,10 +133,6 @@ export async function GET() {
   }
 }
 
-const SubsectorSchema = z.object({
-  nama_sub: z.string().min(3, { message: "Nama subsektor harus memiliki minimal 3 karakter." })
-});
-
 export async function POST(request: NextRequest) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
   if (errorResponse) return errorResponse;
@@ -135,9 +145,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Data tidak valid", errors: validationResult.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const newSubsector = await prisma.tbl_subsektor.create({
+    const newSubsector = await prisma.sub_sectors.create({
       data: {
-        sub_sektor: validationResult.data.nama_sub
+        title: validationResult.data.title,
+        slug: generateSlug(validationResult.data.title) // Generate slug from title
       }
     });
 

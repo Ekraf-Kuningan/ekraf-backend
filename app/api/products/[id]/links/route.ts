@@ -21,8 +21,8 @@ export async function GET(
   }
 
   try {
-    const links = await prisma.tbl_olshop_link.findMany({
-      where: { id_produk: Number(id) }
+    const links = await prisma.online_store_links.findMany({
+      where: { product_id: Number(id) }
     });
     return NextResponse.json({
       message: "Links fetched successfully",
@@ -60,10 +60,10 @@ export async function GET(
  *           schema:
  *             type: object
  *             required:
- *               - nama_platform
+ *               - platform_name
  *               - url
  *             properties:
- *               nama_platform:
+ *               platform_name:
  *                 type: string
  *                 description: The name of the online shop platform
  *                 example: Tokopedia
@@ -137,19 +137,19 @@ export async function POST(request: NextRequest,
 
   try {
     const body = await request.json();
-    const { nama_platform, url } = body;
+    const { platform_name, url } = body;
 
-    if (!nama_platform || !url) {
+    if (!platform_name || !url) {
       return NextResponse.json(
         { message: "Required fields missing" },
         { status: 400 }
       );
     }
 
-    const newLink = await prisma.tbl_olshop_link.create({
+    const newLink = await prisma.online_store_links.create({
       data: {
-        id_produk: Number(id),
-        nama_platform,
+        product_id: Number(id),
+        platform_name,
         url
       }
     });

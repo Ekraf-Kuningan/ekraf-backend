@@ -54,7 +54,7 @@ import { z } from "zod";
  *           schema:
  *             type: object
  *             properties:
- *               nama_sub:
+ *               title:
  *                 type: string
  *                 minLength: 3
  *     responses:
@@ -105,9 +105,9 @@ import { z } from "zod";
  *     Subsector:
  *       type: object
  *       properties:
- *         id_sub:
+ *         id:
  *           type: integer
- *         sub_sektor:
+ *         title:
  *           type: string
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
@@ -115,8 +115,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (isNaN(id)) return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
 
   try {
-    const subsector = await prisma.tbl_subsektor.findUnique({
-      where: { id_sub: Number(id) }
+    const subsector = await prisma.sub_sectors.findUnique({
+      where: { id: Number(id) }
     });
 
     if (!subsector) {
@@ -130,7 +130,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 const SubsectorSchema = z.object({
-  nama_sub: z.string().min(3, { message: "Nama subsektor harus memiliki minimal 3 karakter." })
+  title: z.string().min(3, { message: "Nama subsektor harus memiliki minimal 3 karakter." })
 });
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
@@ -147,9 +147,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ message: "Data tidak valid", errors: validationResult.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const updatedSubsector = await prisma.tbl_subsektor.update({
-      where: { id_sub: Number(id) },
-      data: { sub_sektor: validationResult.data.nama_sub }
+    const updatedSubsector = await prisma.sub_sectors.update({
+      where: { id: Number(id) },
+      data: { title: validationResult.data.title }
     });
 
     return NextResponse.json({ message: "Subsektor berhasil diperbarui", data: updatedSubsector });
@@ -171,8 +171,8 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   if (errorResponse) return errorResponse;
 
   try {
-    await prisma.tbl_subsektor.delete({
-      where: { id_sub: Number(id) }
+    await prisma.sub_sectors.delete({
+      where: { id: Number(id) }
     });
     return NextResponse.json({ message: "Subsektor berhasil dihapus." });
 

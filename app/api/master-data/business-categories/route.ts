@@ -40,9 +40,9 @@ import prisma from '@/lib/prisma';
  */
 export async function GET() {
   try {
-    const businessCategories = await prisma.tbl_kategori_usaha.findMany({
+    const businessCategories = await prisma.business_categories.findMany({
       orderBy: {
-        nama_kategori: 'asc',
+        name: 'asc',
       },
     });
 

@@ -95,8 +95,8 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const updatedLink = await prisma.tbl_olshop_link.update({
-      where: { id_link: Number(id) },
+    const updatedLink = await prisma.online_store_links.update({
+      where: { id: Number(id) },
       data: body
     });
     return NextResponse.json({
@@ -131,8 +131,8 @@ export async function DELETE(
   }
 
   try {
-    await prisma.tbl_olshop_link.delete({
-      where: { id_link: Number(id) }
+    await prisma.online_store_links.delete({
+      where: { id: Number(id) }
     });
     return NextResponse.json({ message: "Link deleted successfully" });
   } catch (error) {
