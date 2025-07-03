@@ -139,7 +139,13 @@ export async function POST(request: NextRequest) {
   if (errorResponse) return errorResponse;
 
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ message: "Data tidak valid", errors: { body: ["Invalid JSON format"] } }, { status: 400 });
+    }
+
     const validationResult = SubsectorSchema.safeParse(body);
 
     if (!validationResult.success) {
