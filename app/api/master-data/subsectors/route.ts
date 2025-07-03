@@ -46,14 +46,20 @@ export async function GET() {
       },
     });
 
+    const data = subsectors.map(item => ({
+      ...item,
+      id: item.id.toString()
+    }))
+
     return NextResponse.json({
       message: 'Subsectors fetched successfully',
-      data: subsectors,
+      data: data,
     });
 
   } catch (error) {
+    console.error('Error fetching subsectors:', error);
     return NextResponse.json(
-      { message: 'Failed to fetch subsectors', error },
+      { message: 'Failed to fetch subsectors', error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

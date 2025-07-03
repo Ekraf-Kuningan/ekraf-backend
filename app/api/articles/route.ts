@@ -14,8 +14,8 @@ function generateSlug(title: string): string {
 export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const limit = parseInt(searchParams.get("limit") || "10", 10);
+  const page = parseInt(searchParams.get("page") ?? "1", 10);
+  const limit = parseInt(searchParams.get("limit") ?? "10", 10);
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
 
   // 2. Jika ada errorResponse, langsung kembalikan.
