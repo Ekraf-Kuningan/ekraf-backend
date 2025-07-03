@@ -44,14 +44,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *         content:
  *           application/json:
  *             schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 minLength: 3
- *               image:
- *                 type: string
- *                 nullable: true
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Data berhasil diambil"
+ *                 data:
+ *                   $ref: '#/components/schemas/KategoriUsaha'
  *       400:
  *         description: Format ID tidak valid
  *         content:
@@ -61,6 +60,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Format ID tidak valid"
  *       404:
  *         description: Kategori usaha tidak ditemukan
  *         content:
@@ -70,6 +70,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Kategori usaha tidak ditemukan"
  *       500:
  *         description: Gagal mengambil data
  *         content:
@@ -79,6 +80,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Gagal mengambil data"
  *
  *   put:
  *     summary: Memperbarui data kategori usaha berdasarkan ID
@@ -110,6 +112,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Kategori usaha berhasil diperbarui"
  *                 data:
  *                   $ref: '#/components/schemas/KategoriUsaha'
  *       400:
@@ -121,12 +124,33 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Data tidak valid"
  *                 errors:
  *                   type: object
  *                   additionalProperties:
  *                     type: array
  *                     items:
  *                       type: string
+ *       401:
+ *         description: Token tidak valid atau tidak ada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Token tidak valid"
+ *       403:
+ *         description: Tidak memiliki akses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Anda tidak memiliki akses untuk melakukan operasi ini"
  *       404:
  *         description: Kategori usaha tidak ditemukan
  *         content:
@@ -136,6 +160,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Kategori usaha tidak ditemukan."
  *       409:
  *         description: Nama kategori usaha sudah ada
  *         content:
@@ -145,6 +170,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Nama kategori usaha sudah ada."
  *       500:
  *         description: Gagal memperbarui kategori usaha karena kesalahan server
  *         content:
@@ -154,6 +180,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Gagal memperbarui kategori usaha"
  *
  *   delete:
  *     summary: Menghapus kategori usaha berdasarkan ID
@@ -179,6 +206,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Kategori usaha berhasil dihapus."
  *       400:
  *         description: Format ID tidak valid
  *         content:
@@ -188,6 +216,27 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Format ID tidak valid"
+ *       401:
+ *         description: Token tidak valid atau tidak ada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Token tidak valid"
+ *       403:
+ *         description: Tidak memiliki akses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Anda tidak memiliki akses untuk melakukan operasi ini"
  *       404:
  *         description: Kategori usaha tidak ditemukan
  *         content:
@@ -197,6 +246,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Kategori usaha tidak ditemukan."
  *       500:
  *         description: Gagal menghapus kategori usaha
  *         content:
@@ -206,6 +256,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "Gagal menghapus kategori usaha"
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
   const { id } = await params;
