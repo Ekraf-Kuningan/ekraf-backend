@@ -79,7 +79,7 @@ export async function PUT(
   {
     params
   }: {
-    params: Promise<{ id: number }>;
+    params: Promise<{ id: number, linkId: number }>;
   }
 ) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]); // Hanya untuk Admin & SuperAdmin
@@ -88,15 +88,15 @@ export async function PUT(
   if (errorResponse) {
     return errorResponse;
   }
-  const { id } = await params;
-  if (isNaN(id)) {
-    return NextResponse.json({ message: "Invalid Link ID" }, { status: 400 });
+  const { id, linkId } = await params;
+  if (isNaN(id) || isNaN(linkId)) {
+    return NextResponse.json({ message: "Invalid Product ID or Link ID" }, { status: 400 });
   }
 
   try {
     const body = await request.json();
     const updatedLink = await prisma.online_store_links.update({
-      where: { id: Number(id) },
+      where: { id: Number(linkId), product_id: Number(id) },
       data: body
     });
     return NextResponse.json({
@@ -116,7 +116,7 @@ export async function DELETE(
   {
     params
   }: {
-    params: Promise<{ id: number }>;
+    params: Promise<{ id: number, linkId: number }>;
   }
 ) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2]); // Hanya untuk Admin & SuperAdmin
@@ -125,14 +125,14 @@ export async function DELETE(
   if (errorResponse) {
     return errorResponse;
   }
-  const { id } = await params;
-  if (isNaN(id)) {
-    return NextResponse.json({ message: "Invalid Link ID" }, { status: 400 });
+  const { id, linkId } = await params;
+  if (isNaN(id) || isNaN(linkId)) {
+    return NextResponse.json({ message: "Invalid Product ID or Link ID" }, { status: 400 });
   }
 
   try {
     await prisma.online_store_links.delete({
-      where: { id: Number(id) }
+      where: { id: Number(linkId), product_id: Number(id) }
     });
     return NextResponse.json({ message: "Link deleted successfully" });
   } catch (error) {

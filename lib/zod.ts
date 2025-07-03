@@ -30,3 +30,8 @@ export const productSchema = z.object({
   status: z.enum(['disetujui', 'pending', 'ditolak', 'tidak_aktif']).default('pending'),
 });
 export const updateProductSchema = productSchema.partial();
+
+export const KategoriUsahaSchema = z.object({
+  name: z.string().min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." }),
+  image: z.string().max(255).optional().nullable()
+});

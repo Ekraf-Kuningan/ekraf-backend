@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma, { Prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
-import { z } from "zod";
+import { KategoriUsahaSchema } from "@/lib/zod";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
   const { id } = await params;
@@ -21,11 +22,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ message: "Gagal mengambil data" }, { status: 500 });
   }
 }
-
-const KategoriUsahaSchema = z.object({
-  name: z.string().min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." }),
-  image: z.string().max(255).optional().nullable()
-});
 
 /**
  * @swagger

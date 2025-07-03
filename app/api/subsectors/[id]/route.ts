@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma, { Prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { z } from "zod";
 /**
