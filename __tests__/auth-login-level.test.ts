@@ -239,6 +239,7 @@ describe('POST /api/auth/login/[level]', () => {
 
   it('should return 401 when password is incorrect', async () => {
     (prisma.users.findFirst as jest.Mock).mockResolvedValue(mockUser);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(false); // Mock wrong password
 
     const request = createMockRequest({
       usernameOrEmail: 'johndoe',

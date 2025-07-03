@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 // Ensure you have the correct path to your generated Prisma Client
 import { prisma, temporary_users_gender, temporary_users_business_status } from "@/lib/prisma"; 
 import { sendEmail } from "@/lib/mailer";
-// import bcrypt from "bcryptjs";
+import { hashPassword } from "@/lib/auth/passwordUtils";
 import crypto from "crypto";
 
 // It's a good practice to instantiate Prisma Client once and reuse it.
@@ -168,8 +168,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // const salt = await bcrypt.genSalt(10);
-    // const hashedPassword = await bcrypt.hash(password, salt);
+    // Hash the password before storing
+    const hashedPassword = await hashPassword(password);
 
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationTokenExpiry = new Date(Date.now() + 3600000);
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
         name,
         username,
         email,
-        password: password, 
+        password: hashedPassword, 
         gender: validGender,
         phone_number,
         level_id: 3,

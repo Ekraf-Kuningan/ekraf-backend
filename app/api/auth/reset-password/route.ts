@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { hashPassword } from "@/lib/auth/passwordUtils";
 
 
 /**
@@ -74,11 +75,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update password tanpa hash dan hapus token reset
+    // Hash the new password before updating
+    const hashedPassword = await hashPassword(password);
+
+    // Update password with hash and remove reset token
     await prisma.users.update({
       where: { id: user.id },
       data: {
-        password: password,
+        password: hashedPassword,
         resetPasswordToken: null,
         resetPasswordTokenExpiry: null,
       },

@@ -30,6 +30,10 @@ jest.mock('../lib/mailer', () => ({
   sendEmail: jest.fn(),
 }));
 
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn().mockResolvedValue('hashed_password_123'),
+}));
+
 // Mock crypto
 jest.mock('crypto', () => ({
   randomBytes: jest.fn().mockReturnValue({
@@ -114,7 +118,7 @@ describe('POST /api/auth/register/umkm', () => {
         name: mockValidRequestWithBusiness.name,
         username: mockValidRequestWithBusiness.username,
         email: mockValidRequestWithBusiness.email,
-        password: mockValidRequestWithBusiness.password,
+        password: 'hashed_password_123', // Expect hashed password
         gender: temporary_users_gender.Laki_laki,
         phone_number: mockValidRequestWithBusiness.phone_number,
         level_id: 3,

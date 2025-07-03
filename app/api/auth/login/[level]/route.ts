@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from '@/lib/prisma';
-
+import { verifyPassword } from '@/lib/auth/passwordUtils';
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -198,7 +198,7 @@ export async function POST(
       );
     }
 
-    const isPasswordValid = password === user.password;
+    const isPasswordValid = await verifyPassword(password, user.password);
 
     if (!isPasswordValid) {
       return NextResponse.json(

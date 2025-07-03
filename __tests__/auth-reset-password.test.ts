@@ -14,6 +14,10 @@ jest.mock('../lib/prisma', () => ({
   },
 }));
 
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn().mockResolvedValue('hashed_password_123'),
+}));
+
 // Mock console.error to avoid noise in test output
 jest.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -71,7 +75,7 @@ describe('POST /api/auth/reset-password', () => {
     expect(prisma.users.update).toHaveBeenCalledWith({
       where: { id: 1 },
       data: {
-        password: 'newpassword123',
+        password: 'hashed_password_123', // Expect hashed password
         resetPasswordToken: null,
         resetPasswordTokenExpiry: null,
       },
@@ -250,7 +254,7 @@ describe('POST /api/auth/reset-password', () => {
       expect(prisma.users.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: {
-          password,
+          password: 'hashed_password_123', // Expect hashed password
           resetPasswordToken: null,
           resetPasswordTokenExpiry: null,
         },
