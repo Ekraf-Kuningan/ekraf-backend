@@ -198,21 +198,22 @@ model online_store_links {
 }
 
 model products {
-  id                   Int                  @id @default(autoincrement()) @db.UnsignedInt
-  owner_name           String?              @db.VarChar(35)
-  name                 String               @db.VarChar(50)
-  description          String               @db.VarChar(500)
+  id                   Int                    @id @default(autoincrement()) @db.UnsignedInt
+  status_produk        products_status_produk @default(pending)
+  owner_name           String?                @db.VarChar(35)
+  name                 String                 @db.VarChar(50)
+  description          String                 @db.VarChar(500)
   price                Float
   stock                Int
-  image                String               @db.VarChar(255)
-  phone_number         String               @db.VarChar(12)
-  uploaded_at          DateTime             @default(now()) @db.Timestamp(0)
-  user_id              BigInt?              @db.UnsignedBigInt
-  business_category_id Int?                 @db.UnsignedInt
-  status               products_status      @default(pending)
+  image                String                 @db.VarChar(255)
+  phone_number         String                 @db.VarChar(12)
+  uploaded_at          DateTime               @default(now()) @db.Timestamp(0)
+  user_id              BigInt?                @db.UnsignedBigInt
+  business_category_id Int?                   @db.UnsignedInt
+  status               products_status        @default(pending)
   online_store_links   online_store_links[]
-  business_categories  business_categories? @relation(fields: [business_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "products_business_category_id_foreign")
-  users                users?               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "tbl_product_id_user_foreign")
+  business_categories  business_categories?   @relation(fields: [business_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "products_business_category_id_foreign")
+  users                users?                 @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "tbl_product_id_user_foreign")
 
   @@index([user_id], map: "tbl_product_id_user_index")
   @@index([business_category_id], map: "products_business_category_id_foreign")
@@ -276,4 +277,11 @@ enum temporary_users_business_status {
 enum users_business_status {
   BARU
   SUDAH_LAMA
+}
+
+enum products_status_produk {
+  disetujui
+  pending
+  ditolak
+  tidak_aktif
 }
