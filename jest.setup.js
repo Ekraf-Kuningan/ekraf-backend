@@ -3,8 +3,16 @@ import { PrismaClient } from '@prisma/client';
 
 beforeAll(() => {
   console.log('Setting up test database...');
-  execSync('npm run test:setup:db');
-  console.log('Test database setup complete.');
+  try {
+    const output = execSync('npm run test:setup:db', { encoding: 'utf8' });
+    console.log('Database setup output:', output);
+    console.log('Test database setup complete.');
+  } catch (error) {
+    console.error('Database setup failed:', error.message);
+    if (error.stdout) console.log('STDOUT:', error.stdout);
+    if (error.stderr) console.log('STDERR:', error.stderr);
+    throw error;
+  }
 });
 
 afterAll(async () => {
