@@ -171,7 +171,7 @@ export async function POST(
   }
 
   try {
-    const user = await prisma.tbl_user.findFirst({
+    const user = await prisma.users.findFirst({
       where: {
         AND: [
           {
@@ -208,7 +208,7 @@ export async function POST(
     }
 
     const tokenPayload = {
-      id_user: user.id_user,
+      id_user: user.id,
       username: user.username,
       id_level: user.id_level,
       level: user.tbl_level.level,
@@ -224,8 +224,8 @@ export async function POST(
         message: "Login berhasil",
         token,
         user: {
-          id_user: user.id_user,
-          nama_user: user.nama_user,
+          id_user: user.id,
+          nama_user: user.name,
           username: user.username,
           id_level: user.id_level,
           level: user.tbl_level.level,

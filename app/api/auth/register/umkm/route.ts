@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
         }
     }
 
-    const existingUser = await prisma.tbl_user.findFirst({
+    const existingUser = await prisma.users.findFirst({
       where: { OR: [{ username }, { email }] },
     });
 

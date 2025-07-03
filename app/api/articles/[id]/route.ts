@@ -166,9 +166,9 @@ export async function GET( request: NextRequest,
     const article = await prisma.tbl_artikel.findUnique({
       where: { id_artikel: Number(id) },
       include: {
-        tbl_user: {
+        users: {
           select: {
-            nama_user: true,
+            name: true,
             email: true
           }
         }

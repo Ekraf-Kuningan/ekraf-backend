@@ -8,7 +8,7 @@ async function validateToken(token: string) {
     if (!token) return null;
 
     try {
-        const user = await prisma.tbl_user.findFirst({
+        const user = await prisma.users.findFirst({
             where: {
                 resetPasswordToken: token,
                 resetPasswordTokenExpiry: {

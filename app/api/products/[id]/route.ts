@@ -181,7 +181,7 @@ export async function GET(
       where: { id_produk: Number(id) }, // DIUBAH
       include: {
         tbl_kategori_usaha: true,
-        tbl_user: { select: { nama_user: true, email: true } },
+        users: { select: { name: true, email: true } },
         tbl_olshop_link: true
       }
     });
@@ -240,7 +240,7 @@ export async function PUT(
       );
     }
 
-    if (user.id_level === 3 && productToUpdate.id_user !== user.id_user) {
+      if (user?.id_level !== 1 && user?.id_level !== 2 && user?.id !== productToUpdate.id_user) {
       return NextResponse.json(
         {
           message:
@@ -329,7 +329,7 @@ export async function DELETE(
       );
     }
 
-    const isOwner = productToDelete.id_user === user.id_user;
+    const isOwner = Number(productToDelete.id_user) === user.id;
     const isAdmin = user.id_level === 1 || user.id_level === 2;
 
     if (!isOwner && !isAdmin) {

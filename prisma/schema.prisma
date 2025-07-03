@@ -8,40 +8,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// =================================================================================
-// == Models Utama (Berdasarkan Skema Laravel)
-// =================================================================================
-
-// Model 'users' bawaan Laravel, digabungkan dengan field dari 'tbl_user'
 model users {
-  // Field asli dari Laravel
-  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  name              String    @db.VarChar(255)
-  email             String    @unique(map: "users_email_unique") @db.VarChar(255)
-  email_verified_at DateTime? @db.Timestamp(0)
-  password          String    @db.VarChar(255)
-  remember_token    String?   @db.VarChar(100)
-  created_at        DateTime? @db.Timestamp(0)
-  updated_at        DateTime? @db.Timestamp(0)
+  id                       BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  name                     String                 @db.VarChar(255)
+  email                    String                 @unique(map: "users_email_unique") @db.VarChar(255)
+  email_verified_at        DateTime?              @db.Timestamp(0)
+  password                 String                 @db.VarChar(255)
+  remember_token           String?                @db.VarChar(100)
+  created_at               DateTime?              @db.Timestamp(0)
+  updated_at               DateTime?              @db.Timestamp(0)
+  username                 String?                @unique(map: "users_username_unique") @db.VarChar(45)
+  gender                   users_gender?
+  phone_number             String?                @db.VarChar(20)
+  image                    String?                @db.VarChar(255)
+  business_name            String?                @db.VarChar(100)
+  business_status          users_business_status?
+  level_id                 BigInt                 @db.UnsignedBigInt
+  business_category_id     Int?                   @db.UnsignedInt
+  resetPasswordToken       String?                @unique(map: "users_resetpasswordtoken_unique") @db.VarChar(255)
+  resetPasswordTokenExpiry DateTime?              @db.DateTime(0)
+  verifiedAt               DateTime?              @db.Timestamp(0)
+  products                 products[]
+  business_categories      business_categories?   @relation(fields: [business_category_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "users_business_category_id_foreign")
+  levels                   levels                 @relation(fields: [level_id], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "users_level_id_foreign")
 
-  // Field yang digabungkan dari tbl_user
-  username          String?   @unique @db.VarChar(45)
-  jk                tbl_user_jk?
-  nohp              String?   @db.VarChar(20)
-  image             String?   @db.VarChar(255)
-  nama_usaha        String?   @db.VarChar(100)
-  status_usaha      tbl_user_status_usaha?
-  id_level          Int
-  id_kategori_usaha Int?
-
-  // Relasi yang dipindahkan dari tbl_user
-  tbl_level         tbl_level               @relation(fields: [id_level], references: [id_level], onUpdate: Restrict, map: "fk_users_level")
-  tbl_kategori_usaha tbl_kategori_usaha?     @relation(fields: [id_kategori_usaha], references: [id_kategori_usaha], onDelete: Restrict, onUpdate: Restrict, map: "fk_users_kategori_usaha")
-  tbl_artikel       tbl_artikel[]
-  tbl_product       tbl_product[]
-
-  @@index([id_level])
-  @@index([id_kategori_usaha])
+  @@index([business_category_id], map: "users_business_category_id_foreign")
+  @@index([level_id], map: "users_level_id_foreign")
 }
 
 model artikel_kategoris {
@@ -82,134 +74,6 @@ model banners {
   updated_at DateTime? @db.Timestamp(0)
 }
 
-model katalogs {
-  id            BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
-  sub_sektor_id BigInt      @db.UnsignedBigInt
-  title         String      @db.VarChar(255)
-  slug          String      @unique(map: "katalogs_slug_unique") @db.VarChar(255)
-  produk        String      @db.VarChar(255)
-  harga         Decimal     @db.Decimal(12, 2)
-  content       String      @db.LongText
-  no_hp         String?     @db.VarChar(255)
-  instagram     String?     @db.VarChar(255)
-  shopee        String?     @db.VarChar(255)
-  tokopedia     String?     @db.VarChar(255)
-  lazada        String?     @db.VarChar(255)
-  created_at    DateTime?   @db.Timestamp(0)
-  updated_at    DateTime?   @db.Timestamp(0)
-  sub_sektors   sub_sektors @relation(fields: [sub_sektor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "katalogs_sub_sektor_id_foreign")
-
-  @@index([sub_sektor_id], map: "katalogs_sub_sektor_id_foreign")
-}
-
-model sub_sektors {
-  id         BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
-  title      String     @db.VarChar(255)
-  slug       String     @unique(map: "sub_sektors_slug_unique") @db.VarChar(255)
-  created_at DateTime?  @db.Timestamp(0)
-  updated_at DateTime?  @db.Timestamp(0)
-  katalogs   katalogs[]
-}
-
-
-// =================================================================================
-// == Model Tambahan (dari skema kedua, diintegrasikan)
-// =================================================================================
-
-model tbl_artikel {
-  id_artikel        Int       @id @default(autoincrement())
-  judul             String    @db.VarChar(150)
-  gambar            String?   @db.VarChar(100)
-  deskripsi_singkat  String?   @db.Text
-  isi_lengkap       String?   @db.LongText
-  tanggal_upload    DateTime  @db.Date
-  id_user           BigInt?   @db.UnsignedBigInt // Tipe data diubah ke BigInt untuk mencocokkan users.id
-  users             users?    @relation(fields: [id_user], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_artikel_user") // Relasi diubah ke model 'users'
-
-  @@index([id_user])
-}
-
-model tbl_level {
-  id_level      Int             @id @default(autoincrement())
-  level         String?         @db.VarChar(25)
-  users         users[] // Relasi diubah ke model 'users'
-  tbl_user_temp tbl_user_temp[]
-}
-
-model tbl_olshop_link {
-  id_link       Int         @id @default(autoincrement())
-  id_produk     Int
-  nama_platform String?     @db.VarChar(50)
-  url           String      @db.Text
-  tbl_product   tbl_product @relation(fields: [id_produk], references: [id_produk], onDelete: Cascade, map: "fk_produk_olshop")
-
-  @@index([id_produk])
-}
-
-model tbl_subsektor {
-  id_sub     Int     @id @default(autoincrement())
-  sub_sektor String? @db.VarChar(25)
-}
-
-model tbl_user_temp {
-  id                       Int                          @id @default(autoincrement())
-  nama_user                String                       @db.VarChar(35)
-  username                 String                       @unique(map: "username") @db.VarChar(45)
-  email                    String                       @unique(map: "email") @db.VarChar(100)
-  password                 String                       @db.VarChar(255)
-  jk                       tbl_user_temp_jk
-  nohp                     String?                      @db.VarChar(20)
-  id_level                 Int
-  verificationToken        String                       @unique(map: "verificationToken") @db.VarChar(255)
-  createdAt                DateTime                     @default(now()) @db.DateTime(0)
-  resetPasswordToken       String?                      @unique(map: "resetPasswordToken") @db.VarChar(255)
-  resetPasswordTokenExpiry DateTime?                    @db.DateTime(0)
-  verificationTokenExpiry  DateTime?                    @db.DateTime(0)
-  nama_usaha               String?                      @db.VarChar(100)
-  status_usaha             tbl_user_temp_status_usaha?
-  id_kategori_usaha        Int?
-  tbl_kategori_usaha       tbl_kategori_usaha?          @relation(fields: [id_kategori_usaha], references: [id_kategori_usaha], onDelete: Restrict, onUpdate: Restrict, map: "fk_user_temp_kategori_usaha")
-  tbl_level                tbl_level                    @relation(fields: [id_level], references: [id_level], onDelete: NoAction, onUpdate: Restrict, map: "fk_user_temp_level")
-
-  @@index([id_kategori_usaha])
-  @@index([id_level])
-}
-
-model tbl_kategori_usaha {
-  id_kategori_usaha Int             @id @default(autoincrement())
-  nama_kategori     String          @unique(map: "nama_kategori_UNIQUE") @db.VarChar(50)
-  image             String?         @db.VarChar(255)
-  tbl_product       tbl_product[]
-  users             users[] // Relasi diubah ke model 'users'
-  tbl_user_temp     tbl_user_temp[]
-}
-
-model tbl_product {
-  id_produk            Int                       @id @default(autoincrement())
-  nama_pelaku          String?                   @db.VarChar(35)
-  nama_produk          String                    @db.VarChar(50)
-  deskripsi            String                    @db.VarChar(500)
-  harga                Float
-  stok                 Int
-  gambar               String                    @db.VarChar(255)
-  nohp                 String                    @db.VarChar(12)
-  tgl_upload           DateTime                  @default(now()) @db.Timestamp(0)
-  id_user              BigInt?                   @db.UnsignedBigInt // Tipe data diubah ke BigInt
-  id_kategori_usaha    Int?
-  status_produk        tbl_product_status_produk @default(pending)
-  tbl_olshop_link      tbl_olshop_link[]
-  tbl_kategori_usaha   tbl_kategori_usaha?       @relation(fields: [id_kategori_usaha], references: [id_kategori_usaha], onDelete: Restrict, onUpdate: Restrict, map: "fk_product_kategori_usaha")
-  users                users?                    @relation(fields: [id_user], references: [id], onUpdate: Restrict, map: "fk_umkm_user") // Relasi diubah ke model 'users'
-
-  @@index([id_user])
-  @@index([id_kategori_usaha])
-}
-
-
-// =================================================================================
-// == Model Utilitas Umum (Bawaan Laravel)
-// =================================================================================
-
 model cache {
   key        String @id @db.VarChar(255)
   value      String @db.MediumText
@@ -246,13 +110,13 @@ model job_batches {
 }
 
 model jobs {
-  id           BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
-  queue        String  @db.VarChar(255)
-  payload      String  @db.LongText
-  attempts     Int     @db.UnsignedTinyInt
-  reserved_at  Int?    @db.UnsignedInt
-  available_at Int     @db.UnsignedInt
-  created_at   Int     @db.UnsignedInt
+  id           BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  queue        String @db.VarChar(255)
+  payload      String @db.LongText
+  attempts     Int    @db.UnsignedTinyInt
+  reserved_at  Int?   @db.UnsignedInt
+  available_at Int    @db.UnsignedInt
+  created_at   Int    @db.UnsignedInt
 
   @@index([queue], map: "jobs_queue_index")
 }
@@ -281,34 +145,127 @@ model sessions {
   @@index([user_id], map: "sessions_user_id_index")
 }
 
+model business_categories {
+  id              Int               @id @default(autoincrement()) @db.UnsignedInt
+  name            String            @unique(map: "tbl_kategori_usaha_nama_kategori_unique") @db.VarChar(50)
+  image           String?           @db.VarChar(255)
+  temporary_users temporary_users[]
+  users           users[]
+}
 
-// =================================================================================
-// == Enums
-// =================================================================================
+model catalogs {
+  id            BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  sub_sector_id BigInt      @db.UnsignedBigInt
+  title         String      @db.VarChar(255)
+  slug          String      @unique(map: "katalogs_slug_unique") @db.VarChar(255)
+  product_name  String      @db.VarChar(255)
+  price         Decimal     @db.Decimal(12, 2)
+  content       String      @db.LongText
+  phone_number  String?     @db.VarChar(255)
+  instagram     String?     @db.VarChar(255)
+  shopee        String?     @db.VarChar(255)
+  tokopedia     String?     @db.VarChar(255)
+  lazada        String?     @db.VarChar(255)
+  created_at    DateTime?   @db.Timestamp(0)
+  updated_at    DateTime?   @db.Timestamp(0)
+  sub_sectors   sub_sectors @relation(fields: [sub_sector_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "katalogs_sub_sektor_id_foreign")
 
-enum tbl_user_jk {
+  @@index([sub_sector_id], map: "catalogs_sub_sector_id_foreign")
+}
+
+model levels {
+  id              BigInt            @id @db.UnsignedBigInt
+  name            String            @db.VarChar(255)
+  created_at      DateTime?         @db.Timestamp(0)
+  updated_at      DateTime?         @db.Timestamp(0)
+  temporary_users temporary_users[]
+  users           users[]
+}
+
+model online_store_links {
+  id            Int      @id @default(autoincrement()) @db.UnsignedInt
+  product_id    Int      @db.UnsignedInt
+  platform_name String?  @db.VarChar(50)
+  url           String   @db.Text
+  products      products @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "tbl_olshop_link_id_produk_foreign")
+
+  @@index([product_id], map: "tbl_olshop_link_id_produk_index")
+}
+
+model products {
+  id                 Int                  @id @default(autoincrement()) @db.UnsignedInt
+  owner_name         String?              @db.VarChar(35)
+  name               String               @db.VarChar(50)
+  description        String               @db.VarChar(500)
+  price              Float
+  stock              Int
+  image              String               @db.VarChar(255)
+  phone_number       String               @db.VarChar(12)
+  uploaded_at        DateTime             @default(now()) @db.Timestamp(0)
+  user_id            BigInt?              @db.UnsignedBigInt
+  status             products_status      @default(pending)
+  online_store_links online_store_links[]
+  users              users?               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "tbl_product_id_user_foreign")
+
+  @@index([user_id], map: "tbl_product_id_user_index")
+}
+
+model sub_sectors {
+  id         BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  title      String     @db.VarChar(255)
+  slug       String     @unique(map: "sub_sektors_slug_unique") @db.VarChar(255)
+  created_at DateTime?  @db.Timestamp(0)
+  updated_at DateTime?  @db.Timestamp(0)
+  catalogs   catalogs[]
+}
+
+model temporary_users {
+  id                       Int                              @id @default(autoincrement()) @db.UnsignedInt
+  name                     String                           @db.VarChar(35)
+  username                 String                           @db.VarChar(45)
+  email                    String                           @db.VarChar(100)
+  password                 String                           @db.VarChar(255)
+  gender                   temporary_users_gender
+  phone_number             String?                          @db.VarChar(20)
+  verificationToken        String                           @db.VarChar(255)
+  createdAt                DateTime                         @default(now()) @db.DateTime(0)
+  resetPasswordToken       String?                          @db.VarChar(255)
+  resetPasswordTokenExpiry DateTime?                        @db.DateTime(0)
+  verificationTokenExpiry  DateTime?                        @db.DateTime(0)
+  business_name            String?                          @db.VarChar(100)
+  business_status          temporary_users_business_status?
+  level_id                 BigInt                           @db.UnsignedBigInt
+  business_category_id     Int?                             @db.UnsignedInt
+  business_categories      business_categories?             @relation(fields: [business_category_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "temporary_users_business_category_id_foreign")
+  levels                   levels                           @relation(fields: [level_id], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "temporary_users_level_id_foreign")
+
+  @@index([business_category_id], map: "temporary_users_business_category_id_foreign")
+  @@index([level_id], map: "temporary_users_level_id_foreign")
+}
+
+enum temporary_users_gender {
   Laki_laki @map("Laki-laki")
   Perempuan
 }
 
-enum tbl_user_temp_jk {
+enum users_gender {
   Laki_laki @map("Laki-laki")
   Perempuan
 }
 
-enum tbl_user_status_usaha {
-  BARU
-  SUDAH_LAMA
-}
-
-enum tbl_user_temp_status_usaha {
-  BARU
-  SUDAH_LAMA
-}
-
-enum tbl_product_status_produk {
+enum products_status {
   disetujui
   pending
   ditolak
   tidak_aktif @map("tidak aktif")
+}
+
+enum temporary_users_business_status {
+  BARU
+  SUDAH_LAMA
+}
+
+enum users_business_status {
+  BARU
+  SUDAH_LAMA
 }

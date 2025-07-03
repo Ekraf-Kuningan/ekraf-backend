@@ -28,9 +28,9 @@ export async function GET(request: NextRequest) {
       skip: skip,
       take: limit,
       include: {
-        tbl_user: {
+        users: {
           select: {
-            nama_user: true,
+            name: true,
             email: true
           }
         }
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
         judul,
         deskripsi_singkat,
         isi_lengkap,
-        id_user,
+        id_user: body.id_user,
         gambar,
         tanggal_upload: new Date()
       }

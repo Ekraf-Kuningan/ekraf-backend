@@ -32,9 +32,9 @@ export async function GET(request: NextRequest) {
       take: limit,
       include: {
         tbl_kategori_usaha: true, // Diubah dari tbl_subsektor
-        tbl_user: {
+        users: {
           select: {
-            nama_user: true
+            name: true
           }
         }
       },
@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
         ...productData,
         deskripsi: productData.deskripsi ?? "",
         nohp: productData.nohp ?? "",
-        id_user: user!.id_user,
+        id_user: user!.id,
         tgl_upload: new Date(),
       },
     });

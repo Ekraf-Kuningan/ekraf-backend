@@ -104,11 +104,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const userProfile = await prisma.tbl_user.findUnique({
-      where: { id_user: user?.id_user },
+    const userProfile = await prisma.users.findUnique({
+      where: { id: user?.id },
       select: {
-        id_user: true,
-        nama_user: true,
+        id: true,
+        name: true,
         username: true,
         email: true,
         nohp: true,

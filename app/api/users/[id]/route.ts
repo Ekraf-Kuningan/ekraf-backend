@@ -34,7 +34,6 @@ import { authorizeRequest } from "@/lib/auth/authorizeRequest";
  *                   properties:
  *                     id_user:
  *                       type: integer
- *                     nama_user:
  *                       type: string
  *                     username:
  *                       type: string
@@ -146,8 +145,8 @@ export async function GET(
   }
 
   try {
-    const user = await prisma.tbl_user.findUnique({
-      where: { id_user: Number(id) },
+    const user = await prisma.users.findUnique({
+      where: { id: Number(id) },
       include: {
         tbl_level: true,
         tbl_kategori_usaha: true
@@ -195,8 +194,8 @@ export async function PUT(
       return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
     }
 
-    const updatedUser = await prisma.tbl_user.update({
-      where: { id_user: Number(id) },
+    const updatedUser = await prisma.users.update({
+      where: { id: Number(id) },
       data: updateData
     });
 
@@ -239,8 +238,8 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    await prisma.tbl_user.delete({
-      where: { id_user: Number(id) }
+    await prisma.users.delete({
+      where: { id: Number(id) }
     });
     return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {

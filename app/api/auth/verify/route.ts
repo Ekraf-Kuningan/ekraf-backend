@@ -37,9 +37,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    await prisma.tbl_user.create({
+    await prisma.users.create({
       data: {
-        nama_user: tempUser.nama_user,
+        name: tempUser.nama_user,
         username: tempUser.username,
         email: tempUser.email,
         password: tempUser.password,

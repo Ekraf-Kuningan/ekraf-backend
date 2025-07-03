@@ -91,10 +91,10 @@ export async function GET(request: NextRequest) {
     }
 
   try {
-    const users = await prisma.tbl_user.findMany({
+    const users = await prisma.users.findMany({
       select: {
-        id_user: true,
-        nama_user: true,
+        id: true,
+        name: true,
         username: true,
         email: true,
         nohp: true,
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: {
-        nama_user: "asc"
+        name: "asc"
       }
     });
 

@@ -33,8 +33,8 @@ export const sendEmail = async ({
       });
     } else if (emailType === "RESET") {
       // Untuk reset password, kita update tabel user utama
-      await prisma.tbl_user.update({
-        where: { id_user: userId }, // Di sini userId adalah id_user dari tbl_user
+      await prisma.users.update({
+        where: { id: userId },
         data: {
           resetPasswordToken: hashedToken,
           resetPasswordTokenExpiry: tokenExpiry, // Pastikan kolom ini ada di schema.prisma Anda

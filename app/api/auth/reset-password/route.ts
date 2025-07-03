@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Cari user berdasarkan token dan pastikan token belum kedaluwarsa
-    const user = await prisma.tbl_user.findFirst({
+    const user = await prisma.users.findFirst({
       where: {
         resetPasswordToken: token,
         resetPasswordTokenExpiry: {
@@ -75,8 +75,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Update password tanpa hash dan hapus token reset
-    await prisma.tbl_user.update({
-      where: { id_user: user.id_user },
+    await prisma.users.update({
+      where: { id: user.id },
       data: {
         password: password,
         resetPasswordToken: null,

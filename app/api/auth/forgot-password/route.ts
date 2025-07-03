@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await prisma.tbl_user.findFirst({
+    const user = await prisma.users.findFirst({
       where: { email: email },
     });
 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     await sendEmail({
       email: user.email as string,
       emailType: "RESET",
-      userId: user.id_user,
+      userId: Number(user.id),
     });
 
     return NextResponse.json(
