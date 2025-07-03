@@ -16,14 +16,14 @@ export async function authorizeRequest(
   // Gagal karena token tidak ada, tidak valid, atau kedaluwarsa
   if (!verificationResult.success || !user) {
     const errorResponse = NextResponse.json(
-      { message: verificationResult.error || "Akses ditolak." },
-      { status: verificationResult.status || 401 }
+      { message: verificationResult.error ?? "Akses ditolak." },
+      { status: verificationResult.status ?? 401 }
     );
     return [null, errorResponse];
   }
 
   // Gagal karena peran/level tidak diizinkan
-  if (!allowedRoles.includes(user.id_level)) {
+  if (!allowedRoles.includes(user.level_id)) {
     const errorResponse = NextResponse.json(
       { message: "Anda tidak memiliki izin untuk mengakses sumber daya ini." },
       { status: 403 } // 403 Forbidden adalah status yang lebih tepat untuk otorisasi
@@ -32,5 +32,5 @@ export async function authorizeRequest(
   }
 
   // Jika semua pemeriksaan berhasil, kembalikan data user dan null untuk error
-  return [user as { id_user: number; username: string; id_level: number; email: string | null }, null];
+  return [user, null];
 }

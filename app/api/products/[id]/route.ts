@@ -241,7 +241,7 @@ export async function PUT(
       );
     }
 
-      if (user?.level_id !== 1 && user?.level_id !== 2 && user?.id !== productToUpdate.user_id) {
+      if (user?.level_id !== 1 && user?.level_id !== 2 && user?.id !== Number(productToUpdate.user_id)) {
       return NextResponse.json(
         {
           message:

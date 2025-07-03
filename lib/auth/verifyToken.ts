@@ -4,9 +4,10 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export interface DecodedUserPayload extends JwtPayload {
-  id_user: number;
+  id: number;
   username: string;
-  id_level: number;
+  level_id: number;
+  level: string;
   email: string | null;
 }
 
@@ -25,7 +26,7 @@ export async function verifyToken(req: NextRequest): Promise<VerificationResult>
 
   const authHeader = req.headers.get('authorization');
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!authHeader?.startsWith('Bearer ')) {
     return { success: false, error: 'Tidak ada token otorisasi atau format salah.', status: 401 };
   }
 
@@ -37,6 +38,7 @@ export async function verifyToken(req: NextRequest): Promise<VerificationResult>
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as DecodedUserPayload;
+    
     return { success: true, user: decoded };
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
