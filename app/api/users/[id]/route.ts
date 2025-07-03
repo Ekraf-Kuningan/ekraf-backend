@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
+import { prepareForJsonResponse } from "@/lib/bigintUtils";
 /**
  * @swagger
  * /api/users/{id}:
@@ -157,7 +158,7 @@ export async function GET(
 
     return NextResponse.json({
       message: "User fetched successfully",
-      data: user
+      data: prepareForJsonResponse(user)
     });
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -206,7 +207,7 @@ export async function PUT(
     console.log(userWithoutPassword);
     return NextResponse.json({
       message: "User updated successfully",
-      data: userWithoutPassword
+      data: prepareForJsonResponse(userWithoutPassword)
     });
   } catch (error: unknown) {
     console.error("Update user error:", error);

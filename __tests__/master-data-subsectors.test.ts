@@ -34,9 +34,9 @@ describe('GET /api/master-data/subsectors', () => {
     expect(response.status).toBe(200);
     expect(json.message).toBe('Subsectors fetched successfully');
     expect(json.data).toEqual([
-      { id: '1', title: 'Agribisnis', slug: 'agribisnis' },
-      { id: '2', title: 'Kerajinan', slug: 'kerajinan' },
-      { id: '3', title: 'Kuliner', slug: 'kuliner' },
+      { id: 1, title: 'Agribisnis', slug: 'agribisnis' },
+      { id: 2, title: 'Kerajinan', slug: 'kerajinan' },
+      { id: 3, title: 'Kuliner', slug: 'kuliner' },
     ]);
 
     expect(prisma.sub_sectors.findMany).toHaveBeenCalledWith({
@@ -69,8 +69,8 @@ describe('GET /api/master-data/subsectors', () => {
     const json = await response.json();
 
     expect(json.data).toEqual([
-      { id: '123', title: 'Test Subsector', slug: 'test-subsector' },
-      { id: '456', title: 'Another Subsector', slug: 'another-subsector' },
+      { id: 123, title: 'Test Subsector', slug: 'test-subsector' },
+      { id: 456, title: 'Another Subsector', slug: 'another-subsector' },
     ]);
   });
 
@@ -132,9 +132,9 @@ describe('GET /api/master-data/subsectors', () => {
 
     expect(response.status).toBe(200);
     expect(json.data).toEqual([
-      { id: '1', title: 'Fashion & Lifestyle', slug: 'fashion-lifestyle' },
-      { id: '2', title: 'IT & Digital', slug: 'it-digital' },
-      { id: '3', title: 'F&B (Food & Beverage)', slug: 'fb-food-beverage' },
+      { id: 1, title: 'Fashion & Lifestyle', slug: 'fashion-lifestyle' },
+      { id: 2, title: 'IT & Digital', slug: 'it-digital' },
+      { id: 3, title: 'F&B (Food & Beverage)', slug: 'fb-food-beverage' },
     ]);
   });
 
@@ -153,12 +153,12 @@ describe('GET /api/master-data/subsectors', () => {
     expect(response.status).toBe(200);
     expect(json.data).toHaveLength(1000);
     expect(json.data[0]).toEqual({
-      id: '1',
+      id: 1,
       title: 'Subsector 1',
       slug: 'subsector-1',
     });
     expect(json.data[999]).toEqual({
-      id: '1000',
+      id: 1000,
       title: 'Subsector 1000',
       slug: 'subsector-1000',
     });
@@ -181,7 +181,7 @@ describe('GET /api/master-data/subsectors', () => {
     const json = await response.json();
 
     expect(json.data[0]).toEqual({
-      id: '1',
+      id: 1,
       title: 'Test Subsector',
       slug: 'test-subsector',
       createdAt: '2024-01-01T00:00:00.000Z',

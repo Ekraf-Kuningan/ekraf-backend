@@ -207,10 +207,11 @@ export async function POST(
       );
     }
 
+    // Konversi BigInt ke Number untuk JWT dan response
     const tokenPayload = {
-      id: user.id,
+      id: typeof user.id === 'bigint' ? Number(user.id) : user.id,
       username: user.username,
-      level_id: user.level_id,
+      level_id: typeof user.level_id === 'bigint' ? Number(user.level_id) : user.level_id,
       level: user.levels.name,
       email: user.email,
     };
@@ -224,10 +225,10 @@ export async function POST(
         message: "Login berhasil",
         token,
         user: {
-          id: user.id,
+          id: typeof user.id === 'bigint' ? Number(user.id) : user.id,
           name: user.name,
           username: user.username,
-          level_id: user.level_id,
+          level_id: typeof user.level_id === 'bigint' ? Number(user.level_id) : user.level_id,
           level: user.levels.name,
           email: user.email,
         },

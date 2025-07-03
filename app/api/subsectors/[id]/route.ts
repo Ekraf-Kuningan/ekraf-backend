@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@/app/generated/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { z } from "zod";
+import { prepareForJsonResponse } from "@/lib/bigintUtils";
 /**
  * @swagger
  * /api/subsectors/{id}:
@@ -123,7 +124,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!subsector) {
       return NextResponse.json({ message: "Subsector tidak ditemukan" }, { status: 404 });
     }
-    return NextResponse.json({ message: "Data berhasil diambil", data: subsector });
+    return NextResponse.json({ message: "Data berhasil diambil", data: prepareForJsonResponse(subsector) });
 
   } catch {
     return NextResponse.json({ message: "Gagal mengambil data" }, { status: 500 });
@@ -153,7 +154,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       data: { title: validationResult.data.title }
     });
 
-    return NextResponse.json({ message: "Subsector berhasil diperbarui", data: updatedSubsector });
+    return NextResponse.json({ message: "Subsector berhasil diperbarui", data: prepareForJsonResponse(updatedSubsector) });
 
   } catch (error) {
      if (error instanceof Prisma.PrismaClientKnownRequestError) {

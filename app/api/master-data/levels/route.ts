@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { prepareForJsonResponse } from '@/lib/bigintUtils';
 
 /**
  * @swagger
@@ -48,7 +49,7 @@ export async function GET() {
 
     return NextResponse.json({
       message: 'User levels fetched successfully',
-      data: userLevels,
+      data: prepareForJsonResponse(userLevels),
     });
 
   } catch (error) {

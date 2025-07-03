@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
+import { prepareForJsonResponse } from "@/lib/bigintUtils";
 
 /**
  * @swagger
@@ -76,7 +77,7 @@ export async function GET(
 
     return NextResponse.json({
       message: `Products for user ${id} fetched successfully`,
-      data: products
+      data: prepareForJsonResponse(products)
     });
   } catch (error) {
     return NextResponse.json(

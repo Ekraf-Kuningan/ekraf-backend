@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
+import { prepareForJsonResponse } from "@/lib/bigintUtils";
 
 // Helper function to generate a slug
 function generateSlug(title: string): string {
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
       message: "Articles fetched successfully",
       totalPages: Math.ceil(totalArticles / limit),
       currentPage: page,
-      data: articles
+      data: prepareForJsonResponse(articles)
     });
   } catch (error) {
     return NextResponse.json(
@@ -176,7 +177,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { message: "Article created successfully", data: newArticle },
+      { message: "Article created successfully", data: prepareForJsonResponse(newArticle) },
       { status: 201 }
     );
   } catch (error) {

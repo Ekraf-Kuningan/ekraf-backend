@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { prepareForJsonResponse } from '@/lib/bigintUtils';
 
 /**
  * @swagger
@@ -46,14 +47,9 @@ export async function GET() {
       },
     });
 
-    const data = subsectors.map(item => ({
-      ...item,
-      id: item.id.toString()
-    }))
-
     return NextResponse.json({
       message: 'Subsectors fetched successfully',
-      data: data,
+      data: prepareForJsonResponse(subsectors),
     });
 
   } catch (error) {

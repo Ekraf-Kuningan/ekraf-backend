@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { updateProductSchema } from "@/lib/zod";
+import { prepareForJsonResponse } from "@/lib/bigintUtils";
 
 /**
  * @swagger
@@ -195,7 +196,7 @@ export async function GET(
 
     return NextResponse.json({
       message: "Product fetched successfully",
-      data: product
+      data: prepareForJsonResponse(product)
     });
   } catch (error) {
     return NextResponse.json(
@@ -284,7 +285,7 @@ export async function PUT(
 
     return NextResponse.json({
       message: "Produk berhasil diperbarui",
-      data: updatedProduct
+      data: prepareForJsonResponse(updatedProduct)
     });
   } catch (error) {
     console.error("Gagal memperbarui produk:", error);

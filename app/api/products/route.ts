@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@/app/generated/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { productSchema } from "@/lib/zod";
+import { prepareForJsonResponse } from "@/lib/bigintUtils";
 
 
 
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
       message: "Products fetched successfully",
       totalPages: Math.ceil(totalProducts / limit),
       currentPage: page,
-      data: products
+      data: prepareForJsonResponse(products)
     });
   } catch (error) {
     return NextResponse.json(
@@ -250,7 +251,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { message: "Produk berhasil dibuat", data: newProduct },
+      { message: "Produk berhasil dibuat", data: prepareForJsonResponse(newProduct) },
       { status: 201 }
     );
 

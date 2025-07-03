@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
+import { prepareForJsonResponse } from "@/lib/bigintUtils";
 
 /**
  * @swagger
@@ -181,7 +182,7 @@ export async function GET(
 
     return NextResponse.json({
       message: "Article fetched successfully",
-      data: article,
+      data: prepareForJsonResponse(article),
     });
   } catch (error) {
     return NextResponse.json(
@@ -222,7 +223,7 @@ export async function PUT(
 
     return NextResponse.json({
       message: "Article updated successfully",
-      data: updatedArticle,
+      data: prepareForJsonResponse(updatedArticle),
     });
   } catch (error) {
     return NextResponse.json(

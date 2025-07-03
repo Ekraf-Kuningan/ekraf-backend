@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { z } from "zod";
 import { Prisma } from "@/app/generated/prisma";
+import { prepareForJsonResponse } from "@/lib/bigintUtils";
 
 // Helper function to generate a slug
 function generateSlug(title: string): string {
@@ -124,7 +125,7 @@ export async function GET() {
     });
     return NextResponse.json({
       message: "Subsektor berhasil diambil",
-      data: subsectors
+      data: prepareForJsonResponse(subsectors)
     });
   } catch {
     return NextResponse.json(
@@ -159,7 +160,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ message: "Subsektor berhasil dibuat", data: newSubsector }, { status: 201 });
+    return NextResponse.json({ message: "Subsektor berhasil dibuat", data: prepareForJsonResponse(newSubsector) }, { status: 201 });
 
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
