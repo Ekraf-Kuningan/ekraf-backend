@@ -118,12 +118,12 @@ export async function GET(request: NextRequest) {
     //   );
 
   } catch (error: unknown) {
+    console.error("Kesalahan saat verifikasi:", error);
     if (error instanceof Error) {
         // Handle potential unique constraint violation if user tries to verify twice quickly
         if (error.message.includes('Unique constraint failed')) {
             return NextResponse.json({ message: "Pengguna dengan email atau username ini sudah diverifikasi." }, { status: 409 });
         }
-        return NextResponse.json({ message: error.message }, { status: 500 });
     }
     return NextResponse.json(
       { message: "Terjadi kesalahan pada server" },

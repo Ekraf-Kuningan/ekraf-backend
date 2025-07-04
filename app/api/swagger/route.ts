@@ -16,7 +16,7 @@ export async function GET() {
   } catch (error) {
     console.error('Gagal menghasilkan spesifikasi Swagger:', error);
     return NextResponse.json(
-      { message: 'Gagal menghasilkan spesifikasi Swagger', error: (error as Error).message },
+      { message: 'Gagal menghasilkan spesifikasi Swagger' },
       { status: 500 }
     );
   }

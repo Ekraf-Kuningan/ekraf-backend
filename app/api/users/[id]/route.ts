@@ -163,7 +163,7 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json(
-      { message: "Failed to fetch user", error },
+      { message: "Failed to fetch user" },
       { status: 500 }
     );
   }
@@ -213,8 +213,7 @@ export async function PUT(
     console.error("Update user error:", error);
     return NextResponse.json(
       {
-        message: "Failed to update user",
-        error: error instanceof Error ? error.message : String(error)
+        message: "Failed to update user"
       },
       { status: 500 }
     );

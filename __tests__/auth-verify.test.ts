@@ -149,7 +149,7 @@ describe('GET /api/auth/verify', () => {
     const json = await response.json();
 
     expect(response.status).toBe(500);
-    expect(json.message).toBe('Database connection failed');
+    expect(json.message).toBe('Terjadi kesalahan pada server'); // Generic error message
   });
 
   it('should handle unknown errors', async () => {

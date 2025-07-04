@@ -55,7 +55,7 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching subsectors:', error);
     return NextResponse.json(
-      { message: 'Failed to fetch subsectors', error: error instanceof Error ? error.message : 'Unknown error' },
+      { message: 'Failed to fetch subsectors' },
       { status: 500 }
     );
   }

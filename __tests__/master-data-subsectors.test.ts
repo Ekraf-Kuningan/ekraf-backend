@@ -102,7 +102,7 @@ describe('GET /api/master-data/subsectors', () => {
 
     expect(response.status).toBe(500);
     expect(json.message).toBe('Failed to fetch subsectors');
-    expect(json.error).toBe('Database connection failed');
+    expect(json.error).toBeUndefined(); // Error details should not be exposed
     expect(console.error).toHaveBeenCalledWith('Error fetching subsectors:', dbError);
   });
 
@@ -115,7 +115,7 @@ describe('GET /api/master-data/subsectors', () => {
 
     expect(response.status).toBe(500);
     expect(json.message).toBe('Failed to fetch subsectors');
-    expect(json.error).toBe('Unknown error');
+    expect(json.error).toBeUndefined(); // Error details should not be exposed
   });
 
   it('should handle subsectors with special characters in title', async () => {
