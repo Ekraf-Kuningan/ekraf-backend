@@ -17,7 +17,12 @@
     "studio": "prisma studio",
     "test": "jest --runInBand",
     "test:endpoints": "node ./test_endpoints.js",
-    "test:setup:db": "dotenv -e .env.test -- npx prisma db push --schema=./prisma/schema.prisma --accept-data-loss"
+    "test:setup:db": "dotenv -e .env.test -- npx prisma db push --schema=./prisma/schema.prisma --accept-data-loss",
+    "seed:test-users": "node seed_test_users.js",
+    "check:users": "node check_users.js", 
+    "get:valid-ids": "node get_valid_ids.js",
+    "sync:all": "node sync_all.js",
+    "sync:complete": "node complete_sync.js"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"

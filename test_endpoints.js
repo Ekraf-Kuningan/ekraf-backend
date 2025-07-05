@@ -138,8 +138,17 @@ async function testEndpoint(filePath) {
     .replace(/\\/g, '/') // Replace backslashes with forward slashes
     .replace('/route.ts', '')
     .replace(/\[(\w+)\]/g, (match, p1) => {
-      // Replace dynamic segments with placeholder values
-      if (p1 === 'id' || p1 === 'linkId') return '1'; // Use '1' for ID placeholders
+      // Replace dynamic segments with actual valid IDs
+      if (p1 === 'id') {
+        // Use different IDs based on endpoint type
+        if (filePath.includes('/products/')) return '2'; // Valid product ID
+        if (filePath.includes('/subsectors/')) return '28'; // Valid subsector ID  
+        if (filePath.includes('/business-categories/')) return '1'; // Valid business category ID
+        if (filePath.includes('/articles/')) return '1'; // We'll create articles in tests
+        if (filePath.includes('/users/')) return '2'; // Valid user ID (dewani)
+        return '1'; // Fallback
+      }
+      if (p1 === 'linkId') return '1'; // Link ID placeholder
       if (p1 === 'level') return 'umkm'; // Use 'umkm' for level placeholder
       return 'placeholder'; // Fallback for other dynamic segments
     });
@@ -322,7 +331,7 @@ const testDataGenerators = {
     phone_number: '08123456789',
     business_name: 'Test Business',
     business_status: 'BARU',
-    business_category_id: '1'
+    business_category_id: 1
   }),
   
   login: (url) => {
@@ -335,14 +344,16 @@ const testDataGenerators = {
     }
   },
   
-  forgotPassword: () => ({ email: 'test@example.com' }),
+  forgotPassword: () => ({ email: 'dewani@example.com' }),
   
   resetPassword: () => ({ token: 'sample-token', password: 'newpassword123' }),
+  
+  verify: () => ({ token: 'sample-verification-token' }),
   
   article: () => ({
     title: `Test Article ${Date.now()}`,
     content: 'This is a test article content.',
-    author_id: 1,
+    author_id: 3, // Admin user ID
     artikel_kategori_id: 1,
   }),
   
@@ -350,11 +361,17 @@ const testDataGenerators = {
     name: `Test Product ${Date.now()}`,
     owner_name: 'Test Owner',
     description: 'Test product description',
-    price: 100.00,
+    price: 100000,
     stock: 10,
     phone_number: '08123456789',
     business_category_id: 1,
     image: 'https://example.com/test-image.jpg'
+  }),
+  
+  productLink: () => ({
+    platform: 'shopee',
+    url: 'https://shopee.co.id/test-product',
+    is_active: true
   }),
   
   businessCategory: () => ({
@@ -367,13 +384,27 @@ const testDataGenerators = {
     description: 'Test subsector description'
   }),
   
-  genericUpdate: () => ({ name: `Updated Name ${Date.now()}` })
+  genericUpdate: () => ({ 
+    name: `Updated Name ${Date.now()}`,
+    title: `Updated Title ${Date.now()}`,
+    description: 'Updated description'
+  })
 };
 
 function getTestData(url, method) {
   if (method === 'GET' || method === 'DELETE') {
     return {};
   }
+
+  // Use valid IDs based on database data
+  const validIds = {
+    subsectorId: 28,
+    businessCategoryId: 1,
+    produktId: 2,
+    userId: 2,
+    adminUserId: 3,
+    artikelKategoriId: 1
+  };
 
   if (url.includes('/api/auth/register/umkm') && method === 'POST') {
     return testDataGenerators.registerUMKM();
@@ -382,6 +413,10 @@ function getTestData(url, method) {
   if (url.includes('/api/auth/login') && method === 'POST') {
     return testDataGenerators.login(url);
   } 
+  
+  if (url.includes('/api/auth/verify') && method === 'POST') {
+    return testDataGenerators.verify();
+  }
   
   if (url.includes('/api/auth/forgot-password') && method === 'POST') {
     return testDataGenerators.forgotPassword();
@@ -392,15 +427,26 @@ function getTestData(url, method) {
   } 
   
   if (url.includes('/api/articles') && method === 'POST') {
-    return testDataGenerators.article();
+    return {
+      ...testDataGenerators.article(),
+      author_id: validIds.adminUserId,
+      artikel_kategori_id: validIds.artikelKategoriId
+    };
   } 
   
-  if (url.includes('/api/products') && method === 'POST') {
+  if (url.includes('/api/products') && method === 'POST' && !url.includes('/links')) {
     return testDataGenerators.product();
-  } 
+  }
+  
+  if (url.includes('/api/products/') && url.includes('/links') && method === 'POST') {
+    return testDataGenerators.productLink();
+  }
   
   if (url.includes('/api/business-categories') && method === 'POST') {
-    return testDataGenerators.businessCategory();
+    return {
+      ...testDataGenerators.businessCategory(),
+      sub_sector_id: validIds.subsectorId
+    };
   } 
   
   if (url.includes('/api/subsectors') && method === 'POST') {
@@ -408,6 +454,21 @@ function getTestData(url, method) {
   } 
   
   if (method === 'PUT') {
+    if (url.includes('/api/business-categories')) {
+      return {
+        name: `Updated Category ${Date.now()}`,
+        sub_sector_id: validIds.subsectorId
+      };
+    }
+    if (url.includes('/api/subsectors')) {
+      return {
+        title: `Updated Subsector ${Date.now()}`,
+        description: 'Updated subsector description'
+      };
+    }
+    if (url.includes('/api/products/') && url.includes('/links')) {
+      return testDataGenerators.productLink();
+    }
     return testDataGenerators.genericUpdate();
   }
 
