@@ -118,7 +118,24 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     const subsector = await prisma.sub_sectors.findUnique({
-      where: { id: Number(id) }
+      where: { id: Number(id) },
+      include: {
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true
+          }
+        },
+        _count: {
+          select: {
+            business_categories: true,
+            products: true,
+            catalogs: true
+          }
+        }
+      }
     });
 
     if (!subsector) {

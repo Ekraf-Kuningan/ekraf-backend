@@ -15,7 +15,9 @@ function generateSlug(title: string): string {
 }
 
 const SubsectorSchema = z.object({
-  title: z.string().min(3, { message: "Nama subsektor harus memiliki minimal 3 karakter." })
+  title: z.string().min(3, { message: "Nama subsektor harus memiliki minimal 3 karakter." }),
+  image: z.string().max(255).optional().nullable(),
+  description: z.string().optional().nullable()
 });
 
 /**
@@ -119,6 +121,23 @@ const SubsectorSchema = z.object({
 export async function GET() {
   try {
     const subsectors = await prisma.sub_sectors.findMany({
+      include: {
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true
+          }
+        },
+        _count: {
+          select: {
+            business_categories: true,
+            products: true,
+            catalogs: true
+          }
+        }
+      },
       orderBy: {
         title: 'asc'
       }
@@ -156,7 +175,9 @@ export async function POST(request: NextRequest) {
     const newSubsector = await prisma.sub_sectors.create({
       data: {
         title: validationResult.data.title,
-        slug: generateSlug(validationResult.data.title) // Generate slug from title
+        slug: generateSlug(validationResult.data.title), // Generate slug from title
+        image: validationResult.data.image ?? null,
+        description: validationResult.data.description ?? null
       }
     });
 

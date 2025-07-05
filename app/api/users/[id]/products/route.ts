@@ -70,6 +70,33 @@ export async function GET(
   try {
     const products = await prisma.products.findMany({
       where: { user_id: Number(id) },
+      include: {
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true,
+            sub_sectors: {
+              select: {
+                id: true,
+                title: true,
+                slug: true
+              }
+            }
+          }
+        },
+        sub_sectors: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            image: true,
+            description: true
+          }
+        },
+        online_store_links: true
+      },
       orderBy: {
         uploaded_at: "desc"
       }

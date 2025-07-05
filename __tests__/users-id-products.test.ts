@@ -100,6 +100,33 @@ describe('GET /api/users/[id]/products', () => {
     expect(authorizeRequest).toHaveBeenCalledWith(request, [1, 2, 3]);
     expect(prisma.products.findMany).toHaveBeenCalledWith({
       where: { user_id: 1 },
+      include: {
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true,
+            sub_sectors: {
+              select: {
+                id: true,
+                title: true,
+                slug: true
+              }
+            }
+          }
+        },
+        sub_sectors: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            image: true,
+            description: true
+          }
+        },
+        online_store_links: true
+      },
       orderBy: {
         uploaded_at: 'desc',
       },
@@ -206,6 +233,33 @@ describe('GET /api/users/[id]/products', () => {
 
     expect(prisma.products.findMany).toHaveBeenCalledWith({
       where: { user_id: 1 },
+      include: {
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true,
+            sub_sectors: {
+              select: {
+                id: true,
+                title: true,
+                slug: true
+              }
+            }
+          }
+        },
+        sub_sectors: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            image: true,
+            description: true
+          }
+        },
+        online_store_links: true
+      },
       orderBy: {
         uploaded_at: 'desc',
       },
@@ -225,6 +279,33 @@ describe('GET /api/users/[id]/products', () => {
     expect(response.status).toBe(200);
     expect(prisma.products.findMany).toHaveBeenCalledWith({
       where: { user_id: 1 },
+      include: {
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true,
+            sub_sectors: {
+              select: {
+                id: true,
+                title: true,
+                slug: true
+              }
+            }
+          }
+        },
+        sub_sectors: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            image: true,
+            description: true
+          }
+        },
+        online_store_links: true
+      },
       orderBy: {
         uploaded_at: 'desc',
       },
@@ -263,6 +344,33 @@ describe('GET /api/users/[id]/products', () => {
     expect(json.message).toBe('Products for user 1 fetched successfully');
     expect(prisma.products.findMany).toHaveBeenCalledWith({
       where: { user_id: 1 },
+      include: {
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true,
+            sub_sectors: {
+              select: {
+                id: true,
+                title: true,
+                slug: true
+              }
+            }
+          }
+        },
+        sub_sectors: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            image: true,
+            description: true
+          }
+        },
+        online_store_links: true
+      },
       orderBy: {
         uploaded_at: 'desc',
       },

@@ -117,8 +117,27 @@ export async function GET(request: NextRequest) {
         business_name: true,
         business_status: true,
         verifiedAt: true,
-        levels: true,
-        business_categories: true
+        levels: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true,
+            sub_sectors: {
+              select: {
+                id: true,
+                title: true,
+                slug: true
+              }
+            }
+          }
+        }
       }
     });
 

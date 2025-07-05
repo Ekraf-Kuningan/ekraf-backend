@@ -41,6 +41,24 @@ import prisma from '@/lib/prisma';
 export async function GET() {
   try {
     const businessCategories = await prisma.business_categories.findMany({
+      include: {
+        sub_sectors: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            image: true,
+            description: true
+          }
+        },
+        _count: {
+          select: {
+            products: true,
+            users: true,
+            temporary_users: true
+          }
+        }
+      },
       orderBy: {
         name: 'asc',
       },

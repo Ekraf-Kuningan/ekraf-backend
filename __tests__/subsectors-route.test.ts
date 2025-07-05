@@ -56,8 +56,25 @@ describe('GET /api/subsectors', () => {
     expect(json.data[0]).toHaveProperty('title');
     expect(json.data[0]).toHaveProperty('slug');
     
-    // Verify that findMany was called with correct orderBy
+    // Verify that findMany was called with correct include and orderBy
     expect(prisma.sub_sectors.findMany).toHaveBeenCalledWith({
+      include: {
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true
+          }
+        },
+        _count: {
+          select: {
+            business_categories: true,
+            products: true,
+            catalogs: true
+          }
+        }
+      },
       orderBy: {
         title: 'asc'
       }
@@ -131,7 +148,9 @@ describe('POST /api/subsectors', () => {
     expect(prisma.sub_sectors.create).toHaveBeenCalledWith({
       data: {
         title: 'Teknologi Digital',
-        slug: 'teknologi-digital'
+        slug: 'teknologi-digital',
+        image: null,
+        description: null
       }
     });
   });
@@ -162,7 +181,9 @@ describe('POST /api/subsectors', () => {
     expect(prisma.sub_sectors.create).toHaveBeenCalledWith({
       data: {
         title: 'Fashion & Lifestyle',
-        slug: 'fashion-lifestyle'
+        slug: 'fashion-lifestyle',
+        image: null,
+        description: null
       }
     });
   });

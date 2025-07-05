@@ -40,6 +40,23 @@ describe('GET /api/master-data/subsectors', () => {
     ]);
 
     expect(prisma.sub_sectors.findMany).toHaveBeenCalledWith({
+      include: {
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true
+          }
+        },
+        _count: {
+          select: {
+            business_categories: true,
+            products: true,
+            catalogs: true
+          }
+        }
+      },
       orderBy: {
         title: 'asc',
       },
@@ -87,6 +104,23 @@ describe('GET /api/master-data/subsectors', () => {
     await GET();
 
     expect(prisma.sub_sectors.findMany).toHaveBeenCalledWith({
+      include: {
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true
+          }
+        },
+        _count: {
+          select: {
+            business_categories: true,
+            products: true,
+            catalogs: true
+          }
+        }
+      },
       orderBy: {
         title: 'asc',
       },

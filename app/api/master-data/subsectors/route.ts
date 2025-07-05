@@ -42,6 +42,23 @@ import { prepareForJsonResponse } from '@/lib/bigintUtils';
 export async function GET() {
   try {
     const subsectors = await prisma.sub_sectors.findMany({
+      include: {
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true
+          }
+        },
+        _count: {
+          select: {
+            business_categories: true,
+            products: true,
+            catalogs: true
+          }
+        }
+      },
       orderBy: {
         title: 'asc',
       },

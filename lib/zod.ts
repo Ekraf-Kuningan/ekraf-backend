@@ -1,37 +1,47 @@
 import { z } from "zod";
-// Skema Zod disesuaikan sepenuhnya ke tbl_kategori_usaha
+// Zod schemas aligned with database schema
 export const productSchema = z.object({
   name: z.string()
-    .min(3, { message: "Nama produk harus memiliki minimal 3 karakter." })
-    .max(100, { message: "Nama produk tidak boleh lebih dari 100 karakter." }),
+    .min(3, { message: "Product name must have at least 3 characters." })
+    .max(100, { message: "Product name cannot exceed 100 characters." }),
   owner_name: z.string()
-    .min(1, { message: "Nama pelaku usaha wajib diisi." }),
+    .min(1, { message: "Owner name is required." }),
   description: z.string().optional(),
   price: z.coerce
-    .number({ invalid_type_error: "Harga harus berupa angka." })
-    .positive({ message: "Harga harus lebih dari 0." }),
+    .number({ invalid_type_error: "Price must be a number." })
+    .positive({ message: "Price must be greater than 0." }),
   stock: z.coerce
-    .number({ invalid_type_error: "Stok harus berupa angka." })
-    .int({ message: "Stok harus berupa bilangan bulat." })
-    .nonnegative({ message: "Stok tidak boleh negatif." }),
+    .number({ invalid_type_error: "Stock must be a number." })
+    .int({ message: "Stock must be an integer." })
+    .nonnegative({ message: "Stock cannot be negative." }),
   phone_number: z.string()
-    .regex(/^(\+62|62|0)8[1-9][0-9]{7,11}$/, { message: "Format nomor HP tidak valid." })
+    .regex(/^(\+62|62|0)8[1-9][0-9]{7,11}$/, { message: "Invalid phone number format." })
     .optional()
     .or(z.literal('')),
   business_category_id: z.coerce
-    .number({ invalid_type_error: "Kategori tidak valid." })
+    .number({ invalid_type_error: "Invalid business category." })
     .int()
-    .positive({ message: "Kategori harus dipilih." }),
+    .positive({ message: "Business category must be selected." }),
+  sub_sector_id: z.coerce
+    .number({ invalid_type_error: "Invalid subsector." })
+    .int()
+    .positive({ message: "Subsector must be selected." })
+    .optional(),
   
-  // --- PERUBAHAN UTAMA DI SINI ---
-  image: z.string({ required_error: "URL gambar wajib diisi." })
-    .url({ message: "Format URL gambar tidak valid." })
-    .min(1, { message: "URL gambar tidak boleh kosong." }),
+  // --- MAIN CHANGE HERE ---
+  image: z.string({ required_error: "Image URL is required." })
+    .url({ message: "Invalid image URL format." })
+    .min(1, { message: "Image URL cannot be empty." }),
   status: z.enum(['disetujui', 'pending', 'ditolak', 'tidak_aktif']).default('pending'),
 });
 export const updateProductSchema = productSchema.partial();
 
-export const KategoriUsahaSchema = z.object({
-  name: z.string().min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." }),
-  image: z.string().max(255).optional().nullable()
+export const BusinessCategorySchema = z.object({
+  name: z.string().min(3, { message: "Category name must have at least 3 characters." }),
+  image: z.string().max(255).optional().nullable(),
+  sub_sector_id: z.coerce
+    .number({ invalid_type_error: "Invalid subsector." })
+    .int()
+    .positive({ message: "Subsector must be selected." }),
+  description: z.string().optional().nullable()
 });

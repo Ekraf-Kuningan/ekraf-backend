@@ -110,12 +110,26 @@ describe('GET /api/users', () => {
         phone_number: true,
         gender: true,
         business_name: true,
+        business_status: true,
         verifiedAt: true,
         levels: {
           select: {
-            name: true,
-          },
+            id: true,
+            name: true
+          }
         },
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            sub_sectors: {
+              select: {
+                id: true,
+                title: true
+              }
+            }
+          }
+        }
       },
       orderBy: {
         name: 'asc',
@@ -227,12 +241,26 @@ describe('GET /api/users', () => {
           phone_number: true,
           gender: true,
           business_name: true,
+          business_status: true,
           verifiedAt: true,
           levels: {
             select: {
-              name: true,
-            },
+              id: true,
+              name: true
+            }
           },
+          business_categories: {
+            select: {
+              id: true,
+              name: true,
+              sub_sectors: {
+                select: {
+                  id: true,
+                  title: true
+                }
+              }
+            }
+          }
         },
       })
     );

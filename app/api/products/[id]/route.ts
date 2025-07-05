@@ -181,8 +181,39 @@ export async function GET(
     const product = await prisma.products.findUnique({
       where: { id: Number(id) },
       include: {
-        business_categories: true,
-        users: { select: { name: true, email: true } },
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true,
+            sub_sectors: {
+              select: {
+                id: true,
+                title: true,
+                slug: true
+              }
+            }
+          }
+        },
+        sub_sectors: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            image: true,
+            description: true
+          }
+        },
+        users: { 
+          select: { 
+            id: true,
+            name: true, 
+            email: true,
+            username: true,
+            phone_number: true
+          } 
+        },
         online_store_links: true
       }
     });

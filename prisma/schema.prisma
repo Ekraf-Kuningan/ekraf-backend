@@ -79,15 +79,16 @@ model authors {
 }
 
 model banners {
-  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  title      String?   @db.VarChar(255)
-  image      String?   @db.VarChar(255)
-  artikel_id BigInt    @db.UnsignedBigInt
-  link_url   String?   @db.VarChar(255)
-  is_active  Boolean   @default(true)
-  sort_order Int       @default(0)
-  created_at DateTime? @db.Timestamp(0)
-  updated_at DateTime? @db.Timestamp(0)
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title       String?   @db.VarChar(255)
+  description String?   @db.Text
+  image       String?   @db.VarChar(255)
+  artikel_id  BigInt?   @db.UnsignedBigInt
+  link_url    String?   @db.VarChar(255)
+  is_active   Boolean   @default(true)
+  sort_order  Int       @default(0)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
 }
 
 model cache {
@@ -165,9 +166,16 @@ model business_categories {
   id              Int               @id @default(autoincrement()) @db.UnsignedInt
   name            String            @unique(map: "tbl_kategori_usaha_nama_kategori_unique") @db.VarChar(50)
   image           String?           @db.VarChar(255)
+  sub_sector_id   BigInt            @db.UnsignedBigInt
+  description     String?           @db.Text
+  created_at      DateTime?         @db.Timestamp(0)
+  updated_at      DateTime?         @db.Timestamp(0)
+  sub_sectors     sub_sectors       @relation(fields: [sub_sector_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "business_categories_sub_sector_id_foreign")
   products        products[]
   temporary_users temporary_users[]
   users           users[]
+
+  @@index([sub_sector_id], map: "business_categories_sub_sector_id_index")
 }
 
 model catalogs {
@@ -226,24 +234,29 @@ model products {
   uploaded_at          DateTime               @default(now()) @db.Timestamp(0)
   user_id              BigInt?                @db.UnsignedBigInt
   business_category_id Int?                   @db.UnsignedInt
+  sub_sector_id        BigInt?                @db.UnsignedBigInt
   status               products_status        @default(pending)
   online_store_links   online_store_links[]
+  sub_sectors          sub_sectors?           @relation(fields: [sub_sector_id], references: [id], map: "fk_products_sub_sector_id")
   business_categories  business_categories?   @relation(fields: [business_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "products_business_category_id_foreign")
   users                users?                 @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "tbl_product_id_user_foreign")
 
   @@index([user_id], map: "tbl_product_id_user_index")
   @@index([business_category_id], map: "products_business_category_id_foreign")
+  @@index([sub_sector_id], map: "products_sub_sector_id_index")
 }
 
 model sub_sectors {
-  id          BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
-  title       String     @db.VarChar(255)
-  slug        String     @unique(map: "sub_sektors_slug_unique") @db.VarChar(255)
-  image       String?    @db.VarChar(255)
-  description String?    @db.Text
-  created_at  DateTime?  @db.Timestamp(0)
-  updated_at  DateTime?  @db.Timestamp(0)
-  catalogs    catalogs[]
+  id                  BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  title               String                @db.VarChar(255)
+  slug                String                @unique(map: "sub_sektors_slug_unique") @db.VarChar(255)
+  image               String?               @db.VarChar(255)
+  description         String?               @db.Text
+  created_at          DateTime?             @db.Timestamp(0)
+  updated_at          DateTime?             @db.Timestamp(0)
+  business_categories business_categories[]
+  catalogs            catalogs[]
+  products            products[]
 }
 
 model temporary_users {

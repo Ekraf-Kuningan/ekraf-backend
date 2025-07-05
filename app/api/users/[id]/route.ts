@@ -147,8 +147,33 @@ export async function GET(
     const user = await prisma.users.findUnique({
       where: { id: Number(id) },
       include: {
-        levels: true,
-        business_categories: true
+        levels: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            description: true,
+            sub_sectors: {
+              select: {
+                id: true,
+                title: true,
+                slug: true
+              }
+            }
+          }
+        },
+        _count: {
+          select: {
+            products: true,
+            artikels: true
+          }
+        }
       }
     });
 

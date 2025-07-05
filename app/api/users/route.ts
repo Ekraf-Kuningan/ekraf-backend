@@ -101,10 +101,24 @@ export async function GET(request: NextRequest) {
         phone_number: true,
         gender: true,
         business_name: true,
+        business_status: true,
         verifiedAt: true,
         levels: {
           select: {
+            id: true,
             name: true
+          }
+        },
+        business_categories: {
+          select: {
+            id: true,
+            name: true,
+            sub_sectors: {
+              select: {
+                id: true,
+                title: true
+              }
+            }
           }
         }
       },

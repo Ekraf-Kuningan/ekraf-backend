@@ -2,45 +2,63 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@/app/generated/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
-import { KategoriUsahaSchema } from "@/lib/zod";
+import { BusinessCategorySchema } from "@/lib/zod";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
   const { id } = await params;
-  if (isNaN(id)) return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
+  if (isNaN(id)) return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
 
   try {
-    const kategori = await prisma.business_categories.findUnique({
-      where: { id: Number(id) }
+    const businessCategory = await prisma.business_categories.findUnique({
+      where: { id: Number(id) },
+      include: {
+        sub_sectors: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            image: true,
+            description: true
+          }
+        },
+        _count: {
+          select: {
+            products: true,
+            users: true,
+            temporary_users: true
+          }
+        }
+      }
     });
 
-    if (!kategori) {
-      return NextResponse.json({ message: "Kategori usaha tidak ditemukan" }, { status: 404 });
+    if (!businessCategory) {
+      return NextResponse.json({ message: "Business category not found" }, { status: 404 });
     }
-    return NextResponse.json({ message: "Data berhasil diambil", data: kategori });
+    return NextResponse.json({ message: "Data retrieved successfully", data: businessCategory });
 
   } catch {
-    return NextResponse.json({ message: "Gagal mengambil data" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to retrieve data" }, { status: 500 });
   }
 }
 
 /**
  * @swagger
- * /api/kategori-usaha/{id}:
+ * /api/business-categories/{id}:
  *   get:
- *     summary: Mengambil data kategori usaha berdasarkan ID
- *     description: Mengambil detail kategori usaha berdasarkan ID.
+ *     summary: Get business category by ID
+ *     description: Retrieve business category details by ID.
  *     tags:
- *       - Kategori Usaha
+ *       - Business Categories
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID kategori usaha yang akan diambil
+ *         description: Business category ID to retrieve
  *     responses:
  *       200:
- *         description: Data berhasil diambil
+ *         description: Data retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -48,11 +66,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Data berhasil diambil"
+ *                   example: "Data retrieved successfully"
  *                 data:
- *                   $ref: '#/components/schemas/KategoriUsaha'
+ *                   $ref: '#/components/schemas/BusinessCategory'
  *       400:
- *         description: Format ID tidak valid
+ *         description: Invalid ID format
  *         content:
  *           application/json:
  *             schema:
@@ -60,9 +78,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Format ID tidak valid"
+ *                   example: "Invalid ID format"
  *       404:
- *         description: Kategori usaha tidak ditemukan
+ *         description: Business category not found
  *         content:
  *           application/json:
  *             schema:
@@ -70,9 +88,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Kategori usaha tidak ditemukan"
+ *                   example: "Business category not found"
  *       500:
- *         description: Gagal mengambil data
+ *         description: Failed to retrieve data
  *         content:
  *           application/json:
  *             schema:
@@ -80,13 +98,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Gagal mengambil data"
+ *                   example: "Failed to retrieve data"
  *
  *   put:
- *     summary: Memperbarui data kategori usaha berdasarkan ID
- *     description: Memperbarui nama dan gambar kategori usaha yang sudah ada berdasarkan ID.
+ *     summary: Update business category by ID
+ *     description: Update existing business category name, image, subsector, and description by ID.
  *     tags:
- *       - Kategori Usaha
+ *       - Business Categories
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -95,16 +113,28 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID kategori usaha yang akan diperbarui
+ *         description: Business category ID to update
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/KategoriUsaha'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 minLength: 3
+ *               image:
+ *                 type: string
+ *                 nullable: true
+ *               sub_sector_id:
+ *                 type: integer
+ *               description:
+ *                 type: string
+ *                 nullable: true
  *     responses:
  *       200:
- *         description: Kategori usaha berhasil diperbarui
+ *         description: Business category updated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -112,11 +142,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Kategori usaha berhasil diperbarui"
+ *                   example: "Business category updated successfully"
  *                 data:
- *                   $ref: '#/components/schemas/KategoriUsaha'
+ *                   $ref: '#/components/schemas/BusinessCategory'
  *       400:
- *         description: Format ID tidak valid atau data tidak valid
+ *         description: Invalid ID format or invalid data
  *         content:
  *           application/json:
  *             schema:
@@ -124,7 +154,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Data tidak valid"
+ *                   example: "Invalid data"
  *                 errors:
  *                   type: object
  *                   additionalProperties:
@@ -132,7 +162,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *                     items:
  *                       type: string
  *       401:
- *         description: Token tidak valid atau tidak ada
+ *         description: Invalid or missing token
  *         content:
  *           application/json:
  *             schema:
@@ -140,9 +170,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Token tidak valid"
+ *                   example: "Invalid token"
  *       403:
- *         description: Tidak memiliki akses
+ *         description: Access denied
  *         content:
  *           application/json:
  *             schema:
@@ -150,9 +180,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Anda tidak memiliki akses untuk melakukan operasi ini"
+ *                   example: "Access denied"
  *       404:
- *         description: Kategori usaha tidak ditemukan
+ *         description: Business category not found
  *         content:
  *           application/json:
  *             schema:
@@ -160,9 +190,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Kategori usaha tidak ditemukan."
+ *                   example: "Business category not found."
  *       409:
- *         description: Nama kategori usaha sudah ada
+ *         description: Business category name already exists
  *         content:
  *           application/json:
  *             schema:
@@ -170,9 +200,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Nama kategori usaha sudah ada."
+ *                   example: "Business category name already exists."
  *       500:
- *         description: Gagal memperbarui kategori usaha karena kesalahan server
+ *         description: Failed to update business category due to server error
  *         content:
  *           application/json:
  *             schema:
@@ -180,13 +210,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Gagal memperbarui kategori usaha"
+ *                   example: "Failed to update business category"
  *
  *   delete:
- *     summary: Menghapus kategori usaha berdasarkan ID
- *     description: Menghapus kategori usaha berdasarkan ID.
+ *     summary: Delete business category by ID
+ *     description: Delete business category by ID.
  *     tags:
- *       - Kategori Usaha
+ *       - Business Categories
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -195,10 +225,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID kategori usaha yang akan dihapus
+ *         description: Business category ID to delete
  *     responses:
  *       200:
- *         description: Kategori usaha berhasil dihapus
+ *         description: Business category deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -206,9 +236,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Kategori usaha berhasil dihapus."
+ *                   example: "Business category deleted successfully."
  *       400:
- *         description: Format ID tidak valid
+ *         description: Invalid ID format
  *         content:
  *           application/json:
  *             schema:
@@ -216,9 +246,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Format ID tidak valid"
+ *                   example: "Invalid ID format"
  *       401:
- *         description: Token tidak valid atau tidak ada
+ *         description: Invalid or missing token
  *         content:
  *           application/json:
  *             schema:
@@ -226,9 +256,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Token tidak valid"
+ *                   example: "Invalid token"
  *       403:
- *         description: Tidak memiliki akses
+ *         description: Access denied
  *         content:
  *           application/json:
  *             schema:
@@ -236,9 +266,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Anda tidak memiliki akses untuk melakukan operasi ini"
+ *                   example: "Access denied"
  *       404:
- *         description: Kategori usaha tidak ditemukan
+ *         description: Business category not found
  *         content:
  *           application/json:
  *             schema:
@@ -246,9 +276,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Kategori usaha tidak ditemukan."
+ *                   example: "Business category not found."
  *       500:
- *         description: Gagal menghapus kategori usaha
+ *         description: Failed to delete business category
  *         content:
  *           application/json:
  *             schema:
@@ -256,44 +286,46 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Gagal menghapus kategori usaha"
+ *                   example: "Failed to delete business category"
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
   const { id } = await params;
-  if (isNaN(id)) return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
+  if (isNaN(id)) return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
 
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
   if (errorResponse) return errorResponse;
   
   try {
     const body = await request.json();
-    const validationResult = KategoriUsahaSchema.safeParse(body);
+    const validationResult = BusinessCategorySchema.safeParse(body);
     if (!validationResult.success) {
-      return NextResponse.json({ message: "Data tidak valid", errors: validationResult.error.flatten().fieldErrors }, { status: 400 });
+      return NextResponse.json({ message: "Invalid data", errors: validationResult.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const updatedKategori = await prisma.business_categories.update({
+    const updatedBusinessCategory = await prisma.business_categories.update({
       where: { id: Number(id) },
       data: { 
         name: validationResult.data.name,
-        image: validationResult.data.image ?? undefined
+        image: validationResult.data.image ?? undefined,
+        sub_sector_id: validationResult.data.sub_sector_id,
+        description: validationResult.data.description ?? undefined
       }
     });
 
-    return NextResponse.json({ message: "Kategori usaha berhasil diperbarui", data: updatedKategori });
+    return NextResponse.json({ message: "Business category updated successfully", data: updatedBusinessCategory });
 
   } catch (error) {
      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') return NextResponse.json({ message: "Kategori usaha tidak ditemukan." }, { status: 404 });
-        if (error.code === 'P2002') return NextResponse.json({ message: "Nama kategori usaha sudah ada." }, { status: 409 });
+        if (error.code === 'P2025') return NextResponse.json({ message: "Business category not found" }, { status: 404 });
+        if (error.code === 'P2002') return NextResponse.json({ message: "Business category name already exists" }, { status: 409 });
      }
-    return NextResponse.json({ message: "Gagal memperbarui kategori usaha" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to update business category" }, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
   const { id } = await params;
-  if (isNaN(id)) return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
+  if (isNaN(id)) return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
 
   const [, errorResponse] = await authorizeRequest(request, [1, 2]);
   if (errorResponse) return errorResponse;
@@ -302,12 +334,12 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     await prisma.business_categories.delete({
       where: { id: Number(id) }
     });
-    return NextResponse.json({ message: "Kategori usaha berhasil dihapus." });
+    return NextResponse.json({ message: "Business category deleted successfully" });
 
   } catch (error) {
      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        return NextResponse.json({ message: "Kategori usaha tidak ditemukan." }, { status: 404 });
+        return NextResponse.json({ message: "Business category not found" }, { status: 404 });
      }
-    return NextResponse.json({ message: "Gagal menghapus kategori usaha" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to delete business category" }, { status: 500 });
   }
 }

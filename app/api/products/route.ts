@@ -12,7 +12,8 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = parseInt(searchParams.get("limit") || "10", 10);
   const searchQuery = searchParams.get("q");
-  const kategoriUsahaId = searchParams.get("kategori"); // Diubah dari 'subsector'
+  const businessCategoryId = searchParams.get("kategori"); // Changed from 'subsector'
+  const subSectorId = searchParams.get("subsector"); // Add subsector filter
 
   const whereClause: Prisma.productsWhereInput = {};
   if (searchQuery) {
@@ -20,9 +21,13 @@ export async function GET(request: NextRequest) {
       contains: searchQuery
     };
   }
-  // Diubah untuk memfilter berdasarkan business_category_id
-  if (kategoriUsahaId && !isNaN(parseInt(kategoriUsahaId))) {
-    whereClause.business_category_id = parseInt(kategoriUsahaId);
+  // Changed to filter by business_category_id
+  if (businessCategoryId && !isNaN(parseInt(businessCategoryId))) {
+    whereClause.business_category_id = parseInt(businessCategoryId);
+  }
+  // Add filter by sub_sector_id
+  if (subSectorId && !isNaN(parseInt(subSectorId))) {
+    whereClause.sub_sector_id = BigInt(subSectorId);
   }
 
   const skip = (page - 1) * limit;
@@ -34,6 +39,13 @@ export async function GET(request: NextRequest) {
       take: limit,
       include: {
         business_categories: true, // Diubah dari Subsector
+        sub_sectors: {
+          select: {
+            id: true,
+            title: true,
+            slug: true
+          }
+        },
         users: {
           select: {
             name: true
@@ -70,8 +82,8 @@ export async function GET(request: NextRequest) {
  * @swagger
  * /api/products:
  *   get:
- *     summary: Mendapatkan daftar produk
- *     description: Mengambil daftar produk dengan opsi pencarian, filter kategori, dan paginasi.
+ *     summary: Get list of products
+ *     description: Retrieve list of products with search, business category filter, and pagination options.
  *     tags:
  *       - Products
  *     parameters:
@@ -80,26 +92,31 @@ export async function GET(request: NextRequest) {
  *         schema:
  *           type: integer
  *           default: 1
- *         description: Halaman yang ingin diambil
+ *         description: Page number to retrieve
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *           default: 10
- *         description: Jumlah produk per halaman
+ *         description: Number of products per page
  *       - in: query
  *         name: q
  *         schema:
  *           type: string
- *         description: Kata kunci pencarian nama produk
+ *         description: Search keyword for product name
  *       - in: query
  *         name: kategori
  *         schema:
  *           type: integer
- *         description: Filter berdasarkan ID kategori usaha
+ *         description: Filter by business category ID
+ *       - in: query
+ *         name: subsector
+ *         schema:
+ *           type: integer
+ *         description: Filter by subsector ID
  *     responses:
  *       200:
- *         description: Daftar produk berhasil diambil
+ *         description: List of products retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -159,6 +176,9 @@ export async function GET(request: NextRequest) {
  *               business_category_id:
  *                 type: integer
  *                 description: ID kategori usaha
+ *               sub_sector_id:
+ *                 type: integer
+ *                 description: ID subsektor (opsional)
  *               image:
  *                 type: string
  *                 description: URL gambar produk
@@ -247,6 +267,7 @@ export async function POST(request: NextRequest) {
         phone_number: productData.phone_number ?? "",
         user_id: user!.id,
         uploaded_at: new Date(),
+        sub_sector_id: productData.sub_sector_id ? BigInt(productData.sub_sector_id) : null,
       },
     });
 

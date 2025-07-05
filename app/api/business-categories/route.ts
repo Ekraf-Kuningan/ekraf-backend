@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma, { Prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
+import { Prisma } from "@/app/generated/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
-import { z } from "zod";
+import { BusinessCategorySchema } from "@/lib/zod";
 
 /**
  * @swagger
- * /api/kategori-usaha:
+ * /api/business-categories:
  *   get:
- *     summary: Mendapatkan daftar kategori usaha
+ *     summary: Get list of business categories
  *     tags:
- *       - Kategori Usaha
+ *       - Business Categories
  *     responses:
  *       200:
- *         description: Daftar kategori usaha berhasil diambil
+ *         description: Business categories retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -32,8 +33,22 @@ import { z } from "zod";
  *                       image:
  *                         type: string
  *                         nullable: true
+ *                       sub_sector_id:
+ *                         type: integer
+ *                       description:
+ *                         type: string
+ *                         nullable: true
+ *                       sub_sectors:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           title:
+ *                             type: string
+ *                           slug:
+ *                             type: string
  *       500:
- *         description: Gagal mengambil data Kategori Usaha
+ *         description: Failed to retrieve business categories
  *         content:
  *           application/json:
  *             schema:
@@ -42,9 +57,9 @@ import { z } from "zod";
  *                 message:
  *                   type: string
  *   post:
- *     summary: Membuat kategori usaha baru
+ *     summary: Create new business category
  *     tags:
- *       - Kategori Usaha
+ *       - Business Categories
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -60,9 +75,16 @@ import { z } from "zod";
  *               image:
  *                 type: string
  *                 nullable: true
+ *               sub_sector_id:
+ *                 type: integer
+ *                 description: Related subsector ID
+ *               description:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Business category description
  *     responses:
  *       201:
- *         description: Kategori usaha berhasil dibuat
+ *         description: Business category created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -80,8 +102,13 @@ import { z } from "zod";
  *                     image:
  *                       type: string
  *                       nullable: true
+ *                     sub_sector_id:
+ *                       type: integer
+ *                     description:
+ *                       type: string
+ *                       nullable: true
  *       400:
- *         description: Data tidak valid
+ *         description: Invalid data
  *         content:
  *           application/json:
  *             schema:
@@ -92,7 +119,7 @@ import { z } from "zod";
  *                 errors:
  *                   type: object
  *       409:
- *         description: Nama kategori usaha sudah ada
+ *         description: Business category name already exists
  *         content:
  *           application/json:
  *             schema:
@@ -101,7 +128,7 @@ import { z } from "zod";
  *                 message:
  *                   type: string
  *       500:
- *         description: Gagal membuat kategori usaha
+ *         description: Failed to create business category
  *         content:
  *           application/json:
  *             schema:
@@ -112,34 +139,36 @@ import { z } from "zod";
  */
 export async function GET() {
   try {
-    const kategoriUsaha = await prisma.business_categories.findMany({
+    const businessCategories = await prisma.business_categories.findMany({
       orderBy: {
         name: "asc"
       },
       select: {
         id: true,
         name: true,
-        image: true
+        image: true,
+        sub_sector_id: true,
+        description: true,
+        sub_sectors: {
+          select: {
+            id: true,
+            title: true,
+            slug: true
+          }
+        }
       }
     });
     return NextResponse.json({
-      message: "Kategori Usaha berhasil diambil",
-      data: kategoriUsaha
+      message: "Business categories retrieved successfully",
+      data: businessCategories
     });
   } catch {
     return NextResponse.json(
-      { message: "Gagal mengambil data Kategori Usaha" },
+      { message: "Failed to retrieve business categories" },
       { status: 500 }
     );
   }
 }
-
-const KategoriUsahaSchema = z.object({
-  name: z
-    .string()
-    .min(3, { message: "Nama kategori harus memiliki minimal 3 karakter." }),
-  image: z.string().max(255).nullable().optional()
-});
 
 export async function POST(request: NextRequest) {
   const [, errorResponse] = await authorizeRequest(request, [1, 2, 3]);
@@ -147,27 +176,29 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const validationResult = KategoriUsahaSchema.safeParse(body);
+    const validationResult = BusinessCategorySchema.safeParse(body);
 
     if (!validationResult.success) {
       return NextResponse.json(
         {
-          message: "Data tidak valid",
+          message: "Invalid data",
           errors: validationResult.error.flatten().fieldErrors
         },
         { status: 400 }
       );
     }
 
-    const newKategori = await prisma.business_categories.create({
+    const newBusinessCategory = await prisma.business_categories.create({
       data: {
         name: validationResult.data.name,
-        image: validationResult.data.image ?? null
+        image: validationResult.data.image ?? null,
+        sub_sector_id: validationResult.data.sub_sector_id,
+        description: validationResult.data.description ?? null
       }
     });
 
     return NextResponse.json(
-      { message: "Kategori usaha berhasil dibuat", data: newKategori },
+      { message: "Business category created successfully", data: newBusinessCategory },
       { status: 201 }
     );
   } catch (error) {
@@ -176,12 +207,12 @@ export async function POST(request: NextRequest) {
       error.code === "P2002"
     ) {
       return NextResponse.json(
-        { message: "Nama kategori usaha sudah ada." },
+        { message: "Business category name already exists." },
         { status: 409 }
       );
     }
     return NextResponse.json(
-      { message: "Gagal membuat kategori usaha" },
+      { message: "Failed to create business category" },
       { status: 500 }
     );
   }
