@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@/app/generated/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { BusinessCategorySchema } from "@/lib/zod";
+import { prepareForJsonResponse } from "@/lib/bigintUtils";
 
 /**
  * @swagger
@@ -160,7 +161,7 @@ export async function GET() {
     });
     return NextResponse.json({
       message: "Business categories retrieved successfully",
-      data: businessCategories
+      data: prepareForJsonResponse(businessCategories)
     });
   } catch {
     return NextResponse.json(
@@ -198,7 +199,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { message: "Business category created successfully", data: newBusinessCategory },
+      { message: "Business category created successfully", data: prepareForJsonResponse(newBusinessCategory) },
       { status: 201 }
     );
   } catch (error) {

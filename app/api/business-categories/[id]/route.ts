@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@/app/generated/prisma";
 import { authorizeRequest } from "@/lib/auth/authorizeRequest";
 import { BusinessCategorySchema } from "@/lib/zod";
+import { prepareForJsonResponse } from "@/lib/bigintUtils";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
   const { id } = await params;
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!businessCategory) {
       return NextResponse.json({ message: "Business category not found" }, { status: 404 });
     }
-    return NextResponse.json({ message: "Data retrieved successfully", data: businessCategory });
+    return NextResponse.json({ message: "Data retrieved successfully", data: prepareForJsonResponse(businessCategory) });
 
   } catch {
     return NextResponse.json({ message: "Failed to retrieve data" }, { status: 500 });
@@ -312,7 +313,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       }
     });
 
-    return NextResponse.json({ message: "Business category updated successfully", data: updatedBusinessCategory });
+    return NextResponse.json({ message: "Business category updated successfully", data: prepareForJsonResponse(updatedBusinessCategory) });
 
   } catch (error) {
      if (error instanceof Prisma.PrismaClientKnownRequestError) {

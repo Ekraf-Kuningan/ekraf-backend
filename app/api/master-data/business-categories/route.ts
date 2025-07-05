@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { prepareForJsonResponse } from '@/lib/bigintUtils';
 
 /**
  * @swagger
@@ -41,7 +42,12 @@ import prisma from '@/lib/prisma';
 export async function GET() {
   try {
     const businessCategories = await prisma.business_categories.findMany({
-      include: {
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        sub_sector_id: true,
+        description: true,
         sub_sectors: {
           select: {
             id: true,
@@ -49,13 +55,6 @@ export async function GET() {
             slug: true,
             image: true,
             description: true
-          }
-        },
-        _count: {
-          select: {
-            products: true,
-            users: true,
-            temporary_users: true
           }
         }
       },
@@ -66,12 +65,13 @@ export async function GET() {
 
     return NextResponse.json({
       message: 'Business categories fetched successfully',
-      data: businessCategories,
+      data: prepareForJsonResponse(businessCategories),
     });
 
   } catch (error) {
+    console.error('Error fetching business categories:', error);
     return NextResponse.json(
-      { message: 'Failed to fetch business categories', error },
+      { message: 'Failed to fetch business categories', error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
