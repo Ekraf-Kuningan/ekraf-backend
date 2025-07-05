@@ -6,66 +6,48 @@ const path = require('path');
 
 const API_BASE_URL = 'http://localhost:4097/api'; // Assuming your Next.js server runs on this port
 
+// Test configuration
+const TEST_CONFIG = {
+  showResponseData: true,
+  maxResponseLength: 100,
+  retryFailedRequests: false,
+  skipSlowTests: false
+};
+
+// Test statistics
+const testStats = {
+  totalTests: 0,
+  successfulTests: 0,
+  failedTests: 0,
+  startTime: null,
+  endTime: null
+};
+
 let authToken = null;
+let adminToken = null;
+let superAdminToken = null;
 
-// Function to get authentication token
-async function getAuthToken() {
+// Function to get authentication token for different user levels
+async function getAuthTokenForLevel(level = 'umkm') {
+  const users = {
+    'umkm': { username: 'dewani', password: 'dewani123' },
+    'admin': { username: 'admin', password: 'admin123' },
+    'superadmin': { username: 'superadmin', password: 'superadmin123' }
+  };
+
   try {
-    // Try to login with existing user from production data
     const loginData = {
-      usernameOrEmail: 'dewani', // username from production data (user ID 11)
-      password: 'dewani123' // correct password for dewani user
+      usernameOrEmail: users[level].username,
+      password: users[level].password
     };
 
-    try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login/umkm`, loginData);
-      if (response.data && response.data.token) {
-        authToken = response.data.token;
-        console.log('✓ Authentication token obtained');
-        return authToken;
-      }
-    } catch (loginError) {
-      console.log('• Login with existing user failed, trying to register new user...');
+    const response = await axios.post(`${API_BASE_URL}/auth/login/${level}`, loginData);
+    if (response.data && response.data.token) {
+      console.log(`✓ ${level.toUpperCase()} authentication token obtained`);
+      return response.data.token;
     }
-
-    // If login failed, try to register a test user
-    const registerData = {
-      name: 'Test User',
-      username: `testuser_${Date.now()}`,
-      email: `test_${Date.now()}@example.com`,
-      password: 'password123',
-      gender: 'Laki-laki',
-      phone_number: '08123456789',
-      business_name: 'Test Business',
-      business_status: 'BARU',
-      business_category_id: '1'
-    };
-
-    try {
-      await axios.post(`${API_BASE_URL}/auth/register/umkm`, registerData);
-      console.log('✓ Test user registered successfully');
-      
-      // Try to login with new user
-      const newLoginData = {
-        usernameOrEmail: registerData.username,
-        password: registerData.password
-      };
-
-      try {
-        const response = await axios.post(`${API_BASE_URL}/auth/login/umkm`, newLoginData);
-        if (response.data && response.data.token) {
-          authToken = response.data.token;
-          console.log('✓ Authentication token obtained');
-          return authToken;
-        }
-      } catch {
-        console.log('• Login with new user failed');
-      }
-    } catch {
-      console.log('• Test user registration failed (might already exist)');
-    }
-  } catch {
-    console.log('• Could not obtain auth token');
+  } catch (error) {
+    console.log(`• ${level.toUpperCase()} login failed:`, error.response?.data?.message || error.message);
   }
   return null;
 }
@@ -144,14 +126,52 @@ async function testEndpoint(filePath) {
 
 async function testSingleMethod(url, method) {
   console.log(`  Attempting ${method} request...`);
+  
+  // Test with different user levels for protected endpoints
+  const tokensToTest = [
+    { name: 'UMKM', token: authToken },
+    { name: 'Admin', token: adminToken },
+    { name: 'SuperAdmin', token: superAdminToken }
+  ];
+  
+  // For public endpoints, test without auth first
+  if (url.includes('/swagger') || url.includes('/master-data')) {
+    await testWithToken(url, method, null, 'Public');
+    return;
+  }
+  
+  // For auth endpoints, test without token
+  if (url.includes('/auth/')) {
+    await testWithToken(url, method, null, 'Auth');
+    return;
+  }
+  
+  // For protected endpoints, test with all available tokens
+  let anySuccess = false;
+  for (const { name, token } of tokensToTest) {
+    if (token) {
+      const success = await testWithToken(url, method, token, name);
+      if (success) anySuccess = true;
+    }
+  }
+  
+  // If no token worked, try without auth
+  if (!anySuccess) {
+    await testWithToken(url, method, null, 'No Auth');
+  }
+}
+
+async function testWithToken(url, method, token, levelName) {
+  testStats.totalTests++;
+  
   try {
     const config = {
       headers: {}
     };
 
-    // Add auth token if available
-    if (authToken) {
-      config.headers['Authorization'] = `Bearer ${authToken}`;
+    // Add auth token if provided
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
 
     let response;
@@ -172,16 +192,20 @@ async function testSingleMethod(url, method) {
         break;
     }
     
-    console.log(`  ✓ ${method} ${url} - Status: ${response.status}`);
-    if (response.data) {
-      console.log(`    Response: ${JSON.stringify(response.data).substring(0, 100)}...`);
+    testStats.successfulTests++;
+    console.log(`  ✓ ${method} ${url} [${levelName}] - Status: ${response.status}`);
+    if (response.data && TEST_CONFIG.showResponseData) {
+      console.log(`    Response: ${JSON.stringify(response.data).substring(0, TEST_CONFIG.maxResponseLength)}...`);
     }
+    return true;
   } catch (error) {
-    console.error(`  ✗ ${method} ${url} - Error: ${error.message}`);
+    testStats.failedTests++;
+    console.error(`  ✗ ${method} ${url} [${levelName}] - Error: ${error.message}`);
     if (error.response) {
       console.error(`    Status: ${error.response.status}`);
       console.error(`    Data: ${JSON.stringify(error.response.data).substring(0, 200)}...`);
     }
+    return false;
   }
 }
 
@@ -204,10 +228,23 @@ function getTestData(url, method) {
       business_category_id: '1'
     };
   } else if (url.includes('/api/auth/login') && method === 'POST') {
-    return {
-      usernameOrEmail: 'testuser',
-      password: 'password123'
-    };
+    // Return different login data based on URL level
+    if (url.includes('/admin')) {
+      return {
+        usernameOrEmail: 'admin',
+        password: 'admin123'
+      };
+    } else if (url.includes('/superadmin')) {
+      return {
+        usernameOrEmail: 'superadmin',
+        password: 'superadmin123'
+      };
+    } else {
+      return {
+        usernameOrEmail: 'dewani',
+        password: 'dewani123'
+      };
+    }
   } else if (url.includes('/api/auth/forgot-password') && method === 'POST') {
     return {
       email: 'test@example.com'
@@ -253,6 +290,7 @@ function getTestData(url, method) {
 
 async function runAllTests() {
   console.log('🚀 Starting endpoint tests...\n');
+  testStats.startTime = new Date();
   
   console.log('📋 Testing endpoints in logical order...');
   
@@ -265,16 +303,9 @@ async function runAllTests() {
       continue;
     }
     
-    // Special handling for login endpoint - try to get auth token after testing
+    // Special handling for login endpoint - test all user levels
     if (filePath.includes('/auth/login/')) {
-      console.log('\n🔑 Testing login endpoint...');
-      await testEndpoint(filePath);
-      
-      // Try to get auth token for subsequent tests
-      if (!authToken) {
-        console.log('\n� Attempting to get authentication token for remaining tests...');
-        await getAuthToken();
-      }
+      await testAllUserLevels();
       continue;
     }
     
@@ -282,14 +313,48 @@ async function runAllTests() {
     await testEndpoint(filePath);
   }
   
-  console.log('\n✅ All endpoint tests completed.');
-  console.log(`📊 Summary: Tested ${routeFiles.length} endpoints`);
+  testStats.endTime = new Date();
+  const duration = ((testStats.endTime - testStats.startTime) / 1000).toFixed(2);
   
-  if (authToken) {
-    console.log('🔑 Tests completed with authentication token');
-  } else {
-    console.log('⚠️  Tests completed without authentication token');
-  }
+  console.log('\n✅ All endpoint tests completed.');
+  console.log(`📊 Test Summary:`);
+  console.log(`   - Total endpoints: ${routeFiles.length}`);
+  console.log(`   - Total tests: ${testStats.totalTests}`);
+  console.log(`   - Successful: ${testStats.successfulTests} (${((testStats.successfulTests/testStats.totalTests)*100).toFixed(1)}%)`);
+  console.log(`   - Failed: ${testStats.failedTests} (${((testStats.failedTests/testStats.totalTests)*100).toFixed(1)}%)`);
+  console.log(`   - Duration: ${duration} seconds`);
+  
+  const tokenCount = [authToken, adminToken, superAdminToken].filter(Boolean).length;
+  console.log(`🔑 Authentication: ${tokenCount}/3 tokens obtained`);
+  
+  if (authToken) console.log('   - UMKM token: ✅');
+  if (adminToken) console.log('   - Admin token: ✅');
+  if (superAdminToken) console.log('   - SuperAdmin token: ✅');
+}
+
+// Legacy function to get authentication token (for UMKM level)
+async function getAuthToken() {
+  authToken = await getAuthTokenForLevel('umkm');
+  return authToken;
+}
+
+// Test all user levels
+async function testAllUserLevels() {
+  console.log('\n🔑 Testing login for all user levels...');
+  
+  // Test UMKM login
+  authToken = await getAuthTokenForLevel('umkm');
+  
+  // Test Admin login
+  adminToken = await getAuthTokenForLevel('admin');
+  
+  // Test SuperAdmin login
+  superAdminToken = await getAuthTokenForLevel('superadmin');
+  
+  console.log('\n📊 Login Test Results:');
+  console.log(`- UMKM: ${authToken ? '✅ Success' : '❌ Failed'}`);
+  console.log(`- Admin: ${adminToken ? '✅ Success' : '❌ Failed'}`);
+  console.log(`- SuperAdmin: ${superAdminToken ? '✅ Success' : '❌ Failed'}`);
 }
 
 runAllTests();
