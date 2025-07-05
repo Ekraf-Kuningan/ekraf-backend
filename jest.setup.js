@@ -1,5 +1,34 @@
-// Set up environment variables for testing
-process.env.JWT_SECRET = 'test_jwt_secret_for_testing_only';
-process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000/api';
-
-// No database setup needed since tests are fully mocked
+jest.mock('@/lib/prisma', () => ({
+  __esModule: true,
+  prisma: {
+    users: {
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+    products: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+    business_categories: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+    },
+    sub_sectors: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+    },
+    levels: {
+      findMany: jest.fn(),
+    },
+    online_store_links: {
+      create: jest.fn(),
+      delete: jest.fn(),
+    },
+    $disconnect: jest.fn().mockResolvedValue(undefined),
+  },
+}));

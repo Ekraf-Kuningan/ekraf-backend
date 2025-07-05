@@ -14,7 +14,7 @@
     "migrate:deploy": "prisma migrate deploy",
     "studio": "prisma studio",
     "test": "jest --runInBand",
-    "test:setup:db": "dotenv -e .env.test -- npx prisma generate && dotenv -e .env.test -- npx prisma db push --schema=./prisma/schema.prisma --accept-data-loss"
+    "test:setup:db": "dotenv -e .env.test -- npx prisma db push --schema=./prisma/schema.prisma --accept-data-loss"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

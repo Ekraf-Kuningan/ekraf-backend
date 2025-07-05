@@ -2,8 +2,6 @@ import nodemailer from "nodemailer";
 import bcryptjs from "bcryptjs";
 import prisma from "./prisma";
 
-
-
 interface SendEmailParams {
   email: string;
   emailType: "VERIFY" | "RESET";
@@ -13,7 +11,7 @@ interface SendEmailParams {
 export const sendEmail = async ({
   email,
   emailType,
-  userId,
+  userId
 }: SendEmailParams) => {
   try {
     // 1. Buat token unik dan tanggal kedaluwarsa (1 jam dari sekarang)
@@ -28,8 +26,8 @@ export const sendEmail = async ({
         where: { id: userId }, // Di sini userId adalah id dari tbl_user_temp
         data: {
           verificationToken: hashedToken,
-          verificationTokenExpiry: tokenExpiry, // Pastikan kolom ini ada di schema.prisma Anda
-        },
+          verificationTokenExpiry: tokenExpiry // Pastikan kolom ini ada di schema.prisma Anda
+        }
       });
     } else if (emailType === "RESET") {
       // Untuk reset password, kita update tabel user utama
@@ -37,8 +35,8 @@ export const sendEmail = async ({
         where: { id: userId },
         data: {
           resetPasswordToken: hashedToken,
-          resetPasswordTokenExpiry: tokenExpiry, // Pastikan kolom ini ada di schema.prisma Anda
-        },
+          resetPasswordTokenExpiry: tokenExpiry // Pastikan kolom ini ada di schema.prisma Anda
+        }
       });
     }
 
@@ -49,18 +47,22 @@ export const sendEmail = async ({
       secure: process.env.MAIL_SECURE === "true",
       auth: {
         user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASSWORD,
-      },
+        pass: process.env.MAIL_PASSWORD
+      }
     });
 
     // 4. Siapkan konten email dinamis berdasarkan tipe
     const isVerify = emailType === "VERIFY";
     const subject = isVerify ? "Verifikasi Email Anda" : "Reset Password Anda";
-    const actionText = isVerify ? "memverifikasi email Anda" : "mereset password Anda";
-    
-    // Link untuk frontend web
-    const webUrl = `${process.env.NEXT_PUBLIC_URL}/${isVerify ? 'api/auth/verify' : 'reset-password'}?token=${hashedToken}`;
+    const actionText = isVerify
+      ? "memverifikasi email Anda"
+      : "mereset password Anda";
 
+    // Link untuk frontend web
+    const webUrl = `${process.env.NEXT_PUBLIC_URL}/${
+      isVerify ? "api/auth/verify" : "reset-password"
+    }?token=${hashedToken}`;
+    console.log(`[MAILER] Link untuk testing (${emailType}): ${webUrl}`);
     const htmlContent = `
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 480px; margin: 40px auto; padding: 32px 28px; border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.04);">
       <h2 style="color: #2563eb; margin-bottom: 18px; font-size: 1.5em;">${subject}</h2>
@@ -78,15 +80,16 @@ export const sendEmail = async ({
     `;
 
     const mailOptions = {
-      from: `Notifikasi <noreply@${process.env.MAIL_HOST?.split('.').slice(-2).join('.')}>`,
+      from: `Notifikasi <noreply@${process.env.MAIL_HOST?.split(".")
+        .slice(-2)
+        .join(".")}>`,
       to: email,
       subject: subject,
-      html: htmlContent,
+      html: htmlContent
     };
 
     const mailresponse = await transporter.sendMail(mailOptions);
     return mailresponse;
-
   } catch (error: unknown) {
     if (error instanceof Error) {
       // Memberi konteks lebih pada error

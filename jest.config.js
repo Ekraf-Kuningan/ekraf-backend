@@ -5,5 +5,7 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFiles: ['dotenv/config'],
+  globalSetup: '<rootDir>/jest.setup.new.js',
+  globalTeardown: '<rootDir>/jest.teardown.js',
 };

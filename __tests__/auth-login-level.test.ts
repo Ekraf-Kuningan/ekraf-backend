@@ -1,3 +1,11 @@
+jest.mock('process', () => ({
+  ...jest.requireActual('process'),
+  env: {
+    ...jest.requireActual('process').env,
+    JWT_SECRET: 'test_jwt_secret',
+  },
+}));
+
 import { POST } from '../app/api/auth/login/[level]/route';
 import { prisma } from '../lib/prisma';
 import { NextRequest } from 'next/server';
@@ -25,16 +33,6 @@ jest.mock('bcryptjs', () => ({
 
 // Mock console.error to avoid noise in test output
 jest.spyOn(console, 'error').mockImplementation(() => {});
-
-// Mock environment variable
-const originalJWTSecret = process.env.JWT_SECRET;
-beforeAll(() => {
-  process.env.JWT_SECRET = 'test_jwt_secret';
-});
-
-afterAll(() => {
-  process.env.JWT_SECRET = originalJWTSecret;
-});
 
 describe('POST /api/auth/login/[level]', () => {
   beforeEach(() => {
@@ -290,7 +288,7 @@ describe('POST /api/auth/login/[level]', () => {
         level: 'admin',
         email: 'john@example.com',
       },
-      'test_jwt_secret_for_testing_only',
+      process.env.JWT_SECRET,
       { expiresIn: '365d' }
     );
   });
