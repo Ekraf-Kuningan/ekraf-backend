@@ -10,7 +10,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (isNaN(id)) return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
 
   try {
-    const businessCategory = await prisma.business_categories.findUnique({
+    const businessCategory = await prisma!.business_categories.findUnique({
       where: { id: Number(id) },
       include: {
         sub_sectors: {
@@ -303,7 +303,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ message: "Invalid data", errors: validationResult.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const updatedBusinessCategory = await prisma.business_categories.update({
+    const updatedBusinessCategory = await prisma!.business_categories.update({
       where: { id: Number(id) },
       data: { 
         name: validationResult.data.name,
@@ -332,13 +332,13 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   if (errorResponse) return errorResponse;
 
   try {
-    await prisma.business_categories.delete({
+    await prisma!.business_categories.delete({
       where: { id: Number(id) }
     });
     return NextResponse.json({ message: "Business category deleted successfully" });
 
   } catch (error) {
-     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+     if (error instanceof Prisma.PrismaClientKnownRequestError) {
         return NextResponse.json({ message: "Business category not found" }, { status: 404 });
      }
     return NextResponse.json({ message: "Failed to delete business category" }, { status: 500 });

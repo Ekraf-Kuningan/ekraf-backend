@@ -41,7 +41,7 @@ import { prepareForJsonResponse } from '@/lib/bigintUtils';
  */
 export async function GET() {
   try {
-    const businessCategories = await prisma.business_categories.findMany({
+    const businessCategories = await prisma!.business_categories.findMany({
       select: {
         id: true,
         name: true,

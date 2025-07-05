@@ -144,7 +144,7 @@ export async function GET(
   }
 
   try {
-    const user = await prisma.users.findUnique({
+    const user = await prisma!.users.findUnique({
       where: { id: Number(id) },
       include: {
         levels: {
@@ -218,7 +218,7 @@ export async function PUT(
       return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
     }
 
-    const updatedUser = await prisma.users.update({
+    const updatedUser = await prisma!.users.update({
       where: { id: Number(id) },
       data: updateData
     });
@@ -261,7 +261,7 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    await prisma.users.delete({
+    await prisma!.users.delete({
       where: { id: Number(id) }
     });
     return NextResponse.json({ message: "User deleted successfully" });

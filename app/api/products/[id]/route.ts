@@ -178,7 +178,7 @@ export async function GET(
   }
 
   try {
-    const product = await prisma.products.findUnique({
+    const product = await prisma!.products.findUnique({
       where: { id: Number(id) },
       include: {
         business_categories: {
@@ -260,7 +260,7 @@ export async function PUT(
     );
 
   try {
-    const productToUpdate = await prisma.products.findUnique({
+    const productToUpdate = await prisma!.products.findUnique({
       where: { id: Number(id) },
       select: { user_id: true }
     });
@@ -309,7 +309,7 @@ export async function PUT(
       );
     }
 
-    const updatedProduct = await prisma.products.update({
+    const updatedProduct = await prisma!.products.update({
       where: { id: Number(id) },
       data: dataToUpdate // Langsung gunakan data yang sudah tervalidasi
     });
@@ -349,7 +349,7 @@ export async function DELETE(
     );
 
   try {
-    const productToDelete = await prisma.products.findUnique({
+    const productToDelete = await prisma!.products.findUnique({
       where: { id: Number(id) },
       select: { user_id: true }
     });
@@ -374,11 +374,11 @@ export async function DELETE(
       );
     }
 
-    await prisma.online_store_links.deleteMany({
+    await prisma!.online_store_links.deleteMany({
       where: { product_id: Number(id) }
     });
 
-    await prisma.products.delete({
+    await prisma!.products.delete({
       where: { id: Number(id) }
     });
 

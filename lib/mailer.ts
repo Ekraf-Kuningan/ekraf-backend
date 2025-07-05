@@ -22,7 +22,7 @@ export const sendEmail = async ({
     // 2. Simpan token ke database yang sesuai
     if (emailType === "VERIFY") {
       // Untuk verifikasi, kita update tabel user sementara (temp)
-      await prisma.temporary_users.update({
+      await prisma!.temporary_users.update({
         where: { id: userId }, // Di sini userId adalah id dari tbl_user_temp
         data: {
           verificationToken: hashedToken,
@@ -31,7 +31,7 @@ export const sendEmail = async ({
       });
     } else if (emailType === "RESET") {
       // Untuk reset password, kita update tabel user utama
-      await prisma.users.update({
+      await prisma!.users.update({
         where: { id: userId },
         data: {
           resetPasswordToken: hashedToken,
@@ -97,4 +97,4 @@ export const sendEmail = async ({
     }
     throw error;
   }
-};
+}

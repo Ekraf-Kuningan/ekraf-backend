@@ -77,7 +77,7 @@ export async function GET(
     );
   }
   try {
-    const articles = await prisma.artikels.findMany({
+    const articles = await prisma!.artikels.findMany({
       where: { author_id: Number(userId) },
       orderBy: {
         created_at: "desc"

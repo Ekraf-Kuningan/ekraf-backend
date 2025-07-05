@@ -41,7 +41,7 @@ import { prepareForJsonResponse } from '@/lib/bigintUtils';
  */
 export async function GET() {
   try {
-    const userLevels = await prisma.levels.findMany({
+    const userLevels = await prisma!.levels.findMany({
       include: {
         _count: {
           select: {

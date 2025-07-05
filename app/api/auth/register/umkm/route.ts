@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
         }
     }
 
-    const existingUser = await prisma.users.findFirst({
+    const existingUser = await prisma!.users.findFirst({
       where: { OR: [{ username }, { email }] },
     });
 
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingTempUser = await prisma.temporary_users.findFirst({
+    const existingTempUser = await prisma!.temporary_users.findFirst({
       where: { OR: [{ username }, { email }] },
     });
 
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationTokenExpiry = new Date(Date.now() + 3600000);
 
-    const newUserTemp = await prisma.temporary_users.create({
+    const newUserTemp = await prisma!.temporary_users.create({
       data: {
         name,
         username,
@@ -211,6 +211,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect().catch(console.error);
+    await prisma!.$disconnect().catch(console.error);
   }
 }

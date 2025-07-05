@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const tempUser = await prisma.temporary_users.findFirst({
+    const tempUser = await prisma!.temporary_users.findFirst({
       where: {
         verificationToken: token,
       },
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const expirationTime = new Date(tempUser.createdAt.getTime() + 5 * 60 * 1000);
     if (new Date() > expirationTime) {
       // Secara opsional, hapus token yang sudah kedaluwarsa di sini
-      await prisma.temporary_users.delete({
+      await prisma!.temporary_users.delete({
         where: { id: tempUser.id },
       });
       return NextResponse.json(
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    await prisma.users.create({
+    await prisma!.users.create({
       data: {
         name: tempUser.name,
         username: tempUser.username,
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    await prisma.temporary_users.delete({
+    await prisma!.temporary_users.delete({
       where: { id: tempUser.id },
     });
 
@@ -130,6 +130,6 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect().catch(console.error);
+    await prisma!.$disconnect().catch(console.error);
   }
 }

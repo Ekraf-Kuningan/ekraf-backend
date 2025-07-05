@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   const skip = (page - 1) * limit;
 
   try {
-    const articles = await prisma.artikels.findMany({
+    const articles = await prisma!.artikels.findMany({
       skip: skip,
       take: limit,
       include: {
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const totalArticles = await prisma.artikels.count();
+    const totalArticles = await prisma!.artikels.count();
 
     return NextResponse.json({
       message: "Articles fetched successfully",
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
 
     const slug = generateSlug(title);
 
-    const newArticle = await prisma.artikels.create({
+    const newArticle = await prisma!.artikels.create({
       data: {
         title,
         content,

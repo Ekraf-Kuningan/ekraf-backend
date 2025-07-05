@@ -8,7 +8,7 @@ async function validateToken(token: string) {
     if (!token) return null;
 
     try {
-        const user = await prisma.users.findFirst({
+        const user = await prisma!.users.findFirst({
             where: {
                 resetPasswordToken: token,
                 resetPasswordTokenExpiry: {
@@ -21,7 +21,7 @@ async function validateToken(token: string) {
         console.error('Error validating token:', error);
         return null;
     } finally {
-        await prisma.$disconnect();
+        await prisma!.$disconnect();
     }
 }
 

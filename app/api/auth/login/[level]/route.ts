@@ -171,7 +171,7 @@ export async function POST(
   }
 
   try {
-    const user = await prisma.users.findFirst({
+    const user = await prisma!.users.findFirst({
       where: {
         AND: [
           {
@@ -242,6 +242,6 @@ export async function POST(
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect().catch(console.error);
+    await prisma!.$disconnect().catch(console.error);
   }
 }

@@ -68,7 +68,7 @@ export async function GET(
   }
 
   try {
-    const products = await prisma.products.findMany({
+    const products = await prisma!.products.findMany({
       where: { user_id: Number(id) },
       include: {
         business_categories: {

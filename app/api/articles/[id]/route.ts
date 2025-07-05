@@ -161,7 +161,7 @@ export async function GET(
   }
 
   try {
-    const article = await prisma.artikels.findUnique({
+    const article = await prisma!.artikels.findUnique({
       where: { id: Number(id) },
       include: {
         users: {
@@ -212,7 +212,7 @@ export async function PUT(
     const body = await request.json();
     const { title, content, thumbnail } = body;
 
-    const updatedArticle = await prisma.artikels.update({
+    const updatedArticle = await prisma!.artikels.update({
       where: { id: Number(id) },
       data: {
         title,
@@ -249,7 +249,7 @@ export async function DELETE(
   }
   const { id } = await params;
   try {
-    await prisma.artikels.delete({
+    await prisma!.artikels.delete({
       where: { id: Number(id) },
     });
 

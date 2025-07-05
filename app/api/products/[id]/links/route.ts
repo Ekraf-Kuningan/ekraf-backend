@@ -21,7 +21,7 @@ export async function GET(
   }
 
   try {
-    const links = await prisma.online_store_links.findMany({
+    const links = await prisma!.online_store_links.findMany({
       where: { product_id: Number(id) }
     });
     return NextResponse.json({
@@ -116,7 +116,6 @@ export async function GET(
  *                   example: Failed to create link
  *                 error:
  *                   type: string
- *                   example: Error details
  */
 export async function POST(request: NextRequest, 
   { params }: { params: Promise<{ id: number }> }
@@ -146,7 +145,7 @@ export async function POST(request: NextRequest,
       );
     }
 
-    const newLink = await prisma.online_store_links.create({
+    const newLink = await prisma!.online_store_links.create({
       data: {
         product_id: Number(id),
         platform_name,

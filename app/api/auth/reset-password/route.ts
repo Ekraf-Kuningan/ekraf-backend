@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Cari user berdasarkan token dan pastikan token belum kedaluwarsa
-    const user = await prisma.users.findFirst({
+    const user = await prisma!.users.findFirst({
       where: {
         resetPasswordToken: token,
         resetPasswordTokenExpiry: {
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await hashPassword(password);
 
     // Update password with hash and remove reset token
-    await prisma.users.update({
+    await prisma!.users.update({
       where: { id: user.id },
       data: {
         password: hashedPassword,
@@ -102,7 +102,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect().catch(console.error);
+    await prisma!.$disconnect().catch(console.error);
   }
 }
-

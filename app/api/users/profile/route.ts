@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const userProfile = await prisma.users.findUnique({
+    const userProfile = await prisma!.users.findUnique({
       where: { id: user?.id },
       select: {
         id: true,

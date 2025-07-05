@@ -140,7 +140,7 @@ import { prepareForJsonResponse } from "@/lib/bigintUtils";
  */
 export async function GET() {
   try {
-    const businessCategories = await prisma.business_categories.findMany({
+    const businessCategories = await prisma!.business_categories.findMany({
       orderBy: {
         name: "asc"
       },
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newBusinessCategory = await prisma.business_categories.create({
+    const newBusinessCategory = await prisma!.business_categories.create({
       data: {
         name: validationResult.data.name,
         image: validationResult.data.image ?? null,

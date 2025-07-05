@@ -120,7 +120,7 @@ const SubsectorSchema = z.object({
  */
 export async function GET() {
   try {
-    const subsectors = await prisma.sub_sectors.findMany({
+    const subsectors = await prisma!.sub_sectors.findMany({
       include: {
         business_categories: {
           select: {
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Data tidak valid", errors: validationResult.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const newSubsector = await prisma.sub_sectors.create({
+    const newSubsector = await prisma!.sub_sectors.create({
       data: {
         title: validationResult.data.title,
         slug: generateSlug(validationResult.data.title), // Generate slug from title

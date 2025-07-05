@@ -6,14 +6,14 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-let prisma: PrismaClient;
+let prisma: PrismaClient | undefined;
 
 if (process.env.NODE_ENV === "production") {
   prisma = new PrismaClient();
 } else if (process.env.NODE_ENV === "test") {
   // In test environment, we don't want to connect to a real database
   // The tests will mock the prisma client
-  prisma = undefined as any; // This will be overridden by the mock
+  prisma = undefined; // This will be overridden by the mock
 } else {
   if (!global.prisma) {
     global.prisma = new PrismaClient();

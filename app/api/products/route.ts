@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
   const skip = (page - 1) * limit;
 
   try {
-    const products = await prisma.products.findMany({
+    const products = await prisma!.products.findMany({
       where: whereClause,
       skip: skip,
       take: limit,
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const totalProducts = await prisma.products.count({
+    const totalProducts = await prisma!.products.count({
       where: whereClause
     });
 
@@ -260,7 +260,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // 4. Logika upload ke CDN dihapus. Langsung simpan ke database.
-    const newProduct = await prisma.products.create({
+    const newProduct = await prisma!.products.create({
       data: {
         ...productData,
         description: productData.description ?? "",

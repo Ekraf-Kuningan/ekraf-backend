@@ -117,7 +117,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (isNaN(id)) return NextResponse.json({ message: "Format ID tidak valid" }, { status: 400 });
 
   try {
-    const subsector = await prisma.sub_sectors.findUnique({
+    const subsector = await prisma!.sub_sectors.findUnique({
       where: { id: Number(id) },
       include: {
         business_categories: {
@@ -166,7 +166,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ message: "Data tidak valid", errors: validationResult.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const updatedSubsector = await prisma.sub_sectors.update({
+    const updatedSubsector = await prisma!.sub_sectors.update({
       where: { id: Number(id) },
       data: { title: validationResult.data.title }
     });
@@ -190,13 +190,13 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   if (errorResponse) return errorResponse;
 
   try {
-    await prisma.sub_sectors.delete({
+    await prisma!.sub_sectors.delete({
       where: { id: Number(id) }
     });
     return NextResponse.json({ message: "Subsector berhasil dihapus." });
 
   } catch (error) {
-     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+     if (error instanceof Prisma.PrismaClientKnownRequestError) {
         return NextResponse.json({ message: "Subsector tidak ditemukan." }, { status: 404 });
      }
     return NextResponse.json({ message: "Gagal menghapus subsektor" }, { status: 500 });

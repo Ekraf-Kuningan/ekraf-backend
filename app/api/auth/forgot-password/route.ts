@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await prisma.users.findFirst({
+    const user = await prisma!.users.findFirst({
       where: { email: email },
     });
 
@@ -81,6 +81,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect().catch(console.error);
+    await prisma!.$disconnect().catch(console.error);
   }
 }
