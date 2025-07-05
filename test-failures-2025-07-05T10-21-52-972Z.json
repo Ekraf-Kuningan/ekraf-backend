@@ -1,0 +1,1030 @@
+{
+  "timestamp": "2025-07-05T10:21:52.972Z",
+  "summary": {
+    "totalFailed": 83,
+    "totalRetried": 166
+  },
+  "failedTests": [
+    {
+      "endpoint": "GET http://localhost:4097/api/auth/verify",
+      "level": "Auth",
+      "error": "Request failed with status code 400",
+      "statusCode": 400,
+      "data": {
+        "message": "Token verifikasi tidak ditemukan."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:30.791Z"
+    },
+    {
+      "endpoint": "POST http://localhost:4097/api/auth/reset-password",
+      "level": "Auth",
+      "error": "Request failed with status code 400",
+      "statusCode": 400,
+      "data": {
+        "message": "Token tidak valid atau sudah kedaluwarsa."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:34.122Z"
+    },
+    {
+      "endpoint": "POST http://localhost:4097/api/subsectors",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:37.701Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/subsectors/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Subsector tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:40.446Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/subsectors/1",
+      "level": "Admin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Subsector tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:42.978Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/subsectors/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Subsector tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:45.730Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/subsectors/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Subsector tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:48.002Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/subsectors/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:50.181Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/subsectors/1",
+      "level": "Admin",
+      "error": "Request failed with status code 400",
+      "statusCode": 400,
+      "data": {
+        "message": "Data tidak valid",
+        "errors": {
+          "title": [
+            "Required"
+          ]
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:52.374Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/subsectors/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 400",
+      "statusCode": 400,
+      "data": {
+        "message": "Data tidak valid",
+        "errors": {
+          "title": [
+            "Required"
+          ]
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:54.539Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/subsectors/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:56.708Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/subsectors/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:18:58.868Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/subsectors/1",
+      "level": "Admin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Subsector tidak ditemukan."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:01.958Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/subsectors/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Subsector tidak ditemukan."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:04.484Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/subsectors/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:06.659Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/business-categories/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:11.174Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/business-categories/1",
+      "level": "Admin",
+      "error": "Request failed with status code 400",
+      "statusCode": 400,
+      "data": {
+        "message": "Invalid data",
+        "errors": {
+          "sub_sector_id": [
+            "Invalid subsector."
+          ]
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:13.447Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/business-categories/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 400",
+      "statusCode": 400,
+      "data": {
+        "message": "Invalid data",
+        "errors": {
+          "sub_sector_id": [
+            "Invalid subsector."
+          ]
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:15.719Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/business-categories/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:17.925Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/business-categories/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:20.104Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/business-categories/1",
+      "level": "Admin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to delete business category"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:22.746Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/business-categories/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to delete business category"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:25.288Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/business-categories/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:27.448Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/products/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Produk tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:31.895Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/products/1",
+      "level": "Admin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Produk tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:34.213Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/products/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Produk tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:36.667Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/products/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Produk tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:38.998Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/products/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Produk tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:41.650Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/products/1",
+      "level": "Admin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Produk tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:43.976Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/products/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Produk tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:46.480Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/products/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:48.648Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/products/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Produk tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:51.095Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/products/1",
+      "level": "Admin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Produk tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:53.450Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/products/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Produk tidak ditemukan"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:55.805Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/products/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:19:57.980Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/products/1/links",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:00.159Z"
+    },
+    {
+      "endpoint": "POST http://localhost:4097/api/products/1/links",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:02.532Z"
+    },
+    {
+      "endpoint": "POST http://localhost:4097/api/products/1/links",
+      "level": "Admin",
+      "error": "Request failed with status code 400",
+      "statusCode": 400,
+      "data": {
+        "message": "Required fields missing"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:04.702Z"
+    },
+    {
+      "endpoint": "POST http://localhost:4097/api/products/1/links",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 400",
+      "statusCode": 400,
+      "data": {
+        "message": "Required fields missing"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:06.886Z"
+    },
+    {
+      "endpoint": "POST http://localhost:4097/api/products/1/links",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:09.059Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/products/1/links/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:11.239Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/products/1/links/1",
+      "level": "Admin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to update link",
+        "error": {
+          "name": "PrismaClientValidationError",
+          "clientVersion": "6.9.0"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:13.490Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/products/1/links/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to update link",
+        "error": {
+          "name": "PrismaClientValidationError",
+          "clientVersion": "6.9.0"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:15.690Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/products/1/links/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:17.868Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/products/1/links/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:20.041Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/products/1/links/1",
+      "level": "Admin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to delete link",
+        "error": {
+          "code": "P2025",
+          "meta": {
+            "modelName": "online_store_links",
+            "cause": "No record was found for a delete."
+          },
+          "clientVersion": "6.9.0",
+          "name": "PrismaClientKnownRequestError"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:23.149Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/products/1/links/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to delete link",
+        "error": {
+          "code": "P2025",
+          "meta": {
+            "modelName": "online_store_links",
+            "cause": "No record was found for a delete."
+          },
+          "clientVersion": "6.9.0",
+          "name": "PrismaClientKnownRequestError"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:25.665Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/products/1/links/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:27.832Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/articles",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:29.986Z"
+    },
+    {
+      "endpoint": "POST http://localhost:4097/api/articles",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:33.048Z"
+    },
+    {
+      "endpoint": "POST http://localhost:4097/api/articles",
+      "level": "Admin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to create article",
+        "error": {
+          "name": "PrismaClientValidationError",
+          "clientVersion": "6.9.0"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:35.202Z"
+    },
+    {
+      "endpoint": "POST http://localhost:4097/api/articles",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to create article",
+        "error": {
+          "name": "PrismaClientValidationError",
+          "clientVersion": "6.9.0"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:37.367Z"
+    },
+    {
+      "endpoint": "POST http://localhost:4097/api/articles",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:39.516Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/articles/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:41.688Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/articles/1",
+      "level": "Admin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Article with ID 1 not found"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:43.976Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/articles/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "Article with ID 1 not found"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:46.254Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/articles/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:48.422Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/articles/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:50.606Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/articles/1",
+      "level": "Admin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to update article with ID 1",
+        "error": {
+          "code": "P2025",
+          "meta": {
+            "modelName": "artikels",
+            "cause": "No record was found for an update."
+          },
+          "clientVersion": "6.9.0",
+          "name": "PrismaClientKnownRequestError"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:54.730Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/articles/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to update article with ID 1",
+        "error": {
+          "code": "P2025",
+          "meta": {
+            "modelName": "artikels",
+            "cause": "No record was found for an update."
+          },
+          "clientVersion": "6.9.0",
+          "name": "PrismaClientKnownRequestError"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:57.368Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/articles/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:20:59.547Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/articles/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:01.734Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/articles/1",
+      "level": "Admin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to delete article with ID 1",
+        "error": {
+          "code": "P2025",
+          "meta": {
+            "modelName": "artikels",
+            "cause": "No record was found for a delete."
+          },
+          "clientVersion": "6.9.0",
+          "name": "PrismaClientKnownRequestError"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:04.269Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/articles/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to delete article with ID 1",
+        "error": {
+          "code": "P2025",
+          "meta": {
+            "modelName": "artikels",
+            "cause": "No record was found for a delete."
+          },
+          "clientVersion": "6.9.0",
+          "name": "PrismaClientKnownRequestError"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:06.702Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/articles/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:08.871Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/users",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:11.028Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/users/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:14.137Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/users/1",
+      "level": "Admin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "User not found"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:16.574Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/users/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 404",
+      "statusCode": 404,
+      "data": {
+        "message": "User not found"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:19.137Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/users/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:21.322Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/users/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:23.500Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/users/1",
+      "level": "Admin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to update user"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:26.987Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/users/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to update user"
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:30.250Z"
+    },
+    {
+      "endpoint": "PUT http://localhost:4097/api/users/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:32.440Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/users/1",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Anda tidak memiliki izin untuk mengakses sumber daya ini."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:34.605Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/users/1",
+      "level": "Admin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to delete user",
+        "error": {
+          "code": "P2025",
+          "meta": {
+            "modelName": "users",
+            "cause": "No record was found for a delete."
+          },
+          "clientVersion": "6.9.0",
+          "name": "PrismaClientKnownRequestError"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:37.154Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/users/1",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 500",
+      "statusCode": 500,
+      "data": {
+        "message": "Failed to delete user",
+        "error": {
+          "code": "P2025",
+          "meta": {
+            "modelName": "users",
+            "cause": "No record was found for a delete."
+          },
+          "clientVersion": "6.9.0",
+          "name": "PrismaClientKnownRequestError"
+        }
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:39.624Z"
+    },
+    {
+      "endpoint": "DELETE http://localhost:4097/api/users/1",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:41.797Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/users/1/articles",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Forbidden: You can only access your own articles."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:43.980Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/users/1/articles",
+      "level": "Admin",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Forbidden: You can only access your own articles."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:46.154Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/users/1/articles",
+      "level": "SuperAdmin",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Forbidden: You can only access your own articles."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:48.348Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/users/1/articles",
+      "level": "No Auth",
+      "error": "Request failed with status code 401",
+      "statusCode": 401,
+      "data": {
+        "message": "Tidak ada token otorisasi atau format salah."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:50.548Z"
+    },
+    {
+      "endpoint": "GET http://localhost:4097/api/users/1/products",
+      "level": "UMKM",
+      "error": "Request failed with status code 403",
+      "statusCode": 403,
+      "data": {
+        "message": "Forbidden: You can only access your own products."
+      },
+      "retryCount": 2,
+      "timestamp": "2025-07-05T10:21:52.742Z"
+    }
+  ]
+}
