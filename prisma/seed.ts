@@ -9,9 +9,9 @@ async function main() {
   console.log('📊 Seeding levels...');
   await prisma.levels.createMany({
     data: [
-      { id: 1, name: 'superadmin', created_at: null, updated_at: null },
-      { id: 2, name: 'admin', created_at: null, updated_at: null },
-      { id: 3, name: 'user', created_at: null, updated_at: null }
+      { id: 1, name: 'superadmin', created_at: new Date(), updated_at: new Date() },
+      { id: 2, name: 'admin', created_at: new Date(), updated_at: new Date() },
+      { id: 3, name: 'user', created_at: new Date(), updated_at: new Date() }
     ],
     skipDuplicates: true,
   });
@@ -55,9 +55,9 @@ async function main() {
   console.log('🏪 Seeding business_categories...');
   await prisma.business_categories.createMany({
     data: [
-      { id: 1, name: 'Kuliner', image: 'images/kategori/kuliner.png', sub_sector_id: 37, description: null, created_at: null, updated_at: null },
-      { id: 2, name: 'Fashion', image: 'images/kategori/fashion.png', sub_sector_id: 33, description: null, created_at: null, updated_at: null },
-      { id: 4, name: 'Kerajinan Tangan', image: 'images/kategori/kerajinan.png', sub_sector_id: 36, description: null, created_at: null, updated_at: null }
+      { id: 1, name: 'Kuliner', image: 'images/kategori/kuliner.png', sub_sector_id: 37, description: null, created_at: new Date(), updated_at: new Date() },
+      { id: 2, name: 'Fashion', image: 'images/kategori/fashion.png', sub_sector_id: 33, description: null, created_at: new Date(), updated_at: new Date() },
+      { id: 4, name: 'Kerajinan Tangan', image: 'images/kategori/kerajinan.png', sub_sector_id: 36, description: null, created_at: new Date(), updated_at: new Date() }
     ],
     skipDuplicates: true,
   });
@@ -87,8 +87,8 @@ async function main() {
       icon: null,
       description: null,
       color: null,
-      created_at: null,
-      updated_at: null,
+      created_at: new Date(), // Changed to new Date()
+      updated_at: new Date(), // Changed to new Date()
     })),
     skipDuplicates: true,
   });
