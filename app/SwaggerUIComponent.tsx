@@ -5,7 +5,7 @@ import type { OpenAPIV3 } from 'openapi-types';
 import { useTheme } from 'next-themes';
 import 'swagger-ui-dist/swagger-ui.css';
 import './swagger-dark.css';
-// @ts-expect-error: No official types for swagger-ui-dist bundleaa
+// @ts-expect-error: No official types for swagger-ui-dist bundleaaa
 import { SwaggerUIBundle } from 'swagger-ui-dist';
 
 interface SwaggerUIComponentProps {
