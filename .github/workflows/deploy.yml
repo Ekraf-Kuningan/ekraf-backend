@@ -72,7 +72,8 @@ jobs:
           password: ${{ secrets.VPS_SSH_PASSWORD }} # Menggunakan password
           port: 22
           script: |
-            export PATH=$PATH:/root/.local/share/pnpm # Tambahkan ini jika pm2 ada di path ini dan dibutuhkan
+            export PATH=$PATH:/root/.local/share/pnpm
+            export PATH=$PATH:/home/asephs/.nvm/versions/node/v22.17.1/bin
             cd ${{ secrets.VPS_TARGET_PATH }}
             git pull origin main || true # Pastikan untuk menarik perubahan terbaru jika ada
             git reset --hard origin/main || true # Pastikan untuk menarik perubahan terbaru jika ada
